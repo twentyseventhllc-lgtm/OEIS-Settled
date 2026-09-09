@@ -1,0 +1,126 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\setlength{\parskip}{2pt}
+\title{A proof of the conjectured linear recurrence and generating function for OEIS A274723}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
+\date{09 September 2026}
+\begin{document}
+\maketitle
+\section{The conjecture}
+
+The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A274723}{A274723} as
+
+\begin{quote}\itshape Number of n X 3 0..2 arrays with no element equal to any value at offset (-1,-2) (-2,-1) or (-1,0) and new values introduced in order 0..2\end{quote}
+
+and carries in its Formula section the lines:
+
+\begin{quote}\ttfamily Empirical: a(n) = 3*a(n-1) + 4*a(n-2) + a(n-3) - 3*a(n-4) - 4*a(n-5) for n>7.\end{quote}
+
+\begin{quote}\ttfamily Empirical g.f.: x*(5 + 9*x - 24*x\textasciicircum{}2 - 45*x\textasciicircum{}3 - 21*x\textasciicircum{}4 - 4*x\textasciicircum{}5 + 8*x\textasciicircum{}6) / ((1 - x)*(1 + x)*(1 - 4*x)*(1 + x + x\textasciicircum{}2)). - Colin Barker, Jan 30 2019\end{quote}
+
+That line carries no separate signature; the entry itself is by R. H. Hardin (Jul 03 2016).
+
+The line quoted ending in that signature is contributed by Colin Barker on Jan 30 2019.
+
+The word {\itshape Empirical} --- equivalently {\itshape Conjecture} --- is the entry's own: the statement is recorded as fitted to the published terms, and no proof is given there. As of revision 8, last modified Jan 30 2019, the entry records no proof and links to none, so the statement is open. This note settles it.
+
+Written out, the claim is
+
+\[a(n) = 3\,a(n-1) + 4\,a(n-2) + a(n-3) - 3\,a(n-4) - 4\,a(n-5).\]
+
+stated for $n > 7$.
+
+Written out, the claim is
+
+\[\sum_{n \ge 1} a(n)\,x^n \;=\; \frac{5x + 9x^{2} - 24x^{3} - 45x^{4} - 21x^{5} - 4x^{6} + 8x^{7}}{1 - 3x - 4x^{2} - x^{3} + 3x^{4} + 4x^{5}}.\]
+
+\section{The object}
+
+The name is read as follows. The reading is not a guess: it is pinned against the entry's own published terms, and against an independent enumeration, before anything is proved (Section 7).
+
+Let $A$ be an $n' \times 3$ array over $\{0,\dots,2\}$ with $n' = n$ rows.
+
+The entry's offsets are (-1,-2), (-2,-1), (-1,0). The condition is
+
+\[A[i][j] \ne A[i{+}\delta][j{+}\varepsilon]\quad\text{for every listed }(\delta,\varepsilon)\text{ landing inside the array.}\]
+
+An offset and its negative say the same thing, so the offsets are normalised here to point upwards or, in the same row, leftwards: (-2,-1), (-1,-2), (-1,0).
+
+The entry's further clause, that the new values $0,\dots,2$ are introduced in order, means that reading the array in row-major order the first occurrences of the values happen in increasing order: a value $v$ may appear only once every smaller value has already appeared.
+
+$a(n)$ is the number of such arrays. The entry's offset is 1, so its term of index $n$ is the count for $n$ rows.
+
+\section{The count is a walk count}
+
+Every offset reaches at most $2$ rows upwards, so the condition on a row is decided by that row together with the $2$ rows above it. Take as state the last $2$ rows, together with a counter recording how many of the values $0,\dots,2$ have already been introduced --- that counter is all the labelling clause needs, since a value may be used exactly when it is smaller than the counter, or equal to it, in which case the counter advances.
+
+Appending a row is a transition, an array of $n'$ rows is a walk of length $n'$ from the empty state, and every array arises from exactly one walk. So $a(n) = w^{\mathsf T}M^{\,n'}f$ and the count is C-finite.
+
+\section{The degree bound, derived}
+
+The reachable part of the digraph has $133$ states, $133$ after trimming. Identifying states with the same number of completions of every length, and then the mirror identification on the edges coming in, leaves $S = 11$ blocks, and the count satisfies the linear recurrence given by the characteristic polynomial of the resulting $11\times11$ matrix. That bound is computed, not assumed.
+
+\section{The decision procedure}
+
+Let $c_1,\dots,c_D$ be the coefficients of a claimed recurrence $a(n) = \sum_{i=1}^{D} c_i\,a(n-i)$, let $q(t) = t^{D} - \sum_{i=1}^{D} c_i t^{D-i}$ be its characteristic polynomial, and put
+
+\[u_m \;=\; \tilde w^{\mathsf T} L^{\,m-1} q(L)\,\tilde f \qquad (m \ge 1).\]
+
+Expanding the powers of $L$ and using the displayed formula for $a$, one gets $u_m = a(n) - \sum_{i=1}^{D} c_i\,a(n-i)$ with $n = m + D$. So $u_m$ is exactly the residual of the claim at that index, and the recurrence holds at an index $n$ if and only if the corresponding $u_m$ vanishes.
+
+Now $u_m = \tilde w^{\mathsf T} L^{m-1} y$ with $y = q(L)\tilde f$ a fixed vector, so $(u_m)$ satisfies the characteristic polynomial of $L$, of degree $11$: writing that polynomial as $t^{11} - \sum_{i=1}^{11} \lambda_i t^{11-i}$ gives $u_{m+11} = \sum_{i=1}^{11} \lambda_i u_{m+11-i}$. Hence $11$ consecutive vanishing residuals force every later residual to vanish, by induction. The test is therefore finite; and because it locates the {\itshape last} nonvanishing residual, it pins the threshold exactly rather than merely bounding it.
+
+Everything is carried out in exact integer arithmetic on the vector $L^{m-1}y$. The matrix $M$ is never formed.
+
+\section{Results}
+
+\begin{theorem} For A274723, the recurrence $a(n) = 3\,a(n-1) + 4\,a(n-2) + a(n-3) - 3\,a(n-4) - 4\,a(n-5)$ holds for every $n > 7$, and fails at $n = 7$.\end{theorem}
+
+{\itshape Proof.} The residuals $u_m$ were computed exactly for $m = 1,\dots,45$. The last nonvanishing one is at $m = 2$, that is at $n = 7$. After it, more than $S = 11$ consecutive residuals vanish, so by Section 5 every later residual vanishes as well. $\square$
+
+The entry claims the recurrence for $n > 7$. The theorem is at least as strong.
+
+\begin{theorem} For A274723, the generating function is exactly $\sum_{n\ge 1} a(n)x^n = \frac{5x + 9x^{2} - 24x^{3} - 45x^{4} - 21x^{5} - 4x^{6} + 8x^{7}}{1 - 3x - 4x^{2} - x^{3} + 3x^{4} + 4x^{5}}$.\end{theorem}
+
+{\itshape Proof.} Let $N(x)$ and $D(x)$ be the numerator and denominator above, $D(0)=1$. The residual test applied to the recurrence read off $D$ --- namely $a(n) = \sum_i c_i a(n-i)$ with $c_i$ the negated coefficients of $D$ --- gives vanishing residuals for every $n > 7$, so the power series $F(x)=\sum_{n\ge 1}a(n)x^n$ satisfies $[x^k]\bigl(F(x)D(x)\bigr) = 0$ for every $k > 8$. The remaining coefficients of $F(x)D(x)$, for $k \le 15$, were computed from the walk count and agree with $N(x)$ term by term. Hence $F(x)D(x) = N(x)$ identically, which is the assertion. $\square$
+
+\section{Verification}
+
+Four checks were run, each reproducible from the code accompanying this note, and the first two are what pin the reading of the entry's English.
+
+\begin{itemize}
+
+\item {\bfseries The published terms.} The walk count reproduces all 23 terms the entry publishes, exactly, in integer arithmetic, with the index taken from the entry's stated offset (1) rather than fitted. The first of them are 5, 24, 68, 260, 1040, 4132, 16524, 66088,~\dots
+
+\item {\bfseries An independent enumeration.} For $n = 1,\dots,3$ every one of the $3^{3n}$ arrays was written out and tested cell by cell against the condition as the entry states it --- no transfer matrix, no row window, a separate piece of code. The counts agree with the walk count and with the entry.
+
+\item {\bfseries The claim on the raw data.} Each claim was evaluated on the entry's published terms alone, with no model involved, wherever the proved range and the published data overlap. It holds there.
+
+\item {\bfseries The annihilation test.} Carried to the derived bound $S = 11$ over the whole vector, in exact integer arithmetic, never sampled and never truncated.
+
+\end{itemize}
+
+\section{References}
+
+\begin{enumerate}
+
+\item OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, entry \href{https://oeis.org/A274723}{A274723}, revision 8, last modified Jan 30 2019.
+
+\item R. P. Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge University Press, 2012; \S4.7, the transfer-matrix method.
+
+\item M. Kauers and P. Paule, \emph{The Concrete Tetrahedron}, Springer, 2011; C-finite sequences and their closure properties.
+
+\item J. Berstel and C. Reutenauer, \emph{Noncommutative Rational Series with Applications}, Cambridge University Press, 2011; linear representations of counting automata and their reduction.
+
+\end{enumerate}
+\end{document}

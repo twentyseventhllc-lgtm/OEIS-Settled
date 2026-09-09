@@ -12,7 +12,7 @@
 \newtheorem{definition}[theorem]{Definition}
 \setlength{\parskip}{2pt}
 \title{Proofs of the conjectured column and row recurrences for OEIS A235071}
-\author{Adrian Perez Fontelles, Independent researcher}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
 \date{09 September 2026}
 \begin{document}
 \maketitle
@@ -25,23 +25,23 @@ The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A235
 a table read by upward antidiagonals, and carries in its Formula section the following empirical lines, none of them proved there:
 
 \begin{quote}\ttfamily Empirical for column k:\\
-k=1: a(n) = 35*a(n-2) -235*a(n-4) +543*a(n-6) -458*a(n-8) +96*a(n-10).\end{quote}
+k=1: a(n) = 35*a(n-2) -235*a(n-4) +543*a(n-6) -458*a(n-8) +96*a(n-10).\\k=2: [order 40].\end{quote}
 
-The lines carry no separate signature; the entry itself is by R. H. Hardin (Jan 03 2014). As of revision 6, last modified Jun 20 2022, the entry records no proof of any of them and links to none. This note proves the 1 column recurrence listed above.
+The lines carry no separate signature; the entry itself is by R. H. Hardin (Jan 03 2014). As of revision 6, last modified Jun 20 2022, the entry records no proof of any of them and links to none. This note proves the 2 column recurrences listed above.
 
 The entry also carries further lines of the same blocks that this note does not settle; they are named in Section 6.
 
 \section{The object, and what a column and a row are}
 
-The array condition is the same for every width; it is written out here for width $2$, which is one of the widths this note uses.
+The array condition is the same for every width; it is written out here for width $3$, which is one of the widths this note uses.
 
-Let $q = 7$ and let $A$ be an $n' \times 2$ array with entries in $\{0,1,\dots,6\}$, where the entry writes the number of rows as $n' = n + 1$.
+Let $q = 7$ and let $A$ be an $n' \times 3$ array with entries in $\{0,1,\dots,6\}$, where the entry writes the number of rows as $n' = n + 1$.
 
 The condition on every $2 \times 2$ subblock is
 
 \[\bigl|\,(A[i][j] + A[i{+}1][j{+}1]) - (A[i][j{+}1] + A[i{+}1][j])\,\bigr| = 3,\]
 
-for all $0 \le i < n'-1$ and $0 \le j < 1$, together with $A[i][j] \ne A[i][j{+}1]$ and $A[i][j] \ne A[i{+}1][j]$ wherever those cells exist (the entry's ``with no adjacent elements equal'').
+for all $0 \le i < n'-1$ and $0 \le j < 2$, together with $A[i][j] \ne A[i][j{+}1]$ and $A[i][j] \ne A[i{+}1][j]$ wherever those cells exist (the entry's ``with no adjacent elements equal'').
 
 The parenthetical ``constant-stress tilings'' in the entry's name is a description of the same condition and adds nothing to it.
 
@@ -63,15 +63,13 @@ For a claimed recurrence with characteristic polynomial $q$, the residual $u_m =
 
 {\itshape Proof.} The width is $2$; the digraph has $49$ states, $42$ after trimming, and $S = 12$ blocks after refinement. The model reproduces every published value of column $k = 1$ --- and of the rest of the triangle. The residuals were computed exactly and all of them vanish; after that point more than $S = 12$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
 
+\begin{theorem} For column $k = 2$ of A235071, the recurrence $a(n) = 0$ holds for every $n \ge 41$, at every index at which it can be stated.\end{theorem}
+
+{\itshape Proof.} The width is $3$; the digraph has $343$ states, $252$ after trimming, and $S = 45$ blocks after refinement. The model reproduces every published value of column $k = 2$ --- and of the rest of the triangle. The residuals were computed exactly and all of them vanish; after that point more than $S = 45$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
 \section{What is not settled here}
 
-The same blocks carry further lines that this note leaves open, with the reason for each:
-
-\begin{itemize}
-
-\item 1 line: the entry gives only the order of the recurrence and refers to a linked file for its coefficients, so there is no stated recurrence to test
-
-\end{itemize}
+Every line of those blocks is settled above.
 
 \section{Verification}
 

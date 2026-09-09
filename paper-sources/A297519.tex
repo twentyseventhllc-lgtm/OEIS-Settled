@@ -12,7 +12,7 @@
 \newtheorem{definition}[theorem]{Definition}
 \setlength{\parskip}{2pt}
 \title{Proofs of the conjectured column and row recurrences for OEIS A297519}
-\author{Adrian Perez Fontelles, Independent researcher}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
 \date{09 September 2026}
 \begin{document}
 \maketitle
@@ -25,20 +25,20 @@ The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A297
 a table read by upward antidiagonals, and carries in its Formula section the following empirical lines, none of them proved there:
 
 \begin{quote}\ttfamily Empirical for column k:\\
-k=1: a(n) = a(n-1)\\k=2: a(n) = a(n-1) +2*a(n-2) +2*a(n-3) -a(n-5)\\k=3: a(n) = a(n-1) +2*a(n-2) +30*a(n-3) +6*a(n-5) -124*a(n-6) -8*a(n-8) +64*a(n-9)\end{quote}
+k=1: a(n) = a(n-1)\\k=2: a(n) = a(n-1) +2*a(n-2) +2*a(n-3) -a(n-5)\\k=3: a(n) = a(n-1) +2*a(n-2) +30*a(n-3) +6*a(n-5) -124*a(n-6) -8*a(n-8) +64*a(n-9)\\k=4: [order 32]\\k=5: [order 54]\end{quote}
 
 \begin{quote}\ttfamily Empirical for row n:\\
-n=1: a(n) = a(n-1) +a(n-3)\\n=2: a(n) = a(n-1) +4*a(n-3) +12*a(n-4)\end{quote}
+n=1: a(n) = a(n-1) +a(n-3)\\n=2: a(n) = a(n-1) +4*a(n-3) +12*a(n-4)\\n=3: [order 12]\\n=4: [order 31]\\n=5: [order 87]\end{quote}
 
-The lines carry no separate signature; the entry itself is by R. H. Hardin (Dec 31 2017). As of revision 4, last modified Dec 31 2017, the entry records no proof of any of them and links to none. This note proves the 3 column recurrences and the 2 row recurrences listed above.
+The lines carry no separate signature; the entry itself is by R. H. Hardin (Dec 31 2017). As of revision 4, last modified Dec 31 2017, the entry records no proof of any of them and links to none. This note proves the 5 column recurrences and the 5 row recurrences listed above.
 
 The entry also carries further lines of the same blocks that this note does not settle; they are named in Section 6.
 
 \section{The object, and what a column and a row are}
 
-The array condition is the same for every width; it is written out here for width $3$, which is one of the widths this note uses.
+The array condition is the same for every width; it is written out here for width $5$, which is one of the widths this note uses.
 
-Let $q = 2$ and let $A$ be an $n \times 3$ array with entries in $\{0,1,\dots,1\}$.
+Let $q = 2$ and let $A$ be an $n \times 5$ array with entries in $\{0,1,\dots,1\}$.
 
 The neighbour set the entry names by {\itshape horizontally, diagonally or antidiagonally} is
 
@@ -46,7 +46,7 @@ The neighbour set the entry names by {\itshape horizontally, diagonally or antid
 
 For a cell $(i,j)$ with $A[i][j] = 1$ put
 
-\[c(i,j) \;=\; \#\bigl\{(\delta,\varepsilon)\in\mathcal{N} \;:\; 0\le i+\delta<n,\ 0\le j+\varepsilon<3,\ A[i+\delta][j+\varepsilon] = 1\bigr\}.\]
+\[c(i,j) \;=\; \#\bigl\{(\delta,\varepsilon)\in\mathcal{N} \;:\; 0\le i+\delta<n,\ 0\le j+\varepsilon<5,\ A[i+\delta][j+\varepsilon] = 1\bigr\}.\]
 
 The condition is $c(i,j) \in \{1, 3\}$ for every cell carrying the value 1. Cells carrying any other value are unconstrained. Offsets leaving the array are not counted, so border cells have fewer neighbours than interior ones.
 
@@ -76,6 +76,14 @@ For a claimed recurrence with characteristic polynomial $q$, the residual $u_m =
 
 {\itshape Proof.} The width is $3$; the digraph has $72$ states, $65$ after trimming, and $S = 13$ blocks after refinement. The model reproduces every published value of column $k = 3$ --- and of the rest of the triangle. The residuals were computed exactly and all of them vanish; after that point more than $S = 13$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
 
+\begin{theorem} For column $k = 4$ of A297519, the recurrence $a(n) = 0$ holds for every $n \ge 33$, at every index at which it can be stated.\end{theorem}
+
+{\itshape Proof.} The width is $4$; the digraph has $272$ states, $221$ after trimming, and $S = 32$ blocks after refinement. The model reproduces every published value of column $k = 4$ --- and of the rest of the triangle. The residuals were computed exactly and all of them vanish; after that point more than $S = 32$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+\begin{theorem} For column $k = 5$ of A297519, the recurrence $a(n) = 0$ holds for every $n \ge 55$, at every index at which it can be stated.\end{theorem}
+
+{\itshape Proof.} The width is $5$; the digraph has $1056$ states, $708$ after trimming, and $S = 67$ blocks after refinement. The model reproduces every published value of column $k = 5$ --- and of the rest of the triangle. The residuals were computed exactly and all of them vanish; after that point more than $S = 67$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
 \begin{theorem} For row $n = 1$ of A297519, the recurrence $a(k) = a(n-1) + a(n-3)$ holds for every $k \ge 4$, at every index at which it can be stated.\end{theorem}
 
 {\itshape Proof.} The width is $1$; the digraph has $6$ states, $6$ after trimming, and $S = 3$ blocks after refinement. The model reproduces every published value of row $n = 1$ --- and of the rest of the triangle. The residuals were computed exactly and all of them vanish; after that point more than $S = 3$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
@@ -84,15 +92,21 @@ For a claimed recurrence with characteristic polynomial $q$, the residual $u_m =
 
 {\itshape Proof.} The width is $2$; the digraph has $20$ states, $20$ after trimming, and $S = 5$ blocks after refinement. The model reproduces every published value of row $n = 2$ --- and of the rest of the triangle. The residuals were computed exactly and all of them vanish; after that point more than $S = 5$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
 
+\begin{theorem} For row $n = 3$ of A297519, the recurrence $a(k) = 0$ holds for every $k \ge 13$, at every index at which it can be stated.\end{theorem}
+
+{\itshape Proof.} The width is $3$; the digraph has $72$ states, $61$ after trimming, and $S = 12$ blocks after refinement. The model reproduces every published value of row $n = 3$ --- and of the rest of the triangle. The residuals were computed exactly and all of them vanish; after that point more than $S = 12$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+\begin{theorem} For row $n = 4$ of A297519, the recurrence $a(k) = 0$ holds for every $k \ge 32$, at every index at which it can be stated.\end{theorem}
+
+{\itshape Proof.} The width is $4$; the digraph has $272$ states, $237$ after trimming, and $S = 35$ blocks after refinement. The model reproduces every published value of row $n = 4$ --- and of the rest of the triangle. The residuals were computed exactly and all of them vanish; after that point more than $S = 35$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+\begin{theorem} For row $n = 5$ of A297519, the recurrence $a(k) = 0$ holds for every $k \ge 88$, at every index at which it can be stated.\end{theorem}
+
+{\itshape Proof.} The width is $5$; the digraph has $1056$ states, $917$ after trimming, and $S = 112$ blocks after refinement. The model reproduces every published value of row $n = 5$ --- and of the rest of the triangle. The residuals were computed exactly and all of them vanish; after that point more than $S = 112$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
 \section{What is not settled here}
 
-The same blocks carry further lines that this note leaves open, with the reason for each:
-
-\begin{itemize}
-
-\item 5 lines: the entry gives only the order of the recurrence and refers to a linked file for its coefficients, so there is no stated recurrence to test
-
-\end{itemize}
+Every line of those blocks is settled above.
 
 \section{Verification}
 

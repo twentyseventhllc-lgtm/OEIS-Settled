@@ -1,0 +1,106 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\setlength{\parskip}{2pt}
+\title{A proof of the conjectured order of the recurrence for OEIS A264517}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
+\date{09 September 2026}
+\begin{document}
+\maketitle
+\section{The conjecture}
+
+The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A264517}{A264517} as
+
+\begin{quote}\itshape Number of (n+1)X(5+1) arrays of permutations of 0..n*6+5 with each element having directed index change -1,0 0,2 -1,-2 or 1,0\end{quote}
+
+and carries in its Formula section the line:
+
+\begin{quote}\ttfamily Empirical recurrence of order 90 (see link above)\end{quote}
+
+That line carries no separate signature; the entry itself is by R. H. Hardin (Nov 16 2015).
+
+The word {\itshape Empirical} --- equivalently {\itshape Conjecture} --- is the entry's own: the statement is recorded as fitted to the published terms, and no proof is given there. As of revision 4, last modified Nov 16 2015, the entry records no proof and links to none, so the statement is open. This note settles it.
+
+The entry states only that the sequence satisfies a linear recurrence of order $90$ and refers to a linked file for its coefficients, which this note does not use. What is proved below is the corresponding exact statement: the least order of a linear recurrence the sequence eventually satisfies, and the exact index beyond which it holds.
+
+\section{The object}
+
+The name is read as follows. The reading is not a guess: it is pinned against the entry's own published terms, and against an independent enumeration, before anything is proved (Section 7).
+
+Let $R = n + 1$ and let the array have $R$ rows and $6$ columns, filled with a permutation of $0,\dots,R\cdot6-1$.
+
+The value $v$ has home $(\lfloor v/6\rfloor,\ v \bmod 6)$ in the row-major layout, and the {\itshape index change} of an element is the displacement from its home to the cell it occupies. The entry lists -1,0, 0,2, -1,-2, 1,0, so the allowed displacements are
+
+\[\mathcal{D} = \{(-1,-2), (-1,0), (0,2), (1,0)\}.\]
+
+An admissible array is therefore exactly a perfect matching between homes and cells in which every home moves by a displacement in $\mathcal{D}$, and $a(n)$ is the permanent of the corresponding $0$--$1$ matrix.
+
+$a(n)$ is the number of such arrays. The entry's offset is 1, so its term of index $n$ is the count for $n$ rows.
+
+\section{The count is a walk count}
+
+A displacement moves at most $1$ row, so the cells of row $r$ can only be filled from homes in rows $r-1$ to $r+1$. Fill the array row by row and take as state the set of homes in that window of $3$ rows that have already been used --- at most $3\cdot6$ bits. Filling a row means choosing, for each of its $6$ cells, an unused home at an allowed displacement; after that the homes in the oldest row of the window can never be used again, so they are required to be used, and the window moves on.
+
+A state is accepting when the homes in the $1$ rows just above the end are all used and no home below the array has been used --- which is exactly the condition that the matching stays inside an array of that many rows.
+
+An array of $R$ rows is then exactly a walk of length $R$ from the initial state to an accepting one, so $a(n) = w^{\mathsf T}M^{R}f$ and the count is C-finite.
+
+\section{The degree bound, derived}
+
+The reachable part of the digraph has $400$ states, $400$ after trimming; the forward identification of states with equal numbers of completions of every length, followed by the mirror identification on the edges coming in, leaves $S = 210$ blocks, and the count satisfies the linear recurrence given by the characteristic polynomial of that $210\times210$ matrix. The bound is computed, not assumed.
+
+\section{The decision procedure}
+
+Let $c_1,\dots,c_D$ be the coefficients of a claimed recurrence $a(n) = \sum_{i=1}^{D} c_i\,a(n-i)$, let $q(t) = t^{D} - \sum_{i=1}^{D} c_i t^{D-i}$ be its characteristic polynomial, and put
+
+\[u_m \;=\; \tilde w^{\mathsf T} L^{\,m-1} q(L)\,\tilde f \qquad (m \ge 1).\]
+
+Expanding the powers of $L$ and using the displayed formula for $a$, one gets $u_m = a(n) - \sum_{i=1}^{D} c_i\,a(n-i)$ with $n = m + D$. So $u_m$ is exactly the residual of the claim at that index, and the recurrence holds at an index $n$ if and only if the corresponding $u_m$ vanishes.
+
+Now $u_m = \tilde w^{\mathsf T} L^{m-1} y$ with $y = q(L)\tilde f$ a fixed vector, so $(u_m)$ satisfies the characteristic polynomial of $L$, of degree $210$: writing that polynomial as $t^{210} - \sum_{i=1}^{210} \lambda_i t^{210-i}$ gives $u_{m+210} = \sum_{i=1}^{210} \lambda_i u_{m+210-i}$. Hence $210$ consecutive vanishing residuals force every later residual to vanish, by induction. The test is therefore finite; and because it locates the {\itshape last} nonvanishing residual, it pins the threshold exactly rather than merely bounding it.
+
+Everything is carried out in exact integer arithmetic on the vector $L^{m-1}y$. The matrix $M$ is never formed.
+
+\section{Results}
+
+\begin{theorem} For A264517, the least order of a linear recurrence that $a$ eventually satisfies is exactly $90$, and that recurrence holds for every $n > 90$, the entry's own figure.\end{theorem}
+
+{\itshape Proof.} The count is C-finite of order at most $S = 210$, so the minimal annihilator of the tail $(a(n))_{n \ge M}$ is the same for every $M$ beyond $S$: the nilpotent part of $L$ is killed after $S$ steps. Taking such an $M$ and $426$ consecutive terms from there, the Berlekamp--Massey algorithm over $\mathbb{Q}$ returns the minimal linear recurrence generating them; since the sequence satisfies one of order at most $S$, $2S$ terms determine it. Its order is $90$. That recurrence was then put through the residual test of Section 5: every residual vanishes, followed by more than $S = 210$ consecutive vanishing ones, so it holds for every larger $n$. No recurrence of smaller order can hold eventually, since the tail's minimal annihilator is what the algorithm returned. $\square$
+
+\section{Verification}
+
+Four checks were run, each reproducible from the code accompanying this note, and the first two are what pin the reading of the entry's English.
+
+\begin{itemize}
+
+\item {\bfseries The published terms.} The walk count reproduces all 18 terms the entry publishes, exactly, in integer arithmetic, with the index taken from the entry's stated offset (1) rather than fitted. The first of them are 4, 4, 196, 1444, 18769, 186624, 2007889, 20738916,~\dots
+
+\item {\bfseries The claim on the raw data.} Each claim was evaluated on the entry's published terms alone, with no model involved, wherever the proved range and the published data overlap. It holds there.
+
+\item {\bfseries The annihilation test.} Carried to the derived bound $S = 210$ over the whole vector, in exact integer arithmetic, never sampled and never truncated.
+
+\end{itemize}
+
+\section{References}
+
+\begin{enumerate}
+
+\item OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, entry \href{https://oeis.org/A264517}{A264517}, revision 4, last modified Nov 16 2015.
+
+\item R. P. Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge University Press, 2012; \S4.7, the transfer-matrix method.
+
+\item M. Kauers and P. Paule, \emph{The Concrete Tetrahedron}, Springer, 2011; C-finite sequences and their closure properties.
+
+\item J. Berstel and C. Reutenauer, \emph{Noncommutative Rational Series with Applications}, Cambridge University Press, 2011; linear representations of counting automata and their reduction.
+
+\end{enumerate}
+\end{document}

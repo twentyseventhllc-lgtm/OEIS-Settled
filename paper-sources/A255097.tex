@@ -1,0 +1,140 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\setlength{\parskip}{2pt}
+\title{A proof of the conjectured linear recurrence for OEIS A255097}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
+\date{09 September 2026}
+\begin{document}
+\maketitle
+\section{The conjecture}
+
+The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A255097}{A255097} as
+
+\begin{quote}\itshape Number of (n+2)X(4+2) 0..1 arrays with no 3x3 subblock diagonal sum 1 and no antidiagonal sum 1 and no row sum 1 and no column sum 1\end{quote}
+
+and carries in its Formula section the line:
+
+\begin{quote}\ttfamily Empirical: a(n) = 5*a(n-1) -4*a(n-2) +14*a(n-3) -23*a(n-4) -91*a(n-5) -13*a(n-6) -118*a(n-7) +815*a(n-8) +1080*a(n-9) -692*a(n-10) -2103*a(n-11) -5420*a(n-12) +2379*a(n-13) +8473*a(n-14) +4179*a(n-15) +8147*a(n-16) -18588*a(n-17) -30186*a(n-18) +2771*a(n-19) +28308*a(n-20) +32734*a(n-21) +6559*a(n-22) -23299*a(n-23) -16727*a(n-24) -666*a(n-25) +7553*a(n-26) -5973*a(n-27) -14481*a(n-28) +7873*a(n-29) +34754*a(n-30) +25934*a(n-31) -15978*a(n-32) -45920*a(n-33) -43974*a(n-34) -14735*a(n-35) +6402*a(n-36) +15091*a(n-37) +14803*a(n-38) +11460*a(n-39) +9120*a(n-40) +5581*a(n-41) +3303*a(n-42) +1366*a(n-43) +342*a(n-44) +18*a(n-45) -72*a(n-46) for n>50\end{quote}
+
+That line carries no separate signature; the entry itself is by R. H. Hardin (Feb 14 2015).
+
+The word {\itshape Empirical} --- equivalently {\itshape Conjecture} --- is the entry's own: the statement is recorded as fitted to the published terms, and no proof is given there. As of revision 6, last modified Jun 02 2025, the entry records no proof and links to none, so the statement is open. This note settles it.
+
+Written out, the claim is
+
+\begin{multline*} a(n) = 5\,a(n-1) - 4\,a(n-2) + 14\,a(n-3) - 23\,a(n-4) - 91\,a(n-5) - 13\,a(n-6) - \\ 118\,a(n-7) + 815\,a(n-8) + 1080\,a(n-9) - 692\,a(n-10) - 2103\,a(n-11) - 5420\,a(n-12) + \\ 2379\,a(n-13) + 8473\,a(n-14) + 4179\,a(n-15) + 8147\,a(n-16) - 18588\,a(n-17) - 30186\,a(n-18) + \\ 2771\,a(n-19) + 28308\,a(n-20) + 32734\,a(n-21) + 6559\,a(n-22) - 23299\,a(n-23) - 16727\,a(n-24) - \\ 666\,a(n-25) + 7553\,a(n-26) - 5973\,a(n-27) - 14481\,a(n-28) + 7873\,a(n-29) + 34754\,a(n-30) + \\ 25934\,a(n-31) - 15978\,a(n-32) - 45920\,a(n-33) - 43974\,a(n-34) - 14735\,a(n-35) + 6402\,a(n-36) + \\ 15091\,a(n-37) + 14803\,a(n-38) + 11460\,a(n-39) + 9120\,a(n-40) + 5581\,a(n-41) + 3303\,a(n-42) + \\ 1366\,a(n-43) + 342\,a(n-44) + 18\,a(n-45) - 72\,a(n-46). \end{multline*}
+
+stated for $n > 50$.
+
+\section{The object}
+
+The name is read as follows. The reading is not a guess: it is pinned against the entry's own published terms, and against an independent enumeration, before anything is proved (Section 7).
+
+Let $q = 2$ and let $A$ be an $n' \times 6$ array over $\{0,\dots,1\}$, with $n' = n + 2$ rows.
+
+For a $3\times3$ subblock $B$ write its 3 row sums, its 3 column sums, its main-diagonal sum and its antidiagonal sum.
+
+Every diagonal sum of every $3\times3$ subblock must avoid $\{1\}$.
+
+Every antidiagonal sum of every $3\times3$ subblock must avoid $\{1\}$.
+
+Every row sum of every $3\times3$ subblock must avoid $\{1\}$.
+
+Every column sum of every $3\times3$ subblock must avoid $\{1\}$.
+
+$a(n)$ is the number of such arrays. The entry's offset is 1, so its term of index $n$ is the count for $n$ rows.
+
+\section{The count is a walk count}
+
+A subblock spans at most three consecutive rows, so whether row $i$ takes part in a violation is decided by rows $i-1$, $i$ and $i+1$ alone. A window of three consecutive rows therefore decides the whole of its middle row.
+
+Let $R = \{0,\dots,1\}^{6}$ be the set of rows, so $|R| = 64$, and adjoin a symbol $\top$ standing for ``no row above''. Take as states the pairs
+
+\[\Sigma \;=\; (R \cup \{\top\}) \times R,\]
+
+with an edge from $(p,c)$ to $(c,x)$ exactly when row $c$ satisfies the condition in the window $(p,c,x)$, and call $(p,c)$ accepting when $c$ satisfies the condition in the window $(p,c,\bot)$, where $\bot$ stands for ``no row below''.
+
+An array with rows $r_1,\dots,r_n$ is then exactly a walk
+
+\[(\top,r_1) \to (r_1,r_2) \to \cdots \to (r_{n-1},r_n)\]
+
+of length $n-1$ beginning at a state $(\top,r_1)$ and ending at an accepting state. Every array gives one such walk and every such walk one array. With $M$ the adjacency matrix, $w$ the indicator of the allowed starting states and $f$ that of the accepting ones,
+
+\[a(n) \;=\; w^{\mathsf T} M^{\,n-1} f \qquad (n \ge 1),\]
+
+so $a$ satisfies the linear recurrence whose characteristic polynomial is that of $M$, and is in particular C-finite. The argument is the transfer-matrix method; see Stanley~\S4.7.
+
+\section{The degree bound, derived}
+
+The construction gives $4160$ states. Removing states unreachable from a start state, and states from which no accepting state can be reached, leaves $4160$; neither removal changes any count.
+
+Two states from which the same number of arrays can be completed, for every remaining number of rows, contribute identically to $w^{\mathsf T}M^{\,n-1}f$ and may be identified. The coarsest such identification is computed by partition refinement: begin with the partition by acceptance and separate two states as soon as they send different numbers of edges into some block. The refinement terminates; on its blocks the number of completions of each length is constant by induction on that length, so the quotient digraph counts exactly what the original does.
+
+That refinement leaves $77$ blocks. The mirror reduction is then applied: two blocks receiving the same weight from the start, for every walk length, also contribute identically, and the refinement that finds them looks at edges coming in rather than going out. Writing $L$ for the resulting $S \times S$ matrix with $S = 62$, $\tilde w$ for the start weights and $\tilde f$ for the acceptance weights,
+
+\[a(n) \;=\; \tilde w^{\mathsf T} L^{\,n-1} \tilde f \qquad (n \ge 1),\]
+
+and $a$ satisfies the linear recurrence given by the characteristic polynomial of $L$, of degree $62$. This is the only bound used below, and it is computed, not assumed.
+
+For scale: at $n = 8$ there are $2^{48}$ arrays, about $10^{14}$, against $62$ blocks here. Direct enumeration settles nothing at that size; the walk count does.
+
+\section{The decision procedure}
+
+Let $c_1,\dots,c_D$ be the coefficients of a claimed recurrence $a(n) = \sum_{i=1}^{D} c_i\,a(n-i)$, let $q(t) = t^{D} - \sum_{i=1}^{D} c_i t^{D-i}$ be its characteristic polynomial, and put
+
+\[u_m \;=\; \tilde w^{\mathsf T} L^{\,m-1} q(L)\,\tilde f \qquad (m \ge 1).\]
+
+Expanding the powers of $L$ and using the displayed formula for $a$, one gets $u_m = a(n) - \sum_{i=1}^{D} c_i\,a(n-i)$ with $n = m + D$. So $u_m$ is exactly the residual of the claim at that index, and the recurrence holds at an index $n$ if and only if the corresponding $u_m$ vanishes.
+
+Now $u_m = \tilde w^{\mathsf T} L^{m-1} y$ with $y = q(L)\tilde f$ a fixed vector, so $(u_m)$ satisfies the characteristic polynomial of $L$, of degree $62$: writing that polynomial as $t^{62} - \sum_{i=1}^{62} \lambda_i t^{62-i}$ gives $u_{m+62} = \sum_{i=1}^{62} \lambda_i u_{m+62-i}$. Hence $62$ consecutive vanishing residuals force every later residual to vanish, by induction. The test is therefore finite; and because it locates the {\itshape last} nonvanishing residual, it pins the threshold exactly rather than merely bounding it.
+
+Everything is carried out in exact integer arithmetic on the vector $L^{m-1}y$. The matrix $M$ is never formed.
+
+\section{Results}
+
+\begin{theorem} For A255097, the recurrence of order $46$ displayed in Section 1 holds for every $n > 50$, and fails at $n = 50$.\end{theorem}
+
+{\itshape Proof.} The residuals $u_m$ were computed exactly for $m = 1,\dots,134$. The last nonvanishing one is at $m = 4$, that is at $n = 50$. After it, more than $S = 62$ consecutive residuals vanish, so by Section 5 every later residual vanishes as well. $\square$
+
+The entry claims the recurrence for $n > 50$. The theorem is at least as strong.
+
+\section{Verification}
+
+Four checks were run, each reproducible from the code accompanying this note, and the first two are what pin the reading of the entry's English.
+
+\begin{itemize}
+
+\item {\bfseries The published terms.} The walk count reproduces all 20 terms the entry publishes, exactly, in integer arithmetic, with the index taken from the entry's stated offset (1) rather than fitted. The first of them are 419, 1475, 6110, 25413, 106848, 454332, 1933924, 8248373,~\dots
+
+\item {\bfseries An independent enumeration.} For $n = 1,\dots,2$ every one of the $2^{6n}$ arrays was written out and tested cell by cell against the condition as the entry states it --- no transfer matrix, no row window, a separate piece of code. The counts agree with the walk count and with the entry.
+
+\item {\bfseries The claim on the raw data.} Each claim was evaluated on the entry's published terms alone, with no model involved, wherever the proved range and the published data overlap. It holds there.
+
+\item {\bfseries The annihilation test.} Carried to the derived bound $S = 62$ over the whole vector, in exact integer arithmetic, never sampled and never truncated.
+
+\end{itemize}
+
+\section{References}
+
+\begin{enumerate}
+
+\item OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, entry \href{https://oeis.org/A255097}{A255097}, revision 6, last modified Jun 02 2025.
+
+\item R. P. Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge University Press, 2012; \S4.7, the transfer-matrix method.
+
+\item M. Kauers and P. Paule, \emph{The Concrete Tetrahedron}, Springer, 2011; C-finite sequences and their closure properties.
+
+\item J. Berstel and C. Reutenauer, \emph{Noncommutative Rational Series with Applications}, Cambridge University Press, 2011; linear representations of counting automata and their reduction.
+
+\end{enumerate}
+\end{document}

@@ -1,0 +1,108 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\setlength{\parskip}{2pt}
+\title{A proof of the conjectured linear recurrence for OEIS A263034}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
+\date{09 September 2026}
+\begin{document}
+\maketitle
+\section{The conjecture}
+
+The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A263034}{A263034} as
+
+\begin{quote}\itshape Number of (n+2)X(2+2) 0..1 arrays with each row and column not divisible by 5, read as a binary number with top and left being the most significant bits\end{quote}
+
+and carries in its Formula section the line:
+
+\begin{quote}\ttfamily Empirical: a(n) = 14*a(n-1) -52*a(n-2) +440*a(n-3) +1940*a(n-4) -42136*a(n-5) +130832*a(n-6) -1272928*a(n-7) +234026*a(n-8) +34403252*a(n-9) -63189880*a(n-10) +952057808*a(n-11) -516283820*a(n-12) -10970711960*a(n-13) +9550612240*a(n-14) -282398311520*a(n-15) +96140026255*a(n-16) +1404615957550*a(n-17) -501871284980*a(n-18) +34714525551160*a(n-19) -5440122625184*a(n-20) -68377213321664*a(n-21) +6191483638912*a(n-22) -1653436086997760*a(n-23) +68472989925120*a(n-24) +824525429054976*a(n-25) -5699099907072*a(n-26) +19800008497133568*a(n-27) -63128491278336*a(n-28) -757541895340032*a(n-29) -18181005488160768*a(n-31)\end{quote}
+
+That line carries no separate signature; the entry itself is by R. H. Hardin (Oct 08 2015).
+
+The word {\itshape Empirical} --- equivalently {\itshape Conjecture} --- is the entry's own: the statement is recorded as fitted to the published terms, and no proof is given there. As of revision 4, last modified Oct 08 2015, the entry records no proof and links to none, so the statement is open. This note settles it.
+
+Written out, the claim is
+
+\begin{multline*} a(n) = 14\,a(n-1) - 52\,a(n-2) + 440\,a(n-3) + 1940\,a(n-4) - 42136\,a(n-5) + 130832\,a(n-6) - \\ 1272928\,a(n-7) + 234026\,a(n-8) + 34403252\,a(n-9) - 63189880\,a(n-10) + 952057808\,a(n-11) - 516283820\,a(n-12) - \\ 10970711960\,a(n-13) + 9550612240\,a(n-14) - 282398311520\,a(n-15) + 96140026255\,a(n-16) + 1404615957550\,a(n-17) - 501871284980\,a(n-18) + \\ 34714525551160\,a(n-19) - 5440122625184\,a(n-20) - 68377213321664\,a(n-21) + 6191483638912\,a(n-22) - 1653436086997760\,a(n-23) + 68472989925120\,a(n-24) + \\ 824525429054976\,a(n-25) - 5699099907072\,a(n-26) + 19800008497133568\,a(n-27) - 63128491278336\,a(n-28) - 757541895340032\,a(n-29) - 18181005488160768\,a(n-31). \end{multline*}
+
+stated without a range; it first has meaning at $n = 32$, the least index at which all of $a(n-1),\dots,a(n-31)$ are terms of the sequence.
+
+\section{The object}
+
+The name is read as follows. The reading is not a guess: it is pinned against the entry's own published terms, and against an independent enumeration, before anything is proved (Section 7).
+
+Let $A$ be an $n' \times 4$ array over $\{0,\dots,1\}$ with $n' = n + 2$ rows. Each row is read as a base-$2$ number with its leftmost entry the most significant digit, and each column as a base-$2$ number with its topmost entry the most significant digit.
+
+The condition is that every row is not divisible by $5$ and every column is not divisible by $5$.
+
+$a(n)$ is the number of such arrays. The entry's offset is 1, so its term of index $n$ is the count for $n$ rows.
+
+\section{The count is a walk count}
+
+Reading a column downwards multiplies its value so far by $2$ and adds the new digit, so the residue of a column modulo $5$ after $i$ rows determines its residue after $i+1$ rows once the new digit is known. Take as state the vector of the $4$ column residues modulo $5$; there are at most $5^{4}$ of them.
+
+The rows that may be appended are exactly those whose own value is not divisible by $5$ --- a condition on the row alone --- and a state is accepting when every column residue is nonzero.
+
+An array of $n'$ rows is then exactly a walk of length $n'$ from the all-zero state to an accepting state, and every array arises from exactly one walk, so the count is $w^{\mathsf T}M^{\,n'}f$ and is C-finite.
+
+\section{The degree bound, derived}
+
+The reachable part of the digraph has $625$ states, $625$ after trimming; identifying states with equal numbers of completions of every length, and then the mirror identification on the edges coming in, leaves $S = 120$ blocks. The count satisfies the linear recurrence given by the characteristic polynomial of the resulting $120\times120$ matrix. That bound is computed, not assumed.
+
+\section{The decision procedure}
+
+Let $c_1,\dots,c_D$ be the coefficients of a claimed recurrence $a(n) = \sum_{i=1}^{D} c_i\,a(n-i)$, let $q(t) = t^{D} - \sum_{i=1}^{D} c_i t^{D-i}$ be its characteristic polynomial, and put
+
+\[u_m \;=\; \tilde w^{\mathsf T} L^{\,m-1} q(L)\,\tilde f \qquad (m \ge 1).\]
+
+Expanding the powers of $L$ and using the displayed formula for $a$, one gets $u_m = a(n) - \sum_{i=1}^{D} c_i\,a(n-i)$ with $n = m + D$. So $u_m$ is exactly the residual of the claim at that index, and the recurrence holds at an index $n$ if and only if the corresponding $u_m$ vanishes.
+
+Now $u_m = \tilde w^{\mathsf T} L^{m-1} y$ with $y = q(L)\tilde f$ a fixed vector, so $(u_m)$ satisfies the characteristic polynomial of $L$, of degree $120$: writing that polynomial as $t^{120} - \sum_{i=1}^{120} \lambda_i t^{120-i}$ gives $u_{m+120} = \sum_{i=1}^{120} \lambda_i u_{m+120-i}$. Hence $120$ consecutive vanishing residuals force every later residual to vanish, by induction. The test is therefore finite; and because it locates the {\itshape last} nonvanishing residual, it pins the threshold exactly rather than merely bounding it.
+
+Everything is carried out in exact integer arithmetic on the vector $L^{m-1}y$. The matrix $M$ is never formed.
+
+\section{Results}
+
+\begin{theorem} For A263034, the recurrence of order $31$ displayed in Section 1 holds for every $n \ge 32$, at every index at which it can be stated.\end{theorem}
+
+{\itshape Proof.} The residuals $u_m$ were computed exactly for $m = 1,\dots,172$. Every one of them vanished. After it, more than $S = 120$ consecutive residuals vanish, so by Section 5 every later residual vanishes as well. $\square$
+
+\section{Verification}
+
+Four checks were run, each reproducible from the code accompanying this note, and the first two are what pin the reading of the entry's English.
+
+\begin{itemize}
+
+\item {\bfseries The published terms.} The walk count reproduces all 15 terms the entry publishes, exactly, in integer arithmetic, with the index taken from the entry's stated offset (1) rather than fitted. The first of them are 512, 6928, 92472, 1198816, 14394128, 174159952, 2100720600, 25327918144,~\dots
+
+\item {\bfseries An independent enumeration.} For $n = 1,\dots,4$ every one of the $2^{4n}$ arrays was written out and tested cell by cell against the condition as the entry states it --- no transfer matrix, no row window, a separate piece of code. The counts agree with the walk count and with the entry.
+
+\item {\bfseries The claim on the raw data.} Each claim was evaluated on the entry's published terms alone, with no model involved, wherever the proved range and the published data overlap. It holds there.
+
+\item {\bfseries The annihilation test.} Carried to the derived bound $S = 120$ over the whole vector, in exact integer arithmetic, never sampled and never truncated.
+
+\end{itemize}
+
+\section{References}
+
+\begin{enumerate}
+
+\item OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, entry \href{https://oeis.org/A263034}{A263034}, revision 4, last modified Oct 08 2015.
+
+\item R. P. Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge University Press, 2012; \S4.7, the transfer-matrix method.
+
+\item M. Kauers and P. Paule, \emph{The Concrete Tetrahedron}, Springer, 2011; C-finite sequences and their closure properties.
+
+\item J. Berstel and C. Reutenauer, \emph{Noncommutative Rational Series with Applications}, Cambridge University Press, 2011; linear representations of counting automata and their reduction.
+
+\end{enumerate}
+\end{document}

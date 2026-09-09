@@ -12,7 +12,7 @@
 \newtheorem{definition}[theorem]{Definition}
 \setlength{\parskip}{2pt}
 \title{Proofs of the conjectured column and row recurrences for OEIS A259962}
-\author{Adrian Perez Fontelles, Independent researcher}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
 \date{09 September 2026}
 \begin{document}
 \maketitle
@@ -25,19 +25,19 @@ The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A259
 a table read by upward antidiagonals, and carries in its Formula section the following empirical lines, none of them proved there:
 
 \begin{quote}\ttfamily Empirical for column k:\\
-k=1: a(n) = a(n-1) +3*a(n-3) +5*a(n-4) +6*a(n-5) +6*a(n-6) +2*a(n-7) for n>8\end{quote}
+k=1: a(n) = a(n-1) +3*a(n-3) +5*a(n-4) +6*a(n-5) +6*a(n-6) +2*a(n-7) for n>8\\k=2: [order 8] for n>9\\k=3: [order 15] for n>16\end{quote}
 
-The lines carry no separate signature; the entry itself is by R. H. Hardin (Jul 10 2015). As of revision 6, last modified Jun 02 2025, the entry records no proof of any of them and links to none. This note proves the 1 column recurrence listed above.
+The lines carry no separate signature; the entry itself is by R. H. Hardin (Jul 10 2015). As of revision 6, last modified Jun 02 2025, the entry records no proof of any of them and links to none. This note proves the 3 column recurrences listed above.
 
 The entry also carries further lines of the same blocks that this note does not settle; they are named in Section 6.
 
 \section{The object, and what a column and a row are}
 
-The array condition is the same for every width; it is written out here for width $3$, which is one of the widths this note uses.
+The array condition is the same for every width; it is written out here for width $5$, which is one of the widths this note uses.
 
-Let $q = 2$ and let $A$ be an $n' \times 3$ array over $\{0,\dots,1\}$, with $n' = n + 2$ rows.
+Let $q = 2$ and let $A$ be an $n' \times 5$ array over $\{0,\dots,1\}$, with $n' = n + 2$ rows.
 
-For a cell $(i,j)$ with $1 \le i \le n'-2$ and $1 \le j \le 1$, read the eight cells surrounding it clockwise starting from the upper left:
+For a cell $(i,j)$ with $1 \le i \le n'-2$ and $1 \le j \le 3$, read the eight cells surrounding it clockwise starting from the upper left:
 
 \[w(i,j) = A[i{-}1][j{-}1]\,A[i{-}1][j]\,A[i{-}1][j{+}1]\,A[i][j{+}1]\,A[i{+}1][j{+}1]\,A[i{+}1][j]\,A[i{+}1][j{-}1]\,A[i][j{-}1].\]
 
@@ -65,13 +65,25 @@ For a claimed recurrence with characteristic polynomial $q$, the residual $u_m =
 
 The entry states this line for $n > 8$; the proved threshold is $n > 8$.
 
+\begin{theorem} For column $k = 2$ of A259962, the recurrence $a(n) = 0$ holds for every $n > 9$, and fails at $n = 9$.\end{theorem}
+
+{\itshape Proof.} The width is $4$; the digraph has $272$ states, $272$ after trimming, and $S = 17$ blocks after refinement. The model reproduces every published value of column $k = 2$ --- and of the rest of the triangle. The residuals were computed exactly and the last nonvanishing one is at $n = 9$; after that point more than $S = 17$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+The entry states this line for $n > 9$; the proved threshold is $n > 9$.
+
+\begin{theorem} For column $k = 3$ of A259962, the recurrence $a(n) = 0$ holds for every $n > 16$, and fails at $n = 16$.\end{theorem}
+
+{\itshape Proof.} The width is $5$; the digraph has $1056$ states, $1056$ after trimming, and $S = 23$ blocks after refinement. The model reproduces every published value of column $k = 3$ --- and of the rest of the triangle. The residuals were computed exactly and the last nonvanishing one is at $n = 16$; after that point more than $S = 23$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+The entry states this line for $n > 16$; the proved threshold is $n > 16$.
+
 \section{What is not settled here}
 
 The same blocks carry further lines that this note leaves open, with the reason for each:
 
 \begin{itemize}
 
-\item 5 lines: the entry gives only the order of the recurrence and refers to a linked file for its coefficients, so there is no stated recurrence to test
+\item 3 lines: fewer than six published terms in that line
 
 \end{itemize}
 

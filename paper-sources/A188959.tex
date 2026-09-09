@@ -1,0 +1,110 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\setlength{\parskip}{2pt}
+\title{A proof of the conjectured linear recurrence for OEIS A188959}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
+\date{09 September 2026}
+\begin{document}
+\maketitle
+\section{The conjecture}
+
+The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A188959}{A188959} as
+
+\begin{quote}\itshape Number of nX2 array permutations with each element moved by a city block distance of no more than three\end{quote}
+
+and carries in its Formula section the line:
+
+\begin{quote}\ttfamily Empirical: a(n) = 19*a(n-1) +41*a(n-2) +736*a(n-3) +25263*a(n-4) +32017*a(n-5) -567038*a(n-6) -4069595*a(n-7) -10832373*a(n-8) -8333428*a(n-9) +351198089*a(n-10) +247242131*a(n-11) +3242620749*a(n-12) -4547192430*a(n-13) -4654802706*a(n-14) -31556722248*a(n-15) -142043575910*a(n-16) -186763966978*a(n-17) +206503047644*a(n-18) +806616581798*a(n-19) -7940902091198*a(n-20) +5170549738640*a(n-21) +16736592987454*a(n-22) -85619311611694*a(n-23) +55350008806671*a(n-24) +114766322920137*a(n-25) -361831946106573*a(n-26) +186107011464008*a(n-27) +450542492277501*a(n-28) -537650951967285*a(n-29) +260179646673302*a(n-30) +1294577995490775*a(n-31) +52696165444945*a(n-32) +414245317555580*a(n-33) -1011769572206461*a(n-34) -117568472324343*a(n-35) +910532803057621*a(n-36) -3976827476889428*a(n-37) +433671586281652*a(n-38) -1688656294459088*a(n-39) +4895176704741212*a(n-40) -2192319125685868*a(n-41) +430411276007400*a(n-42) -3086185947315132*a(n-43) +3322593044147532*a(n-44) +1139388450244224*a(n-45) +1797309721363412*a(n-46) -1696014288052692*a(n-47) -557751381966539*a(n-48) -796887442953099*a(n-49) +80394244915967*a(n-50) -40480362978192*a(n-51) +218456413751225*a(n-52) +90345468006551*a(n-53) +15118015161614*a(n-54) -36446789205373*a(n-55) -20383528444163*a(n-56) +22060242201796*a(n-57) +6462385197055*a(n-58) -2715012515979*a(n-59) -824701538977*a(n-60) +755294349730*a(n-61) -873309164162*a(n-62) +244123186328*a(n-63) +44498196074*a(n-64) -64488755570*a(n-65) +19083032700*a(n-66) +1725811382*a(n-67) -3696615086*a(n-68) +297382128*a(n-69) +1521120014*a(n-70) -533056286*a(n-71) -14826179*a(n-72) +23131343*a(n-73) +1455237*a(n-74) -377368*a(n-75) -1537221*a(n-76) +431725*a(n-77) +11802*a(n-78) +6881*a(n-79) -5945*a(n-80) +564*a(n-81) -43*a(n-82) +15*a(n-83) -a(n-84)\end{quote}
+
+That line carries no separate signature; the entry itself is by R. H. Hardin (Apr 14 2011).
+
+The word {\itshape Empirical} --- equivalently {\itshape Conjecture} --- is the entry's own: the statement is recorded as fitted to the published terms, and no proof is given there. As of revision 10, last modified Oct 03 2025, the entry records no proof and links to none, so the statement is open. This note settles it.
+
+Written out, the claim is
+
+\begin{multline*} a(n) = 19\,a(n-1) + 41\,a(n-2) + 736\,a(n-3) + 25263\,a(n-4) + 32017\,a(n-5) - 567038\,a(n-6) - \\ 4069595\,a(n-7) - 10832373\,a(n-8) - 8333428\,a(n-9) + 351198089\,a(n-10) + 247242131\,a(n-11) + 3242620749\,a(n-12) - \\ 4547192430\,a(n-13) - 4654802706\,a(n-14) - 31556722248\,a(n-15) - 142043575910\,a(n-16) - 186763966978\,a(n-17) + 206503047644\,a(n-18) + \\ 806616581798\,a(n-19) - 7940902091198\,a(n-20) + 5170549738640\,a(n-21) + 16736592987454\,a(n-22) - 85619311611694\,a(n-23) + 55350008806671\,a(n-24) + \\ 114766322920137\,a(n-25) - 361831946106573\,a(n-26) + 186107011464008\,a(n-27) + 450542492277501\,a(n-28) - 537650951967285\,a(n-29) + 260179646673302\,a(n-30) + \\ 1294577995490775\,a(n-31) + 52696165444945\,a(n-32) + 414245317555580\,a(n-33) - 1011769572206461\,a(n-34) - 117568472324343\,a(n-35) + 910532803057621\,a(n-36) - \\ 3976827476889428\,a(n-37) + 433671586281652\,a(n-38) - 1688656294459088\,a(n-39) + 4895176704741212\,a(n-40) - 2192319125685868\,a(n-41) + 430411276007400\,a(n-42) - \\ 3086185947315132\,a(n-43) + 3322593044147532\,a(n-44) + 1139388450244224\,a(n-45) + 1797309721363412\,a(n-46) - 1696014288052692\,a(n-47) - 557751381966539\,a(n-48) - \\ 796887442953099\,a(n-49) + 80394244915967\,a(n-50) - 40480362978192\,a(n-51) + 218456413751225\,a(n-52) + 90345468006551\,a(n-53) + 15118015161614\,a(n-54) - \\ 36446789205373\,a(n-55) - 20383528444163\,a(n-56) + 22060242201796\,a(n-57) + 6462385197055\,a(n-58) - 2715012515979\,a(n-59) - 824701538977\,a(n-60) + \\ 755294349730\,a(n-61) - 873309164162\,a(n-62) + 244123186328\,a(n-63) + 44498196074\,a(n-64) - 64488755570\,a(n-65) + 19083032700\,a(n-66) + \\ 1725811382\,a(n-67) - 3696615086\,a(n-68) + 297382128\,a(n-69) + 1521120014\,a(n-70) - 533056286\,a(n-71) - 14826179\,a(n-72) + \\ 23131343\,a(n-73) + 1455237\,a(n-74) - 377368\,a(n-75) - 1537221\,a(n-76) + 431725\,a(n-77) + 11802\,a(n-78) + \\ 6881\,a(n-79) - 5945\,a(n-80) + 564\,a(n-81) - 43\,a(n-82) + 15\,a(n-83) - a(n-84). \end{multline*}
+
+stated without a range; it first has meaning at $n = 85$, the least index at which all of $a(n-1),\dots,a(n-84)$ are terms of the sequence.
+
+\section{The object}
+
+The name is read as follows. The reading is not a guess: it is pinned against the entry's own published terms, and against an independent enumeration, before anything is proved (Section 7).
+
+Let $R = n$ and let the array have $R$ rows and $2$ columns, filled with a permutation of $0,\dots,R\cdot2-1$.
+
+The value $v$ has home $(\lfloor v/2\rfloor,\ v \bmod 2)$ in the row-major layout, and the entry requires every element to have moved from its home by a city-block (taxicab) distance of at most $3$, so the allowed displacements are
+
+\[\mathcal{D} = \{(\delta,\varepsilon) : |\delta| + |\varepsilon| \le 3\}.\]
+
+An admissible array is therefore exactly a perfect matching between homes and cells in which every home moves by a displacement in $\mathcal{D}$.
+
+$a(n)$ is the number of such arrays. The entry's offset is 1, so its term of index $n$ is the count for $n$ rows.
+
+\section{The count is a walk count}
+
+A displacement moves at most $3$ rows, so the cells of row $r$ can only be filled from homes in rows $r-3$ to $r+3$. Fill the array row by row and take as state the set of homes in that window of $7$ rows that have already been used --- at most $7\cdot2$ bits. Filling a row means choosing, for each of its $2$ cells, an unused home at an allowed displacement; after that the homes in the oldest row of the window can never be used again, so they are required to be used, and the window moves on.
+
+A state is accepting when the homes in the $3$ rows just above the end are all used and no home below the array has been used --- which is exactly the condition that the matching stays inside an array of that many rows.
+
+An array of $R$ rows is then exactly a walk of length $R$ from the initial state to an accepting one, so $a(n) = w^{\mathsf T}M^{R}f$ and the count is C-finite.
+
+\section{The degree bound, derived}
+
+The reachable part of the digraph has $924$ states, $924$ after trimming; the forward identification of states with equal numbers of completions of every length, followed by the mirror identification on the edges coming in, leaves $S = 141$ blocks, and the count satisfies the linear recurrence given by the characteristic polynomial of that $141\times141$ matrix. The bound is computed, not assumed.
+
+\section{The decision procedure}
+
+Let $c_1,\dots,c_D$ be the coefficients of a claimed recurrence $a(n) = \sum_{i=1}^{D} c_i\,a(n-i)$, let $q(t) = t^{D} - \sum_{i=1}^{D} c_i t^{D-i}$ be its characteristic polynomial, and put
+
+\[u_m \;=\; \tilde w^{\mathsf T} L^{\,m-1} q(L)\,\tilde f \qquad (m \ge 1).\]
+
+Expanding the powers of $L$ and using the displayed formula for $a$, one gets $u_m = a(n) - \sum_{i=1}^{D} c_i\,a(n-i)$ with $n = m + D$. So $u_m$ is exactly the residual of the claim at that index, and the recurrence holds at an index $n$ if and only if the corresponding $u_m$ vanishes.
+
+Now $u_m = \tilde w^{\mathsf T} L^{m-1} y$ with $y = q(L)\tilde f$ a fixed vector, so $(u_m)$ satisfies the characteristic polynomial of $L$, of degree $141$: writing that polynomial as $t^{141} - \sum_{i=1}^{141} \lambda_i t^{141-i}$ gives $u_{m+141} = \sum_{i=1}^{141} \lambda_i u_{m+141-i}$. Hence $141$ consecutive vanishing residuals force every later residual to vanish, by induction. The test is therefore finite; and because it locates the {\itshape last} nonvanishing residual, it pins the threshold exactly rather than merely bounding it.
+
+Everything is carried out in exact integer arithmetic on the vector $L^{m-1}y$. The matrix $M$ is never formed.
+
+\section{Results}
+
+\begin{theorem} For A188959, the recurrence of order $84$ displayed in Section 1 holds for every $n \ge 85$, at every index at which it can be stated.\end{theorem}
+
+{\itshape Proof.} The residuals $u_m$ were computed exactly for $m = 1,\dots,247$. Every one of them vanished. After it, more than $S = 141$ consecutive residuals vanish, so by Section 5 every later residual vanishes as well. $\square$
+
+\section{Verification}
+
+Four checks were run, each reproducible from the code accompanying this note, and the first two are what pin the reading of the entry's English.
+
+\begin{itemize}
+
+\item {\bfseries The published terms.} The walk count reproduces all 16 terms the entry publishes, exactly, in integer arithmetic, with the index taken from the entry's stated offset (1) rather than fitted. The first of them are 2, 24, 720, 24024, 570050, 12702057, 298167456, 7208117568,~\dots
+
+\item {\bfseries The claim on the raw data.} Each claim was evaluated on the entry's published terms alone, with no model involved, wherever the proved range and the published data overlap. It holds there.
+
+\item {\bfseries The annihilation test.} Carried to the derived bound $S = 141$ over the whole vector, in exact integer arithmetic, never sampled and never truncated.
+
+\end{itemize}
+
+\section{References}
+
+\begin{enumerate}
+
+\item OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, entry \href{https://oeis.org/A188959}{A188959}, revision 10, last modified Oct 03 2025.
+
+\item R. P. Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge University Press, 2012; \S4.7, the transfer-matrix method.
+
+\item M. Kauers and P. Paule, \emph{The Concrete Tetrahedron}, Springer, 2011; C-finite sequences and their closure properties.
+
+\item J. Berstel and C. Reutenauer, \emph{Noncommutative Rational Series with Applications}, Cambridge University Press, 2011; linear representations of counting automata and their reduction.
+
+\end{enumerate}
+\end{document}

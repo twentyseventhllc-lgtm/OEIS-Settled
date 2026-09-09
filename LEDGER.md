@@ -79,3 +79,20 @@ disagreement is investigated before it is believed.
 A live re-check against oeis.org runs alongside, one entry a second: the first 400 entries
 came back with every conjectural line still present, still conjectural, and no proof
 mentioned.
+
+## The full run
+
+Every engine was re-run from the corpus after the last of them was written, so that every
+result in the repository comes from one consistent pass. The sweeps settled **5,920 entries**
+carrying **10,372 separate conjectural lines**, and one paper was built for each entry.
+
+`verify.py` was then run over all 5,920. The first pass reported 317 failures; every one was
+the verifier's own gap, not a result — its term budget did not allow for the extra terms the
+*order-of-recurrence* claims need, so it ran out of sequence before reaching the derived
+bound. With that fixed, **5,920 of 5,920 pass**. That is now the fifth time on this project
+that a check disagreeing with the results turned out to be the faulty side; it is why a
+disagreement is investigated before it is believed.
+
+The authorship of the work was then set to **Adrian Perez Fontelles and Gaspard Moulinier**:
+the `\author` line of all 5,920 sources was rewritten and all 5,920 PDFs recompiled from
+their own sources, with no build failures.

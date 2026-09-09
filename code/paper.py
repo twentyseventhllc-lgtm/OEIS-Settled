@@ -8,7 +8,7 @@ as its result needs.
 """
 import os, re, subprocess, textwrap
 
-AUTHOR = "Adrian Perez Fontelles, Independent researcher"
+AUTHOR = "Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers"
 
 PREAMBLE = r"""\documentclass[11pt]{article}
 \usepackage[margin=1.1in]{geometry}

@@ -1,0 +1,114 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\setlength{\parskip}{2pt}
+\title{A proof of the conjectured linear recurrence for OEIS A275568}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
+\date{09 September 2026}
+\begin{document}
+\maketitle
+\section{The conjecture}
+
+The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A275568}{A275568} as
+
+\begin{quote}\itshape Number of 5Xn 0..2 arrays with no element equal to any value at offset (-2,0) (-1,2) or (0,-2) and new values introduced in order 0..2\end{quote}
+
+and carries in its Formula section the line:
+
+\begin{quote}\ttfamily Empirical: a(n) = 7*a(n-1) +7*a(n-2) -153*a(n-3) +128*a(n-4) +1661*a(n-5) -2987*a(n-6) -11147*a(n-7) +31265*a(n-8) +44933*a(n-9) -209769*a(n-10) -65464*a(n-11) +988481*a(n-12) -428751*a(n-13) -3404950*a(n-14) +3691505*a(n-15) +8623905*a(n-16) -16041975*a(n-17) -15201775*a(n-18) +49315575*a(n-19) +13559611*a(n-20) -116797842*a(n-21) +18028343*a(n-22) +220372013*a(n-23) -106427533*a(n-24) -335355156*a(n-25) +260460612*a(n-26) +411365412*a(n-27) -446068765*a(n-28) -401412528*a(n-29) +590037487*a(n-30) +301637628*a(n-31) -624695552*a(n-32) -161284890*a(n-33) +539917211*a(n-34) +45168922*a(n-35) -388786164*a(n-36) +14654711*a(n-37) +240717215*a(n-38) -29174529*a(n-39) -133749307*a(n-40) +24747125*a(n-41) +68598600*a(n-42) -17271849*a(n-43) -31876238*a(n-44) +10697884*a(n-45) +12697117*a(n-46) -5593463*a(n-47) -4068750*a(n-48) +2346552*a(n-49) +972250*a(n-50) -764373*a(n-51) -148698*a(n-52) +187979*a(n-53) +5357*a(n-54) -33466*a(n-55) +3817*a(n-56) +3912*a(n-57) -1040*a(n-58) -228*a(n-59) +129*a(n-60) -6*a(n-61) -6*a(n-62) +a(n-63) for n>66\end{quote}
+
+That line carries no separate signature; the entry itself is by R. H. Hardin (Aug 01 2016).
+
+The word {\itshape Empirical} --- equivalently {\itshape Conjecture} --- is the entry's own: the statement is recorded as fitted to the published terms, and no proof is given there. As of revision 4, last modified Aug 01 2016, the entry records no proof and links to none, so the statement is open. This note settles it.
+
+Written out, the claim is
+
+\begin{multline*} a(n) = 7\,a(n-1) + 7\,a(n-2) - 153\,a(n-3) + 128\,a(n-4) + 1661\,a(n-5) - 2987\,a(n-6) - \\ 11147\,a(n-7) + 31265\,a(n-8) + 44933\,a(n-9) - 209769\,a(n-10) - 65464\,a(n-11) + 988481\,a(n-12) - \\ 428751\,a(n-13) - 3404950\,a(n-14) + 3691505\,a(n-15) + 8623905\,a(n-16) - 16041975\,a(n-17) - 15201775\,a(n-18) + \\ 49315575\,a(n-19) + 13559611\,a(n-20) - 116797842\,a(n-21) + 18028343\,a(n-22) + 220372013\,a(n-23) - 106427533\,a(n-24) - \\ 335355156\,a(n-25) + 260460612\,a(n-26) + 411365412\,a(n-27) - 446068765\,a(n-28) - 401412528\,a(n-29) + 590037487\,a(n-30) + \\ 301637628\,a(n-31) - 624695552\,a(n-32) - 161284890\,a(n-33) + 539917211\,a(n-34) + 45168922\,a(n-35) - 388786164\,a(n-36) + \\ 14654711\,a(n-37) + 240717215\,a(n-38) - 29174529\,a(n-39) - 133749307\,a(n-40) + 24747125\,a(n-41) + 68598600\,a(n-42) - \\ 17271849\,a(n-43) - 31876238\,a(n-44) + 10697884\,a(n-45) + 12697117\,a(n-46) - 5593463\,a(n-47) - 4068750\,a(n-48) + \\ 2346552\,a(n-49) + 972250\,a(n-50) - 764373\,a(n-51) - 148698\,a(n-52) + 187979\,a(n-53) + 5357\,a(n-54) - \\ 33466\,a(n-55) + 3817\,a(n-56) + 3912\,a(n-57) - 1040\,a(n-58) - 228\,a(n-59) + 129\,a(n-60) - \\ 6\,a(n-61) - 6\,a(n-62) + a(n-63). \end{multline*}
+
+stated for $n > 66$.
+
+\section{The object}
+
+The name is read as follows. The reading is not a guess: it is pinned against the entry's own published terms, and against an independent enumeration, before anything is proved (Section 7).
+
+Let $A$ be an $n' \times 5$ array over $\{0,\dots,2\}$ with $n' = n$ rows. The entry writes the growing direction across; the array is transposed here, and the offsets are transposed with it.
+
+The entry's offsets are (-2,0), (-1,2), (0,-2). The condition is
+
+\[A[i][j] \ne A[i{+}\delta][j{+}\varepsilon]\quad\text{for every listed }(\delta,\varepsilon)\text{ landing inside the array.}\]
+
+An offset and its negative say the same thing, so the offsets are normalised here to point upwards or, in the same row, leftwards: (-2,0), (-2,1), (0,-2).
+
+The entry's further clause, that the new values $0,\dots,2$ are introduced in order, means that reading the array in row-major order the first occurrences of the values happen in increasing order: a value $v$ may appear only once every smaller value has already appeared.
+
+$a(n)$ is the number of such arrays. The entry's offset is 1, so its term of index $n$ is the count for $n$ columns.
+
+\section{The count is a walk count}
+
+Every offset reaches at most $2$ rows upwards, so the condition on a row is decided by that row together with the $2$ rows above it. Take as state the last $2$ rows, together with a counter recording how many of the values $0,\dots,2$ have already been introduced --- that counter is all the labelling clause needs, since a value may be used exactly when it is smaller than the counter, or equal to it, in which case the counter advances.
+
+Appending a row is a transition, an array of $n'$ rows is a walk of length $n'$ from the empty state, and every array arises from exactly one walk. So $a(n) = w^{\mathsf T}M^{\,n'}f$ and the count is C-finite.
+
+\section{The degree bound, derived}
+
+The reachable part of the digraph has $2481$ states, $2481$ after trimming. Identifying states with the same number of completions of every length, and then the mirror identification on the edges coming in, leaves $S = 70$ blocks, and the count satisfies the linear recurrence given by the characteristic polynomial of the resulting $70\times70$ matrix. That bound is computed, not assumed.
+
+\section{The decision procedure}
+
+Let $c_1,\dots,c_D$ be the coefficients of a claimed recurrence $a(n) = \sum_{i=1}^{D} c_i\,a(n-i)$, let $q(t) = t^{D} - \sum_{i=1}^{D} c_i t^{D-i}$ be its characteristic polynomial, and put
+
+\[u_m \;=\; \tilde w^{\mathsf T} L^{\,m-1} q(L)\,\tilde f \qquad (m \ge 1).\]
+
+Expanding the powers of $L$ and using the displayed formula for $a$, one gets $u_m = a(n) - \sum_{i=1}^{D} c_i\,a(n-i)$ with $n = m + D$. So $u_m$ is exactly the residual of the claim at that index, and the recurrence holds at an index $n$ if and only if the corresponding $u_m$ vanishes.
+
+Now $u_m = \tilde w^{\mathsf T} L^{m-1} y$ with $y = q(L)\tilde f$ a fixed vector, so $(u_m)$ satisfies the characteristic polynomial of $L$, of degree $70$: writing that polynomial as $t^{70} - \sum_{i=1}^{70} \lambda_i t^{70-i}$ gives $u_{m+70} = \sum_{i=1}^{70} \lambda_i u_{m+70-i}$. Hence $70$ consecutive vanishing residuals force every later residual to vanish, by induction. The test is therefore finite; and because it locates the {\itshape last} nonvanishing residual, it pins the threshold exactly rather than merely bounding it.
+
+Everything is carried out in exact integer arithmetic on the vector $L^{m-1}y$. The matrix $M$ is never formed.
+
+\section{Results}
+
+\begin{theorem} For A275568, the recurrence of order $63$ displayed in Section 1 holds for every $n > 66$, and fails at $n = 66$.\end{theorem}
+
+{\itshape Proof.} The residuals $u_m$ were computed exactly for $m = 1,\dots,161$. The last nonvanishing one is at $m = 3$, that is at $n = 66$. After it, more than $S = 70$ consecutive residuals vanish, so by Section 5 every later residual vanishes as well. $\square$
+
+The entry claims the recurrence for $n > 66$. The theorem is at least as strong.
+
+\section{Verification}
+
+Four checks were run, each reproducible from the code accompanying this note, and the first two are what pin the reading of the entry's English.
+
+\begin{itemize}
+
+\item {\bfseries The published terms.} The walk count reproduces all 22 terms the entry publishes, exactly, in integer arithmetic, with the index taken from the entry's stated offset (1) rather than fitted. The first of them are 12, 864, 1872, 4056, 13104, 42336, 138600, 453750,~\dots
+
+\item {\bfseries An independent enumeration.} For $n = 1,\dots,2$ every one of the $3^{5n}$ arrays was written out and tested cell by cell against the condition as the entry states it --- no transfer matrix, no row window, a separate piece of code. The counts agree with the walk count and with the entry.
+
+\item {\bfseries The claim on the raw data.} Each claim was evaluated on the entry's published terms alone, with no model involved, wherever the proved range and the published data overlap. It holds there.
+
+\item {\bfseries The annihilation test.} Carried to the derived bound $S = 70$ over the whole vector, in exact integer arithmetic, never sampled and never truncated.
+
+\end{itemize}
+
+\section{References}
+
+\begin{enumerate}
+
+\item OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, entry \href{https://oeis.org/A275568}{A275568}, revision 4, last modified Aug 01 2016.
+
+\item R. P. Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge University Press, 2012; \S4.7, the transfer-matrix method.
+
+\item M. Kauers and P. Paule, \emph{The Concrete Tetrahedron}, Springer, 2011; C-finite sequences and their closure properties.
+
+\item J. Berstel and C. Reutenauer, \emph{Noncommutative Rational Series with Applications}, Cambridge University Press, 2011; linear representations of counting automata and their reduction.
+
+\end{enumerate}
+\end{document}

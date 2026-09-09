@@ -1,0 +1,114 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\setlength{\parskip}{2pt}
+\title{A proof of the conjectured closed form for OEIS A223868}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
+\date{09 September 2026}
+\begin{document}
+\maketitle
+\section{The conjecture}
+
+The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A223868}{A223868} as
+
+\begin{quote}\itshape Number of 5Xn 0..3 arrays with rows and antidiagonals unimodal and columns nondecreasing\end{quote}
+
+and carries in its Formula section the line:
+
+\begin{quote}\ttfamily Empirical: a(n) = (1/7353420799762759680000000)*n\textasciicircum{}30 + (1/70032579045359616000000)*n\textasciicircum{}29 + (44267/43995432122902432972800000)*n\textasciicircum{}28 + (7069/142935127104946176000000)*n\textasciicircum{}27 + (7664593067/4032914611266056355840000000)*n\textasciicircum{}26 + (95633173/1590893337777537024000000)*n\textasciicircum{}25 + (12116718221/7445380820798873272320000)*n\textasciicircum{}24 + (43392644761/1128088003151344435200000)*n\textasciicircum{}23 + (167454195287/207507826666635264000000)*n\textasciicircum{}22 + (15612731/1026631177076736000)*n\textasciicircum{}21 + (231683957839/891769172451655680000)*n\textasciicircum{}20 + (66096734083147/16349101494947020800000)*n\textasciicircum{}19 + (200461940945639/3520141470203904000000)*n\textasciicircum{}18 + (1823522533638571/2581437078149529600000)*n\textasciicircum{}17 + (1303802945440133/173715530435474227200)*n\textasciicircum{}16 + (484634612399204963/7238147101478092800000)*n\textasciicircum{}15 + (230088704266434095413/461431877719228416000000)*n\textasciicircum{}14 + (667759304130635953/215119756512460800000)*n\textasciicircum{}13 + (1965055074194837421509/121392078599981629440000)*n\textasciicircum{}12 + (652130907487529444879/9196369590907699200000)*n\textasciicircum{}11 + (209880428234740913519/803878460743680000000)*n\textasciicircum{}10 + (4164931672385398837/5171147993088000000)*n\textasciicircum{}9 + (18238486469597047158809/8813187524619878400000)*n\textasciicircum{}8 + (16125843259442502284221/3672161468591616000000)*n\textasciicircum{}7 + (512520751978071205586267/67322960257512960000000)*n\textasciicircum{}6 + (11886431938356946376363/1122049337625216000000)*n\textasciicircum{}5 + (280599068064199101557/24311068981879680000)*n\textasciicircum{}4 + (63983220995615011/6697264182336000)*n\textasciicircum{}3 + (1678025791833176033/279770238283536000)*n\textasciicircum{}2 + (230910956201/110909026800)*n + 1\end{quote}
+
+That line carries no separate signature; the entry itself is by R. H. Hardin (Mar 28 2013).
+
+The word {\itshape Empirical} --- equivalently {\itshape Conjecture} --- is the entry's own: the statement is recorded as fitted to the published terms, and no proof is given there. As of revision 8, last modified Oct 03 2025, the entry records no proof and links to none, so the statement is open. This note settles it.
+
+Written out, the claim is
+
+\[a(n) = 1 + \frac{230910956201}{110909026800}n + \frac{1678025791833176033}{279770238283536000}n^{2} + \frac{63983220995615011}{6697264182336000}n^{3} + \frac{280599068064199101557}{24311068981879680000}n^{4} + \frac{11886431938356946376363}{1122049337625216000000}n^{5} + \frac{512520751978071205586267}{67322960257512960000000}n^{6} + \frac{16125843259442502284221}{3672161468591616000000}n^{7} + \frac{18238486469597047158809}{8813187524619878400000}n^{8} + \frac{4164931672385398837}{5171147993088000000}n^{9} + \frac{209880428234740913519}{803878460743680000000}n^{10} + \frac{652130907487529444879}{9196369590907699200000}n^{11} + \frac{1965055074194837421509}{121392078599981629440000}n^{12} + \frac{667759304130635953}{215119756512460800000}n^{13} + \frac{230088704266434095413}{461431877719228416000000}n^{14} + \frac{484634612399204963}{7238147101478092800000}n^{15} + \frac{1303802945440133}{173715530435474227200}n^{16} + \frac{1823522533638571}{2581437078149529600000}n^{17} + \frac{200461940945639}{3520141470203904000000}n^{18} + \frac{66096734083147}{16349101494947020800000}n^{19} + \frac{231683957839}{891769172451655680000}n^{20} + \frac{15612731}{1026631177076736000}n^{21} + \frac{167454195287}{207507826666635264000000}n^{22} + \frac{43392644761}{1128088003151344435200000}n^{23} + \frac{12116718221}{7445380820798873272320000}n^{24} + \frac{95633173}{1590893337777537024000000}n^{25} + \frac{7664593067}{4032914611266056355840000000}n^{26} + \frac{7069}{142935127104946176000000}n^{27} + \frac{44267}{43995432122902432972800000}n^{28} + \frac{1}{70032579045359616000000}n^{29} + \frac{1}{7353420799762759680000000}n^{30}.\]
+
+\section{The object}
+
+The name is read as follows. The reading is not a guess: it is pinned against the entry's own published terms, and against an independent enumeration, before anything is proved (Section 7).
+
+Let $q = 4$ and let $A$ be an $n' \times 5$ array over $\{0,\dots,3\}$ with $n' = n$ rows. The entry writes the growing direction across; the array is transposed here. Transposing exchanges rows with columns and keeps diagonals, and it reverses the reading direction of the antidiagonals --- so a monotone condition on those becomes the opposite one, while unimodality, which a reversal preserves, does not change.
+
+A row is read left to right, a column top to bottom, a diagonal downwards and to the right, an antidiagonal downwards and to the left. A sequence is {\itshape unimodal} when it is nondecreasing and then nonincreasing.
+
+Every one of the array's antidiagonals is unimodal.
+
+Every one of the array's columns is unimodal.
+
+Every one of the array's rows is nondecreasing.
+
+$a(n)$ is the number of such arrays. The entry's offset is 1, so its term of index $n$ is the count for $n$ columns.
+
+\section{The count is a walk count}
+
+Read the array one row at a time. Conditions along a row are decided by that row alone. A condition along a column, a diagonal or an antidiagonal compares entries in consecutive rows, so it is decided one step at a time --- except that unimodality along such a line must remember whether that line has already turned from rising to falling.
+
+Accordingly the state is the last row together with one bit for each of the columns, antidiagonals through its entries, saying whether that line has already turned. Adding a row moves those bits along the line: a column keeps its own bit, a diagonal passes its bit one place to the right and starts a fresh line at the left border, an antidiagonal passes it one place to the left and starts a fresh line at the right border.
+
+An array of $n'$ rows is then exactly a walk of length $n'$ from the empty state, and every array arises from exactly one walk. With $M$ the adjacency matrix of the state digraph, $w$ the indicator of its start and $f$ of its accepting states, $a(n) = w^{\mathsf T}M^{\,n'}f$, so the count is C-finite.
+
+\section{The degree bound, derived}
+
+The reachable part of that digraph has $1423$ states, $1423$ after discarding states from which no accepting state is reachable. States from which the same number of arrays can be completed, for every remaining number of rows, are then identified by partition refinement --- start from the partition by acceptance and separate two states as soon as they send different numbers of edges into some block. On the blocks the number of completions of each length is constant, so the quotient counts exactly what the original does.
+
+The refinement, applied first forwards and then in the mirror direction on the edges coming in, leaves $S = 287$ blocks, and the count satisfies the linear recurrence given by the characteristic polynomial of the $287 \times 287$ quotient matrix. That degree bound is computed here, not assumed, and it is the only one the decision procedure below uses.
+
+\section{The decision procedure}
+
+Let $c_1,\dots,c_D$ be the coefficients of a claimed recurrence $a(n) = \sum_{i=1}^{D} c_i\,a(n-i)$, let $q(t) = t^{D} - \sum_{i=1}^{D} c_i t^{D-i}$ be its characteristic polynomial, and put
+
+\[u_m \;=\; \tilde w^{\mathsf T} L^{\,m-1} q(L)\,\tilde f \qquad (m \ge 1).\]
+
+Expanding the powers of $L$ and using the displayed formula for $a$, one gets $u_m = a(n) - \sum_{i=1}^{D} c_i\,a(n-i)$ with $n = m + D$. So $u_m$ is exactly the residual of the claim at that index, and the recurrence holds at an index $n$ if and only if the corresponding $u_m$ vanishes.
+
+Now $u_m = \tilde w^{\mathsf T} L^{m-1} y$ with $y = q(L)\tilde f$ a fixed vector, so $(u_m)$ satisfies the characteristic polynomial of $L$, of degree $287$: writing that polynomial as $t^{287} - \sum_{i=1}^{287} \lambda_i t^{287-i}$ gives $u_{m+287} = \sum_{i=1}^{287} \lambda_i u_{m+287-i}$. Hence $287$ consecutive vanishing residuals force every later residual to vanish, by induction. The test is therefore finite; and because it locates the {\itshape last} nonvanishing residual, it pins the threshold exactly rather than merely bounding it.
+
+Everything is carried out in exact integer arithmetic on the vector $L^{m-1}y$. The matrix $M$ is never formed.
+
+\section{Results}
+
+\begin{theorem} For A223868, $a(n)$ is the polynomial $1 + \frac{230910956201}{110909026800}n + \frac{1678025791833176033}{279770238283536000}n^{2} + \frac{63983220995615011}{6697264182336000}n^{3} + \frac{280599068064199101557}{24311068981879680000}n^{4} + \frac{11886431938356946376363}{1122049337625216000000}n^{5} + \frac{512520751978071205586267}{67322960257512960000000}n^{6} + \frac{16125843259442502284221}{3672161468591616000000}n^{7} + \frac{18238486469597047158809}{8813187524619878400000}n^{8} + \frac{4164931672385398837}{5171147993088000000}n^{9} + \frac{209880428234740913519}{803878460743680000000}n^{10} + \frac{652130907487529444879}{9196369590907699200000}n^{11} + \frac{1965055074194837421509}{121392078599981629440000}n^{12} + \frac{667759304130635953}{215119756512460800000}n^{13} + \frac{230088704266434095413}{461431877719228416000000}n^{14} + \frac{484634612399204963}{7238147101478092800000}n^{15} + \frac{1303802945440133}{173715530435474227200}n^{16} + \frac{1823522533638571}{2581437078149529600000}n^{17} + \frac{200461940945639}{3520141470203904000000}n^{18} + \frac{66096734083147}{16349101494947020800000}n^{19} + \frac{231683957839}{891769172451655680000}n^{20} + \frac{15612731}{1026631177076736000}n^{21} + \frac{167454195287}{207507826666635264000000}n^{22} + \frac{43392644761}{1128088003151344435200000}n^{23} + \frac{12116718221}{7445380820798873272320000}n^{24} + \frac{95633173}{1590893337777537024000000}n^{25} + \frac{7664593067}{4032914611266056355840000000}n^{26} + \frac{7069}{142935127104946176000000}n^{27} + \frac{44267}{43995432122902432972800000}n^{28} + \frac{1}{70032579045359616000000}n^{29} + \frac{1}{7353420799762759680000000}n^{30}$ for every $n \ge 1$.\end{theorem}
+
+{\itshape Proof.} A polynomial of degree $30$ is annihilated by the difference operator $(E-1)^{31}$, whose characteristic polynomial is $(t-1)^{31}$. So $a(n) - P(n)$, with $P$ the claimed polynomial, satisfies the linear recurrence whose characteristic polynomial is the product of that with the characteristic polynomial of $L$, of degree $S + 31 = 318$. Its values were computed exactly; all of them vanish, and more than $318$ consecutive vanishing values follow, so every later one vanishes as well. $\square$
+
+\section{Verification}
+
+Four checks were run, each reproducible from the code accompanying this note, and the first two are what pin the reading of the entry's English.
+
+\begin{itemize}
+
+\item {\bfseries The published terms.} The walk count reproduces all 17 terms the entry publishes, exactly, in integer arithmetic, with the index taken from the entry's stated offset (1) rather than fitted. The first of them are 56, 3136, 93731, 1771012, 23738426, 243933798, 2030417942, 14256118510,~\dots
+
+\item {\bfseries An independent enumeration.} For $n = 1,\dots,1$ every one of the $4^{5n}$ arrays was written out and tested cell by cell against the condition as the entry states it --- no transfer matrix, no row window, a separate piece of code. The counts agree with the walk count and with the entry.
+
+\item {\bfseries The claim on the raw data.} Each claim was evaluated on the entry's published terms alone, with no model involved, wherever the proved range and the published data overlap. It holds there.
+
+\item {\bfseries The annihilation test.} Carried to the derived bound $S = 287$ over the whole vector, in exact integer arithmetic, never sampled and never truncated.
+
+\end{itemize}
+
+\section{References}
+
+\begin{enumerate}
+
+\item OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, entry \href{https://oeis.org/A223868}{A223868}, revision 8, last modified Oct 03 2025.
+
+\item R. P. Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge University Press, 2012; \S4.7, the transfer-matrix method.
+
+\item M. Kauers and P. Paule, \emph{The Concrete Tetrahedron}, Springer, 2011; C-finite sequences and their closure properties.
+
+\item J. Berstel and C. Reutenauer, \emph{Noncommutative Rational Series with Applications}, Cambridge University Press, 2011; linear representations of counting automata and their reduction.
+
+\end{enumerate}
+\end{document}

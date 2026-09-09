@@ -460,7 +460,9 @@ def object_section(P, rec, paper):
     else:
         P.par("The statistic the entry names, {\\itshape "
               + paper.esc(p["stat"]) + "}, is written $s(B)$ below.")
-    if p["type"] == "value":
+    if p["type"] == "diagoreq":
+        pass
+    elif p["type"] == "value":
         vs = ", ".join(str(x) for x in p["values"])
         P.par(("No subblock may have" if p["negated"] else "Every subblock has")
               + f" $s(B)$ {p['rel']} one of $\\{{{vs}\\}}$.")

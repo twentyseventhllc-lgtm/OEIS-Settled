@@ -1,0 +1,116 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\setlength{\parskip}{2pt}
+\title{A proof of the conjectured linear recurrence and generating function for OEIS A269613}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
+\date{09 September 2026}
+\begin{document}
+\maketitle
+\section{The conjecture}
+
+The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A269613}{A269613} as
+
+\begin{quote}\itshape Number of length-n 0..2 arrays with no repeated value differing from the previous repeated value by other than plus two, zero or minus 1\end{quote}
+
+and carries in its Formula section the lines:
+
+\begin{quote}\ttfamily Empirical: a(n) = 4*a(n-1) - 2*a(n-2) - 4*a(n-3).\end{quote}
+
+\begin{quote}\ttfamily G.f.: 3*x*(1 - x - x\textasciicircum{}2) / ((1 - 2*x)*(1 - 2*x - 2*x\textasciicircum{}2)).\end{quote}
+
+That line carries no separate signature; the entry itself is by R. H. Hardin (Mar 01 2016).
+
+The word {\itshape Empirical} --- equivalently {\itshape Conjecture} --- is the entry's own: the statement is recorded as fitted to the published terms, and no proof is given there. As of revision 7, last modified Mar 21 2018, the entry records no proof and links to none, so the statement is open. This note settles it.
+
+Written out, the claim is
+
+\[a(n) = 4\,a(n-1) - 2\,a(n-2) - 4\,a(n-3).\]
+
+stated without a range; it first has meaning at $n = 4$, the least index at which all of $a(n-1),\dots,a(n-3)$ are terms of the sequence.
+
+Written out, the claim is
+
+\[\sum_{n \ge 1} a(n)\,x^n \;=\; \frac{3x - 3x^{2} - 3x^{3}}{1 - 4x + 2x^{2} + 4x^{3}}.\]
+
+\section{The object}
+
+The name is read as follows. The reading is not a guess: it is pinned against the entry's own published terms, and against an independent enumeration, before anything is proved (Section 7).
+
+The objects are the words $w_1\cdots w_L$ over $\{0,\dots,2\}$ of length $L = n$. Call $w_i$ a {\itshape repeated value} when $w_i = w_{i-1}$, and read the repeated values of a word in the order in which they occur.
+
+The entry's condition is: {\itshape no repeated value differing from the previous repeated value by other than plus two, zero or minus 1}.
+
+$a(n)$ is the number of such arrays. The entry's offset is 1, so its term of index $n$ is the count for $n$ rows.
+
+\section{The count is a walk count}
+
+Read the word one letter at a time. Whether the new letter is a repeated value is decided by the letter before it, and the condition compares it with a bounded amount of information about the repeated values already seen. Taking that information together with the last letter as the state makes the whole condition decidable one letter at a time.
+
+A word of length $L$ is then a walk of length $L$ from the empty state, and every word arises from exactly one walk, so $a(n) = w^{\mathsf T}M^{\,L}f$ and the count is C-finite.
+
+\section{The degree bound, derived}
+
+The reachable part of the digraph has $13$ states, $13$ after trimming; the forward identification of states with equal numbers of completions of every length, followed by the mirror identification on the edges coming in, leaves $S = 4$ blocks. The count satisfies the linear recurrence given by the characteristic polynomial of that $4\times4$ matrix, and that bound is computed, not assumed.
+
+\section{The decision procedure}
+
+Let $c_1,\dots,c_D$ be the coefficients of a claimed recurrence $a(n) = \sum_{i=1}^{D} c_i\,a(n-i)$, let $q(t) = t^{D} - \sum_{i=1}^{D} c_i t^{D-i}$ be its characteristic polynomial, and put
+
+\[u_m \;=\; \tilde w^{\mathsf T} L^{\,m-1} q(L)\,\tilde f \qquad (m \ge 1).\]
+
+Expanding the powers of $L$ and using the displayed formula for $a$, one gets $u_m = a(n) - \sum_{i=1}^{D} c_i\,a(n-i)$ with $n = m + D$. So $u_m$ is exactly the residual of the claim at that index, and the recurrence holds at an index $n$ if and only if the corresponding $u_m$ vanishes.
+
+Now $u_m = \tilde w^{\mathsf T} L^{m-1} y$ with $y = q(L)\tilde f$ a fixed vector, so $(u_m)$ satisfies the characteristic polynomial of $L$, of degree $4$: writing that polynomial as $t^{4} - \sum_{i=1}^{4} \lambda_i t^{4-i}$ gives $u_{m+4} = \sum_{i=1}^{4} \lambda_i u_{m+4-i}$. Hence $4$ consecutive vanishing residuals force every later residual to vanish, by induction. The test is therefore finite; and because it locates the {\itshape last} nonvanishing residual, it pins the threshold exactly rather than merely bounding it.
+
+Everything is carried out in exact integer arithmetic on the vector $L^{m-1}y$. The matrix $M$ is never formed.
+
+\section{Results}
+
+\begin{theorem} For A269613, the recurrence $a(n) = 4\,a(n-1) - 2\,a(n-2) - 4\,a(n-3)$ holds for every $n \ge 4$ --- at every index at which it can be stated.\end{theorem}
+
+{\itshape Proof.} The residuals $u_m$ were computed exactly for $m = 1,\dots,39$. Every one of them vanished. After it, more than $S = 4$ consecutive residuals vanish, so by Section 5 every later residual vanishes as well. $\square$
+
+\begin{theorem} For A269613, the generating function is exactly $\sum_{n\ge 1} a(n)x^n = \frac{3x - 3x^{2} - 3x^{3}}{1 - 4x + 2x^{2} + 4x^{3}}$.\end{theorem}
+
+{\itshape Proof.} Let $N(x)$ and $D(x)$ be the numerator and denominator above, $D(0)=1$. The residual test applied to the recurrence read off $D$ --- namely $a(n) = \sum_i c_i a(n-i)$ with $c_i$ the negated coefficients of $D$ --- gives vanishing residuals throughout, so the power series $F(x)=\sum_{n\ge 1}a(n)x^n$ satisfies $[x^k]\bigl(F(x)D(x)\bigr) = 0$ for every $k > 4$. The remaining coefficients of $F(x)D(x)$, for $k \le 9$, were computed from the walk count and agree with $N(x)$ term by term. Hence $F(x)D(x) = N(x)$ identically, which is the assertion. $\square$
+
+\section{Verification}
+
+Four checks were run, each reproducible from the code accompanying this note, and the first two are what pin the reading of the entry's English.
+
+\begin{itemize}
+
+\item {\bfseries The published terms.} The walk count reproduces all 26 terms the entry publishes, exactly, in integer arithmetic, with the index taken from the entry's stated offset (1) rather than fitted. The first of them are 3, 9, 27, 78, 222, 624, 1740, 4824,~\dots
+
+\item {\bfseries An independent enumeration.} For $n = 1,\dots,11$ every one of the $3^{1n}$ arrays was written out and tested cell by cell against the condition as the entry states it --- no transfer matrix, no row window, a separate piece of code. The counts agree with the walk count and with the entry.
+
+\item {\bfseries The claim on the raw data.} Each claim was evaluated on the entry's published terms alone, with no model involved, wherever the proved range and the published data overlap. It holds there.
+
+\item {\bfseries The annihilation test.} Carried to the derived bound $S = 4$ over the whole vector, in exact integer arithmetic, never sampled and never truncated.
+
+\end{itemize}
+
+\section{References}
+
+\begin{enumerate}
+
+\item OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, entry \href{https://oeis.org/A269613}{A269613}, revision 7, last modified Mar 21 2018.
+
+\item R. P. Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge University Press, 2012; \S4.7, the transfer-matrix method.
+
+\item M. Kauers and P. Paule, \emph{The Concrete Tetrahedron}, Springer, 2011; C-finite sequences and their closure properties.
+
+\item J. Berstel and C. Reutenauer, \emph{Noncommutative Rational Series with Applications}, Cambridge University Press, 2011; linear representations of counting automata and their reduction.
+
+\end{enumerate}
+\end{document}

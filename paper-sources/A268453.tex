@@ -1,0 +1,106 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\setlength{\parskip}{2pt}
+\title{A proof of the conjectured linear recurrence for OEIS A268453}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
+\date{09 September 2026}
+\begin{document}
+\maketitle
+\section{The conjecture}
+
+The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A268453}{A268453} as
+
+\begin{quote}\itshape Number of length-n 0..4 arrays with no adjacent pair x,x+1 followed at any distance by x+1,x\end{quote}
+
+and carries in its Formula section the line:
+
+\begin{quote}\ttfamily Empirical: a(n) = 39*a(n-1) -693*a(n-2) +7441*a(n-3) -54053*a(n-4) +282341*a(n-5) -1103223*a(n-6) +3324255*a(n-7) -7938129*a(n-8) +15426103*a(n-9) -25019179*a(n-10) +34622055*a(n-11) -41606078*a(n-12) +43991906*a(n-13) -41304450*a(n-14) +34649044*a(n-15) -26064185*a(n-16) +17607461*a(n-17) -10675286*a(n-18) +5792770*a(n-19) -2798790*a(n-20) +1194342*a(n-21) -444872*a(n-22) +142204*a(n-23) -38049*a(n-24) +8201*a(n-25) -1336*a(n-26) +146*a(n-27) -8*a(n-28)\end{quote}
+
+That line carries no separate signature; the entry itself is by R. H. Hardin (Feb 04 2016).
+
+The word {\itshape Empirical} --- equivalently {\itshape Conjecture} --- is the entry's own: the statement is recorded as fitted to the published terms, and no proof is given there. As of revision 4, last modified Feb 04 2016, the entry records no proof and links to none, so the statement is open. This note settles it.
+
+Written out, the claim is
+
+\begin{multline*} a(n) = 39\,a(n-1) - 693\,a(n-2) + 7441\,a(n-3) - 54053\,a(n-4) + 282341\,a(n-5) - 1103223\,a(n-6) + \\ 3324255\,a(n-7) - 7938129\,a(n-8) + 15426103\,a(n-9) - 25019179\,a(n-10) + 34622055\,a(n-11) - 41606078\,a(n-12) + \\ 43991906\,a(n-13) - 41304450\,a(n-14) + 34649044\,a(n-15) - 26064185\,a(n-16) + 17607461\,a(n-17) - 10675286\,a(n-18) + \\ 5792770\,a(n-19) - 2798790\,a(n-20) + 1194342\,a(n-21) - 444872\,a(n-22) + 142204\,a(n-23) - 38049\,a(n-24) + \\ 8201\,a(n-25) - 1336\,a(n-26) + 146\,a(n-27) - 8\,a(n-28). \end{multline*}
+
+stated without a range; it first has meaning at $n = 29$, the least index at which all of $a(n-1),\dots,a(n-28)$ are terms of the sequence.
+
+\section{The object}
+
+The name is read as follows. The reading is not a guess: it is pinned against the entry's own published terms, and against an independent enumeration, before anything is proved (Section 7).
+
+The objects are the words $w_1\cdots w_L$ over $\{0,\dots,4\}$ of length $L = n$. Call $w_i$ a {\itshape repeated value} when $w_i = w_{i-1}$, and read the repeated values of a word in the order in which they occur.
+
+The entry's condition is: {\itshape no adjacent pair x,x+1 followed at any distance by x+1,x}.
+
+$a(n)$ is the number of such arrays. The entry's offset is 1, so its term of index $n$ is the count for $n$ rows.
+
+\section{The count is a walk count}
+
+Read the word one letter at a time. Whether the new letter is a repeated value is decided by the letter before it, and the condition compares it with a bounded amount of information about the repeated values already seen. Taking that information together with the last letter as the state makes the whole condition decidable one letter at a time.
+
+A word of length $L$ is then a walk of length $L$ from the empty state, and every word arises from exactly one walk, so $a(n) = w^{\mathsf T}M^{\,L}f$ and the count is C-finite.
+
+\section{The degree bound, derived}
+
+The reachable part of the digraph has $81$ states, $81$ after trimming; the forward identification of states with equal numbers of completions of every length, followed by the mirror identification on the edges coming in, leaves $S = 67$ blocks. The count satisfies the linear recurrence given by the characteristic polynomial of that $67\times67$ matrix, and that bound is computed, not assumed.
+
+\section{The decision procedure}
+
+Let $c_1,\dots,c_D$ be the coefficients of a claimed recurrence $a(n) = \sum_{i=1}^{D} c_i\,a(n-i)$, let $q(t) = t^{D} - \sum_{i=1}^{D} c_i t^{D-i}$ be its characteristic polynomial, and put
+
+\[u_m \;=\; \tilde w^{\mathsf T} L^{\,m-1} q(L)\,\tilde f \qquad (m \ge 1).\]
+
+Expanding the powers of $L$ and using the displayed formula for $a$, one gets $u_m = a(n) - \sum_{i=1}^{D} c_i\,a(n-i)$ with $n = m + D$. So $u_m$ is exactly the residual of the claim at that index, and the recurrence holds at an index $n$ if and only if the corresponding $u_m$ vanishes.
+
+Now $u_m = \tilde w^{\mathsf T} L^{m-1} y$ with $y = q(L)\tilde f$ a fixed vector, so $(u_m)$ satisfies the characteristic polynomial of $L$, of degree $67$: writing that polynomial as $t^{67} - \sum_{i=1}^{67} \lambda_i t^{67-i}$ gives $u_{m+67} = \sum_{i=1}^{67} \lambda_i u_{m+67-i}$. Hence $67$ consecutive vanishing residuals force every later residual to vanish, by induction. The test is therefore finite; and because it locates the {\itshape last} nonvanishing residual, it pins the threshold exactly rather than merely bounding it.
+
+Everything is carried out in exact integer arithmetic on the vector $L^{m-1}y$. The matrix $M$ is never formed.
+
+\section{Results}
+
+\begin{theorem} For A268453, the recurrence of order $28$ displayed in Section 1 holds for every $n \ge 29$, at every index at which it can be stated.\end{theorem}
+
+{\itshape Proof.} The residuals $u_m$ were computed exactly for $m = 1,\dots,123$. Every one of them vanished. After it, more than $S = 67$ consecutive residuals vanish, so by Section 5 every later residual vanishes as well. $\square$
+
+\section{Verification}
+
+Four checks were run, each reproducible from the code accompanying this note, and the first two are what pin the reading of the entry's English.
+
+\begin{itemize}
+
+\item {\bfseries The published terms.} The walk count reproduces all 22 terms the entry publishes, exactly, in integer arithmetic, with the index taken from the entry's stated offset (1) rather than fitted. The first of them are 5, 25, 121, 581, 2776, 13204, 62535, 294967,~\dots
+
+\item {\bfseries An independent enumeration.} For $n = 1,\dots,7$ every one of the $5^{1n}$ arrays was written out and tested cell by cell against the condition as the entry states it --- no transfer matrix, no row window, a separate piece of code. The counts agree with the walk count and with the entry.
+
+\item {\bfseries The claim on the raw data.} Each claim was evaluated on the entry's published terms alone, with no model involved, wherever the proved range and the published data overlap. It holds there.
+
+\item {\bfseries The annihilation test.} Carried to the derived bound $S = 67$ over the whole vector, in exact integer arithmetic, never sampled and never truncated.
+
+\end{itemize}
+
+\section{References}
+
+\begin{enumerate}
+
+\item OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, entry \href{https://oeis.org/A268453}{A268453}, revision 4, last modified Feb 04 2016.
+
+\item R. P. Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge University Press, 2012; \S4.7, the transfer-matrix method.
+
+\item M. Kauers and P. Paule, \emph{The Concrete Tetrahedron}, Springer, 2011; C-finite sequences and their closure properties.
+
+\item J. Berstel and C. Reutenauer, \emph{Noncommutative Rational Series with Applications}, Cambridge University Press, 2011; linear representations of counting automata and their reduction.
+
+\end{enumerate}
+\end{document}

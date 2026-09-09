@@ -9,10 +9,15 @@ the minimal annihilator of its tail is constant once the tail starts beyond S
 --- so running the algorithm on 2S terms of that tail recovers the eventual
 minimal recurrence exactly, and the residual test then confirms it.
 """
+import time
 from fractions import Fraction
 
 
-def minimal_recurrence(seq):
+class TimedOut(Exception):
+    pass
+
+
+def minimal_recurrence(seq, deadline=None):
     """seq -> [c_1, ..., c_d] with seq[n] = sum c_i seq[n-i], minimal d, or None."""
     s = [Fraction(x) for x in seq]
     n = len(s)
@@ -20,6 +25,8 @@ def minimal_recurrence(seq):
     B = [Fraction(1)]
     L, m, b = 0, 1, Fraction(1)
     for i in range(n):
+        if deadline and (i & 7) == 0 and time.time() > deadline:
+            raise TimedOut("Berlekamp-Massey over the rationals timed out")
         d = s[i]
         for j in range(1, L + 1):
             d += C[j] * s[i - j]

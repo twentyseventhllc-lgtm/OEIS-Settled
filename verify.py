@@ -213,8 +213,12 @@ def check(rec):
     S = m.S
     if S != rec["states_lumped"]:
         return a, False, f"degree bound differs: {S} vs {rec['states_lumped']}"
-    Dmax = max(len(c["coeffs"]) for c in rec["claims"])
-    hi = off + len(T) + rowoff + S + Dmax + 40
+    Dmax = max([len(c["coeffs"]) for c in rec["claims"]]
+               + [len(c.get("poly") or []) for c in rec["claims"]])
+    extra = (2 * S + 24
+             if any(c["kind"] in ("order", "degree") for c in rec["claims"])
+             else 0)
+    hi = off + len(T) + rowoff + S + Dmax + extra + 40
     A = m.counts_from_zero(hi) if hasattr(m, "counts_from_zero") \
         else [1] + m.counts(hi)
     if divisor != 1:
@@ -387,6 +391,10 @@ def main():
         print(f"{len(fails)} failed:")
         for a, why in fails[:60]:
             print(f"  {a}: {why}")
+        with open(os.path.join(HERE, "data", "verify-failures.txt"), "w") as fh:
+            for a, why in fails:
+                fh.write(f"{a}\t{why}\n")
+        print("full list in data/verify-failures.txt")
     return 0 if not fails else 1
 
 

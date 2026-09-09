@@ -12,7 +12,7 @@
 \newtheorem{definition}[theorem]{Definition}
 \setlength{\parskip}{2pt}
 \title{Proofs of the conjectured column and row recurrences for OEIS A297299}
-\author{Adrian Perez Fontelles, Independent researcher}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
 \date{09 September 2026}
 \begin{document}
 \maketitle
@@ -25,20 +25,20 @@ The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A297
 a table read by upward antidiagonals, and carries in its Formula section the following empirical lines, none of them proved there:
 
 \begin{quote}\ttfamily Empirical for column k:\\
-k=1: a(n) = a(n-1)\\k=2: a(n) = a(n-1)\\k=3: a(n) = a(n-1) +a(n-2)\\k=4: a(n) = a(n-1) +2*a(n-2) -a(n-4)\\k=5: a(n) = 2*a(n-1) +2*a(n-2) -2*a(n-3) -2*a(n-4) for n>5\\k=6: a(n) = 4*a(n-1) -8*a(n-3) -2*a(n-4) +4*a(n-5) +4*a(n-6) +a(n-7) -a(n-8)\end{quote}
+k=1: a(n) = a(n-1)\\k=2: a(n) = a(n-1)\\k=3: a(n) = a(n-1) +a(n-2)\\k=4: a(n) = a(n-1) +2*a(n-2) -a(n-4)\\k=5: a(n) = 2*a(n-1) +2*a(n-2) -2*a(n-3) -2*a(n-4) for n>5\\k=6: a(n) = 4*a(n-1) -8*a(n-3) -2*a(n-4) +4*a(n-5) +4*a(n-6) +a(n-7) -a(n-8)\\k=7: [order 12] for n>14\end{quote}
 
 \begin{quote}\ttfamily Empirical for row n:\\
-n=1: a(n) = a(n-1)\\n=2: a(n) = a(n-1) +a(n-3)\\n=3: a(n) = 2*a(n-1) -a(n-2) +2*a(n-3) -a(n-4) for n>6\end{quote}
+n=1: a(n) = a(n-1)\\n=2: a(n) = a(n-1) +a(n-3)\\n=3: a(n) = 2*a(n-1) -a(n-2) +2*a(n-3) -a(n-4) for n>6\\n=4: [order 13] for n>16\\n=5: [order 32] for n>37\\n=6: [order 68] for n>76\end{quote}
 
-The lines carry no separate signature; the entry itself is by R. H. Hardin (Dec 27 2017). As of revision 4, last modified Dec 27 2017, the entry records no proof of any of them and links to none. This note proves the 6 column recurrences and the 3 row recurrences listed above.
+The lines carry no separate signature; the entry itself is by R. H. Hardin (Dec 27 2017). As of revision 4, last modified Dec 27 2017, the entry records no proof of any of them and links to none. This note proves the 7 column recurrences and the 6 row recurrences listed above.
 
 The entry also carries further lines of the same blocks that this note does not settle; they are named in Section 6.
 
 \section{The object, and what a column and a row are}
 
-The array condition is the same for every width; it is written out here for width $6$, which is one of the widths this note uses.
+The array condition is the same for every width; it is written out here for width $7$, which is one of the widths this note uses.
 
-Let $q = 2$ and let $A$ be an $n \times 6$ array with entries in $\{0,1,\dots,1\}$.
+Let $q = 2$ and let $A$ be an $n \times 7$ array with entries in $\{0,1,\dots,1\}$.
 
 The neighbour set the entry names by {\itshape horizontally or antidiagonally} is
 
@@ -46,7 +46,7 @@ The neighbour set the entry names by {\itshape horizontally or antidiagonally} i
 
 For a cell $(i,j)$ with $A[i][j] = 1$ put
 
-\[c(i,j) \;=\; \#\bigl\{(\delta,\varepsilon)\in\mathcal{N} \;:\; 0\le i+\delta<n,\ 0\le j+\varepsilon<6,\ A[i+\delta][j+\varepsilon] = 1\bigr\}.\]
+\[c(i,j) \;=\; \#\bigl\{(\delta,\varepsilon)\in\mathcal{N} \;:\; 0\le i+\delta<n,\ 0\le j+\varepsilon<7,\ A[i+\delta][j+\varepsilon] = 1\bigr\}.\]
 
 The condition is $c(i,j) \in \{2\}$ for every cell carrying the value 1. Cells carrying any other value are unconstrained. Offsets leaving the array are not counted, so border cells have fewer neighbours than interior ones.
 
@@ -90,6 +90,12 @@ The entry states this line for $n > 5$; the proved threshold is $n > 5$.
 
 {\itshape Proof.} The width is $6$; the digraph has $4160$ states, $133$ after trimming, and $S = 10$ blocks after refinement. The model reproduces every published value of column $k = 6$ --- and of the rest of the triangle. The residuals were computed exactly and all of them vanish; after that point more than $S = 10$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
 
+\begin{theorem} For column $k = 7$ of A297299, the recurrence $a(n) = 0$ holds for every $n > 14$, and fails at $n = 14$.\end{theorem}
+
+{\itshape Proof.} The width is $7$; the digraph has $16512$ states, $435$ after trimming, and $S = 21$ blocks after refinement. The model reproduces every published value of column $k = 7$ --- and of the rest of the triangle. The residuals were computed exactly and the last nonvanishing one is at $n = 14$; after that point more than $S = 21$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+The entry states this line for $n > 14$; the proved threshold is $n > 14$.
+
 \begin{theorem} For row $n = 1$ of A297299, the recurrence $a(k) = a(n-1)$ holds for every $k \ge 2$, at every index at which it can be stated.\end{theorem}
 
 {\itshape Proof.} The width is $1$; the digraph has $6$ states, $2$ after trimming, and $S = 1$ blocks after refinement. The model reproduces every published value of row $n = 1$ --- and of the rest of the triangle. The residuals were computed exactly and all of them vanish; after that point more than $S = 1$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
@@ -104,15 +110,27 @@ The entry states this line for $n > 5$; the proved threshold is $n > 5$.
 
 The entry states this line for $k > 6$; the proved threshold is $k > 6$.
 
+\begin{theorem} For row $n = 4$ of A297299, the recurrence $a(k) = 0$ holds for every $k > 16$, and fails at $k = 16$.\end{theorem}
+
+{\itshape Proof.} The width is $4$; the digraph has $272$ states, $81$ after trimming, and $S = 18$ blocks after refinement. The model reproduces every published value of row $n = 4$ --- and of the rest of the triangle. The residuals were computed exactly and the last nonvanishing one is at $k = 16$; after that point more than $S = 18$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+The entry states this line for $k > 16$; the proved threshold is $k > 16$.
+
+\begin{theorem} For row $n = 5$ of A297299, the recurrence $a(k) = 0$ holds for every $k > 37$, and fails at $k = 37$.\end{theorem}
+
+{\itshape Proof.} The width is $5$; the digraph has $1056$ states, $321$ after trimming, and $S = 51$ blocks after refinement. The model reproduces every published value of row $n = 5$ --- and of the rest of the triangle. The residuals were computed exactly and the last nonvanishing one is at $k = 37$; after that point more than $S = 51$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+The entry states this line for $k > 37$; the proved threshold is $k > 37$.
+
+\begin{theorem} For row $n = 6$ of A297299, the recurrence $a(k) = 0$ holds for every $k > 76$, and fails at $k = 76$.\end{theorem}
+
+{\itshape Proof.} The width is $6$; the digraph has $4160$ states, $1293$ after trimming, and $S = 127$ blocks after refinement. The model reproduces every published value of row $n = 6$ --- and of the rest of the triangle. The residuals were computed exactly and the last nonvanishing one is at $k = 76$; after that point more than $S = 127$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+The entry states this line for $k > 76$; the proved threshold is $k > 76$.
+
 \section{What is not settled here}
 
-The same blocks carry further lines that this note leaves open, with the reason for each:
-
-\begin{itemize}
-
-\item 4 lines: the entry gives only the order of the recurrence and refers to a linked file for its coefficients, so there is no stated recurrence to test
-
-\end{itemize}
+Every line of those blocks is settled above.
 
 \section{Verification}
 

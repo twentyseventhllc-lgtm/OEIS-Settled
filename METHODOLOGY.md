@@ -3,7 +3,7 @@
 How a conjecture the OEIS records as open becomes a proved result here, what each gate is
 for, and what has gone wrong.
 
-**Author and director of the work: Adrian Perez Fontelles.** The standards below — what
+**Authors and directors of the work: Adrian Perez Fontelles and Gaspard Moulinier.** The standards below — what
 counts as settled, what must be checked and how, what may be claimed — are his
 specification. The mathematics, code and drafting were carried out by an AI system working
 to it.

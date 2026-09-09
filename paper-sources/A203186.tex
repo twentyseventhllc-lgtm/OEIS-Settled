@@ -1,0 +1,112 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\setlength{\parskip}{2pt}
+\title{A proof of the conjectured linear recurrence for OEIS A203186}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
+\date{09 September 2026}
+\begin{document}
+\maketitle
+\section{The conjecture}
+
+The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A203186}{A203186} as
+
+\begin{quote}\itshape Number of n X 3 0..4 arrays with every nonzero element less than or equal to some horizontal or vertical neighbor\end{quote}
+
+and carries in its Formula section the line:
+
+\begin{quote}\ttfamily Empirical: a(n) = 95*a(n-1) -2335*a(n-2) +88226*a(n-3) -1401023*a(n-4) +27475918*a(n-5) -129518265*a(n-6) +3400204242*a(n-7) -8711692058*a(n-8) +135640160693*a(n-9) -1855897876716*a(n-10) -5857278804400*a(n-11) -207877345476359*a(n-12) -658851172326065*a(n-13) -2982964537519341*a(n-14) -1083968424653882*a(n-15) +175197610451185704*a(n-16) +687892185774751661*a(n-17) +749598878295789128*a(n-18) -1959929535011513006*a(n-19) -101370860705854696394*a(n-20) -340081565613577375756*a(n-21) +730110761278751037036*a(n-22) +3920118189702812561672*a(n-23) +12619795867291127254976*a(n-24) +27464586017442664267488*a(n-25) -245687729406837440328288*a(n-26) -909390951510003354547680*a(n-27) +1548025686942659823298048*a(n-28) +8058128637358990922686656*a(n-29) -2828697130837882118085760*a(n-30) -34619981240886667486806528*a(n-31) -13877583110751726094654208*a(n-32) +62093718052951543212177920*a(n-33) +85983078233799603752551424*a(n-34) +83941563134487710369197056*a(n-35) -150134157540885554603827200*a(n-36) -718538527715802110878629888*a(n-37) -125076595984856461470449664*a(n-38) +1768257902572823829865512960*a(n-39) +995241004870815671157964800*a(n-40) -2384512233033125505637416960*a(n-41) -1921544137783350730214277120*a(n-42) +1893287364220246513759027200*a(n-43) +1987808550619888781399162880*a(n-44) -836639937477404072843673600*a(n-45) -1213996168239086214394675200*a(n-46) +146320063422714906830438400*a(n-47) +433459533137700803995238400*a(n-48) +26235006449466816331776000*a(n-49) -82818213393016855461888000*a(n-50) -14649656375672234311680000*a(n-51) +6466292717028177346560000*a(n-52) +1643415634622545920000000*a(n-53).\end{quote}
+
+That line carries no separate signature; the entry itself is by R. H. Hardin (Dec 30 2011).
+
+The word {\itshape Empirical} --- equivalently {\itshape Conjecture} --- is the entry's own: the statement is recorded as fitted to the published terms, and no proof is given there. As of revision 7, last modified Apr 10 2022, the entry records no proof and links to none, so the statement is open. This note settles it.
+
+Written out, the claim is
+
+\begin{multline*} a(n) = 95\,a(n-1) - 2335\,a(n-2) + 88226\,a(n-3) - 1401023\,a(n-4) + 27475918\,a(n-5) - 129518265\,a(n-6) + \\ 3400204242\,a(n-7) - 8711692058\,a(n-8) + 135640160693\,a(n-9) - 1855897876716\,a(n-10) - 5857278804400\,a(n-11) - 207877345476359\,a(n-12) - \\ 658851172326065\,a(n-13) - 2982964537519341\,a(n-14) - 1083968424653882\,a(n-15) + 175197610451185704\,a(n-16) + 687892185774751661\,a(n-17) + 749598878295789128\,a(n-18) - \\ 1959929535011513006\,a(n-19) - 101370860705854696394\,a(n-20) - 340081565613577375756\,a(n-21) + 730110761278751037036\,a(n-22) + 3920118189702812561672\,a(n-23) + 12619795867291127254976\,a(n-24) + \\ 27464586017442664267488\,a(n-25) - 245687729406837440328288\,a(n-26) - 909390951510003354547680\,a(n-27) + 1548025686942659823298048\,a(n-28) + 8058128637358990922686656\,a(n-29) - 2828697130837882118085760\,a(n-30) - \\ 34619981240886667486806528\,a(n-31) - 13877583110751726094654208\,a(n-32) + 62093718052951543212177920\,a(n-33) + 85983078233799603752551424\,a(n-34) + 83941563134487710369197056\,a(n-35) - 150134157540885554603827200\,a(n-36) - \\ 718538527715802110878629888\,a(n-37) - 125076595984856461470449664\,a(n-38) + 1768257902572823829865512960\,a(n-39) + 995241004870815671157964800\,a(n-40) - 2384512233033125505637416960\,a(n-41) - 1921544137783350730214277120\,a(n-42) + \\ 1893287364220246513759027200\,a(n-43) + 1987808550619888781399162880\,a(n-44) - 836639937477404072843673600\,a(n-45) - 1213996168239086214394675200\,a(n-46) + 146320063422714906830438400\,a(n-47) + 433459533137700803995238400\,a(n-48) + \\ 26235006449466816331776000\,a(n-49) - 82818213393016855461888000\,a(n-50) - 14649656375672234311680000\,a(n-51) + 6466292717028177346560000\,a(n-52) + 1643415634622545920000000\,a(n-53). \end{multline*}
+
+stated without a range; it first has meaning at $n = 54$, the least index at which all of $a(n-1),\dots,a(n-53)$ are terms of the sequence.
+
+\section{The object}
+
+The name is read as follows. The reading is not a guess: it is pinned against the entry's own published terms, and against an independent enumeration, before anything is proved (Section 7).
+
+Let $A$ be an $n' \times 3$ array over $\{0,\dots,4\}$ with $n' = n$ rows.
+
+The entry's neighbours, {\itshape horizontal or vertical}, are the cells at the offsets
+
+\[\mathcal{N} = \{(-1,0), (0,-1), (0,1), (1,0)\}\]
+
+that lie inside the array.
+
+The condition is that every cell whose value $x$ is nonzero has at least 1 neighbour $v$ with $x$ less than or equal to $v$. Cells of value zero are unconstrained.
+
+$a(n)$ is the number of such arrays. The entry's offset is 1, so its term of index $n$ is the count for $n$ rows.
+
+\section{The count is a walk count}
+
+Every neighbour offset moves at most one row, so whether a cell of row $i$ satisfies its condition is decided by rows $i-1$, $i$ and $i+1$. Take as state the last two rows; appending a row decides the row before it, and the accepting condition decides the last one.
+
+An array of $n'$ rows is then exactly a walk of length $n'$ from the empty state to an accepting one, so $a(n) = w^{\mathsf T}M^{\,n'}f$ and the count is C-finite.
+
+\section{The degree bound, derived}
+
+The reachable part of the digraph has $15751$ states, $15751$ after trimming; the forward identification of states with equal numbers of completions of every length, then the mirror identification on the edges coming in, leaves $S = 76$ blocks. The count satisfies the linear recurrence given by the characteristic polynomial of that $76\times76$ matrix; the bound is computed, not assumed.
+
+\section{The decision procedure}
+
+Let $c_1,\dots,c_D$ be the coefficients of a claimed recurrence $a(n) = \sum_{i=1}^{D} c_i\,a(n-i)$, let $q(t) = t^{D} - \sum_{i=1}^{D} c_i t^{D-i}$ be its characteristic polynomial, and put
+
+\[u_m \;=\; \tilde w^{\mathsf T} L^{\,m-1} q(L)\,\tilde f \qquad (m \ge 1).\]
+
+Expanding the powers of $L$ and using the displayed formula for $a$, one gets $u_m = a(n) - \sum_{i=1}^{D} c_i\,a(n-i)$ with $n = m + D$. So $u_m$ is exactly the residual of the claim at that index, and the recurrence holds at an index $n$ if and only if the corresponding $u_m$ vanishes.
+
+Now $u_m = \tilde w^{\mathsf T} L^{m-1} y$ with $y = q(L)\tilde f$ a fixed vector, so $(u_m)$ satisfies the characteristic polynomial of $L$, of degree $76$: writing that polynomial as $t^{76} - \sum_{i=1}^{76} \lambda_i t^{76-i}$ gives $u_{m+76} = \sum_{i=1}^{76} \lambda_i u_{m+76-i}$. Hence $76$ consecutive vanishing residuals force every later residual to vanish, by induction. The test is therefore finite; and because it locates the {\itshape last} nonvanishing residual, it pins the threshold exactly rather than merely bounding it.
+
+Everything is carried out in exact integer arithmetic on the vector $L^{m-1}y$. The matrix $M$ is never formed.
+
+\section{Results}
+
+\begin{theorem} For A203186, the recurrence of order $53$ displayed in Section 1 holds for every $n \ge 54$, at every index at which it can be stated.\end{theorem}
+
+{\itshape Proof.} The residuals $u_m$ were computed exactly for $m = 1,\dots,148$. Every one of them vanished. After it, more than $S = 76$ consecutive residuals vanish, so by Section 5 every later residual vanishes as well. $\square$
+
+\section{Verification}
+
+Four checks were run, each reproducible from the code accompanying this note, and the first two are what pin the reading of the entry's English.
+
+\begin{itemize}
+
+\item {\bfseries The published terms.} The walk count reproduces all 13 terms the entry publishes, exactly, in integer arithmetic, with the index taken from the entry's stated offset (1) rather than fitted. The first of them are 25, 3209, 263725, 19617781, 1508941377, 117061422325, 9045835238617, 698574745175731,~\dots
+
+\item {\bfseries An independent enumeration.} For $n = 1,\dots,2$ every one of the $5^{3n}$ arrays was written out and tested cell by cell against the condition as the entry states it --- no transfer matrix, no row window, a separate piece of code. The counts agree with the walk count and with the entry.
+
+\item {\bfseries The claim on the raw data.} Each claim was evaluated on the entry's published terms alone, with no model involved, wherever the proved range and the published data overlap. It holds there.
+
+\item {\bfseries The annihilation test.} Carried to the derived bound $S = 76$ over the whole vector, in exact integer arithmetic, never sampled and never truncated.
+
+\end{itemize}
+
+\section{References}
+
+\begin{enumerate}
+
+\item OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, entry \href{https://oeis.org/A203186}{A203186}, revision 7, last modified Apr 10 2022.
+
+\item R. P. Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge University Press, 2012; \S4.7, the transfer-matrix method.
+
+\item M. Kauers and P. Paule, \emph{The Concrete Tetrahedron}, Springer, 2011; C-finite sequences and their closure properties.
+
+\item J. Berstel and C. Reutenauer, \emph{Noncommutative Rational Series with Applications}, Cambridge University Press, 2011; linear representations of counting automata and their reduction.
+
+\end{enumerate}
+\end{document}

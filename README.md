@@ -1,6 +1,6 @@
 # Settling open OEIS conjectures, in bulk
 
-**Adrian Perez Fontelles, Independent researcher.**
+**Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers.**
 
 Thousands of OEIS entries carry a line beginning `Empirical:` or `Conjecture:` —
 usually a linear recurrence or a generating function fitted to the terms the entry
@@ -86,6 +86,26 @@ entries, where the two readings coincide; not one wrong result escaped.
 **One result = one entry.** An entry that states the same fact as a recurrence and
 again as a generating function gets one paper and counts once. Nothing is counted
 twice for being written twice.
+
+## Where things stand
+
+| | |
+| ---: | --- |
+| **5,920** | OEIS entries settled, one paper each |
+| 10,372 | separate conjectural lines proved on them |
+| 5,920 | of 5,920 pass `verify.py`, re-derived from the entry's name alone |
+| 30 | engines, each pinned against its entries' own published terms |
+
+The lines break down as 6,505 linear recurrences, 1,904 statements of the *order* of a
+recurrence whose coefficients the entry does not write down, 1,572 generating functions, 377
+polynomial closed forms and 14 statements of the *degree* of a polynomial. 5,548 of them
+carry R. H. Hardin's name, 1,170 Colin Barker's; the rest are unsigned lines on entries by
+their authors.
+
+**One result = one entry.** An entry that states the same fact as a recurrence and again as a
+generating function gets one paper and counts once. The two numbers above are both reported
+because they answer different questions: how many entries stopped being open, and how many
+separate conjectural statements were settled.
 
 ## Nothing here is posted to the OEIS
 

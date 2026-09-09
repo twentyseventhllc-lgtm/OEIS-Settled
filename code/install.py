@@ -48,7 +48,15 @@ def still_open(anum, line):
 
 
 def one(job):
-    rec, date = job
+    try:
+        return _one(job)
+    except Exception as e:
+        return {"anum": job[0].get("anum", "?"),
+                "skipped": f"{type(e).__name__}: {e}"}
+
+
+def _one(job):
+    rec, date, reuse = job
     a = rec["anum"]
     claims = [c for c in rec["claims"] if c["status"] == "proved"]
     e = corpus.parse(a)
@@ -64,11 +72,15 @@ def one(job):
     if not claims:
         return {"anum": a, "skipped": "no conjecture line still open"}
     rec = dict(rec, claims=claims)
-    P = (mkpaper_table.make(rec, date) if rec.get("table")
-         else mkpaper_transfer.make(rec, date))
-    built, err = paper.build(P.tex(date), PAPERS, a, keep_tex_dir=SOURCES)
-    if not built:
-        return {"anum": a, "skipped": "paper did not build: " + err[:200]}
+    if reuse and os.path.exists(os.path.join(PAPERS, a + ".pdf")) \
+            and os.path.exists(os.path.join(SOURCES, a + ".tex")):
+        built = True
+    else:
+        P = (mkpaper_table.make(rec, date) if rec.get("table")
+             else mkpaper_transfer.make(rec, date))
+        built, err = paper.build(P.tex(date), PAPERS, a, keep_tex_dir=SOURCES)
+        if not built:
+            return {"anum": a, "skipped": "paper did not build: " + err[:200]}
     if rec.get("table"):
         return {
             "id": a, "anum": a, "name": rec["name"], "offset": rec["offset"],
@@ -130,6 +142,8 @@ def main():
     ap.add_argument("jsonl", nargs="+")
     ap.add_argument("--workers", type=int, default=10)
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--reuse", action="store_true",
+                    help="keep a paper that is already built")
     a = ap.parse_args()
     date = datetime.date.today().strftime("%d %B %Y")
     have = load_results()
@@ -145,7 +159,7 @@ def main():
             if not any(c["status"] == "proved" for c in rec["claims"]):
                 continue
             seen.add(rec["anum"])
-            jobs.append((rec, date))
+            jobs.append((rec, date, a.reuse))
     if a.limit:
         jobs = jobs[:a.limit]
     print(f"{len(jobs)} new results to install")

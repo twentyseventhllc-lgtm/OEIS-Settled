@@ -17,7 +17,8 @@ def build(fam, spec, W, transposed, cap, rowcap):
     sp["W"] = W
     sp["transposed"] = transposed
     if hasattr(fam, "model"):
-        return fam.model(sp), None, None, None
+        wo = (fam.whole_ok_for(sp, W) if hasattr(fam, "whole_ok_for") else None)
+        return fam.model(sp, W=W), wo, W, sp.get("q")
     valid, first_ok, whole_ok, W2, q = fam.make(sp, W=W)
     if q ** W2 > rowcap:
         raise automaton.TooBig(f"row alphabet {q}^{W2} over cap")

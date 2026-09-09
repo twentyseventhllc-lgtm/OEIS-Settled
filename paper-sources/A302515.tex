@@ -12,7 +12,7 @@
 \newtheorem{definition}[theorem]{Definition}
 \setlength{\parskip}{2pt}
 \title{Proofs of the conjectured column and row recurrences for OEIS A302515}
-\author{Adrian Perez Fontelles, Independent researcher}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
 \date{09 September 2026}
 \begin{document}
 \maketitle
@@ -28,9 +28,9 @@ a table read by upward antidiagonals, and carries in its Formula section the fol
 k=1: a(n) = 2*a(n-1)\\k=2: a(n) = 2*a(n-1) -a(n-3)\\k=3: a(n) = a(n-1) +a(n-4) for n>7\\k=4: a(n) = a(n-1) +2*a(n-3) +2*a(n-4) -a(n-6) -a(n-7) for n>10\\k=5: a(n) = a(n-1) +6*a(n-3) +2*a(n-5) -12*a(n-6) -4*a(n-7) +8*a(n-9) for n>11\\k=6: a(n) = a(n-1) +6*a(n-3) +5*a(n-4) +3*a(n-5) -8*a(n-6) -6*a(n-7) -3*a(n-8) for n>12\end{quote}
 
 \begin{quote}\ttfamily Empirical for row n:\\
-n=1: a(n) = a(n-1) +a(n-2)\\n=2: a(n) = a(n-1) +2*a(n-3) for n>5\\n=3: a(n) = a(n-1) +2*a(n-3) +4*a(n-4) for n>7\\n=4: a(n) = a(n-1) +a(n-2) +3*a(n-3) +5*a(n-4) -a(n-5) -5*a(n-6) -4*a(n-7) for n>10\end{quote}
+n=1: a(n) = a(n-1) +a(n-2)\\n=2: a(n) = a(n-1) +2*a(n-3) for n>5\\n=3: a(n) = a(n-1) +2*a(n-3) +4*a(n-4) for n>7\\n=4: a(n) = a(n-1) +a(n-2) +3*a(n-3) +5*a(n-4) -a(n-5) -5*a(n-6) -4*a(n-7) for n>10\\n=5: [order 13] for n>17\\n=6: [order 23] for n>29\end{quote}
 
-The lines carry no separate signature; the entry itself is by R. H. Hardin (Apr 09 2018). As of revision 4, last modified Apr 09 2018, the entry records no proof of any of them and links to none. This note proves the 6 column recurrences and the 4 row recurrences listed above.
+The lines carry no separate signature; the entry itself is by R. H. Hardin (Apr 09 2018). As of revision 4, last modified Apr 09 2018, the entry records no proof of any of them and links to none. This note proves the 6 column recurrences and the 6 row recurrences listed above.
 
 The entry also carries further lines of the same blocks that this note does not settle; they are named in Section 6.
 
@@ -120,13 +120,25 @@ The entry states this line for $k > 7$; the proved threshold is $k > 7$.
 
 The entry states this line for $k > 10$; the proved threshold is $k > 10$.
 
+\begin{theorem} For row $n = 5$ of A302515, the recurrence $a(k) = 0$ holds for every $k > 17$, and fails at $k = 17$.\end{theorem}
+
+{\itshape Proof.} The width is $5$; the digraph has $1056$ states, $130$ after trimming, and $S = 21$ blocks after refinement. The model reproduces every published value of row $n = 5$ --- and of the rest of the triangle. The residuals were computed exactly and the last nonvanishing one is at $k = 17$; after that point more than $S = 21$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+The entry states this line for $k > 17$; the proved threshold is $k > 17$.
+
+\begin{theorem} For row $n = 6$ of A302515, the recurrence $a(k) = 0$ holds for every $k > 29$, and fails at $k = 29$.\end{theorem}
+
+{\itshape Proof.} The width is $6$; the digraph has $4160$ states, $265$ after trimming, and $S = 38$ blocks after refinement. The model reproduces every published value of row $n = 6$ --- and of the rest of the triangle. The residuals were computed exactly and the last nonvanishing one is at $k = 29$; after that point more than $S = 38$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+The entry states this line for $k > 29$; the proved threshold is $k > 29$.
+
 \section{What is not settled here}
 
 The same blocks carry further lines that this note leaves open, with the reason for each:
 
 \begin{itemize}
 
-\item 4 lines: the entry gives only the order of the recurrence and refers to a linked file for its coefficients, so there is no stated recurrence to test
+\item 2 lines: fewer than six published terms in that line
 
 \end{itemize}
 

@@ -1,0 +1,111 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\setlength{\parskip}{2pt}
+\title{Proofs of the conjectured column and row recurrences for OEIS A268971}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
+\date{09 September 2026}
+\begin{document}
+\maketitle
+\section{The conjectures}
+
+The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A268971}{A268971} as
+
+\begin{quote}\itshape T(n,k)=Number of nXk 0..2 arrays with some element plus some horizontally or antidiagonally adjacent neighbor totalling two not more than once\end{quote}
+
+a table read by upward antidiagonals, and carries in its Formula section the following empirical lines, none of them proved there:
+
+\begin{quote}\ttfamily Empirical for column k:\\
+k=1: a(n) = 3*a(n-1)\\k=2: a(n) = 8*a(n-1) -16*a(n-2)\\k=3: a(n) = 12*a(n-1) -36*a(n-2)\end{quote}
+
+The lines carry no separate signature; the entry itself is by R. H. Hardin (Feb 16 2016). As of revision 4, last modified Feb 16 2016, the entry records no proof of any of them and links to none. This note proves the 3 column recurrences listed above.
+
+The entry also carries further lines of the same blocks that this note does not settle; they are named in Section 6.
+
+\section{The object, and what a column and a row are}
+
+The array condition is the same for every width; it is written out here for width $3$, which is one of the widths this note uses.
+
+Let $A$ be an $n' \times 3$ array over $\{0,\dots,2\}$ with $n' = n$ rows.
+
+The entry's {\itshape horizontally or antidiagonally} adjacency is used once per pair, so the offsets taken are
+
+\[\mathcal{D} = \{(0,1), (1,-1)\}.\]
+
+Let
+
+\[N(A) = \#\bigl\{\,((i,j),(i{+}\delta,j{+}\varepsilon)) : (\delta,\varepsilon) \in \mathcal{D},\ \text{both cells inside the array},\ A[i][j] + A[i{+}\delta][j{+}\varepsilon] = 2\,\bigr\}.\]
+
+The condition is $N(A) \le 1$.
+
+$T(n,k)$ is the number of such arrays with $n + 0$ rows and $k + 0$ columns. Column $k = K$ is therefore the sequence $n \mapsto T(n,K)$, an array count of fixed width $K + 0$; row $n = N$ is the sequence $k \mapsto T(N,k)$, which is the same count with the roles of the two directions exchanged --- an array count of fixed width $N + 0$ read across.
+
+The entry publishes its table by upward antidiagonals, so every published term is a value $T(n,k)$ with both indices known. All 41 of them are used as the data gate below: the models are required to reproduce the whole published triangle, not merely the column or row a given line is about.
+
+\section{Each column and each row is a walk count}
+
+Fix the width. The condition on a cell reaches at most one row up and one row down, so a window of three consecutive rows decides the whole of its middle row, and an array of $n$ rows is exactly a walk of length $n-1$ in the digraph whose states are pairs of consecutive rows, starting at a state with no row above and ending at an accepting one. With $M$ its adjacency matrix, $w$ the indicator of the starting states and $f$ of the accepting ones, the count is $w^{\mathsf T}M^{\,n-1}f$, hence C-finite.
+
+States from which the same number of arrays can be completed, for every remaining number of rows, are identified by partition refinement: begin with the partition by acceptance and separate two states as soon as they send different numbers of edges into some block. On the blocks of the result the number of completions of each length is constant, so the quotient counts exactly what the original does; the mirror refinement, on the edges coming in rather than going out, is then applied in the same way. Writing $L$ for the resulting matrix and $S$ for its size, the sequence satisfies the linear recurrence given by the characteristic polynomial of $L$, of degree $S$. That is the degree bound used below, and it is computed separately for every line, never assumed.
+
+For a claimed recurrence with characteristic polynomial $q$, the residual $u_m = \tilde w^{\mathsf T}L^{\,m-1}q(L)\tilde f$ is exactly the residual of the claim at one index and itself satisfies the characteristic polynomial of $L$. So $S$ consecutive vanishing residuals force every later one, the test is finite, and the last nonvanishing residual pins the threshold exactly.
+
+\section{Results}
+
+\begin{theorem} For column $k = 1$ of A268971, the recurrence $a(n) = 3\,a(n-1)$ holds for every $n \ge 2$, at every index at which it can be stated.\end{theorem}
+
+{\itshape Proof.} The width is $1$; the digraph has $4$ states, $4$ after trimming, and $S = 1$ blocks after refinement. The model reproduces every published value of column $k = 1$ --- and of the rest of the triangle. The residuals were computed exactly and all of them vanish; after that point more than $S = 1$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+\begin{theorem} For column $k = 2$ of A268971, the recurrence $a(n) = 8\,a(n-1) - 16\,a(n-2)$ holds for every $n \ge 3$, at every index at which it can be stated.\end{theorem}
+
+{\itshape Proof.} The width is $2$; the digraph has $25$ states, $16$ after trimming, and $S = 3$ blocks after refinement. The model reproduces every published value of column $k = 2$ --- and of the rest of the triangle. The residuals were computed exactly and all of them vanish; after that point more than $S = 3$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+\begin{theorem} For column $k = 3$ of A268971, the recurrence $a(n) = 12\,a(n-1) - 36\,a(n-2)$ holds for every $n \ge 3$, at every index at which it can be stated.\end{theorem}
+
+{\itshape Proof.} The width is $3$; the digraph has $64$ states, $37$ after trimming, and $S = 4$ blocks after refinement. The model reproduces every published value of column $k = 3$ --- and of the rest of the triangle. The residuals were computed exactly and all of them vanish; after that point more than $S = 4$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+\section{What is not settled here}
+
+The same blocks carry further lines that this note leaves open, with the reason for each:
+
+\begin{itemize}
+
+\item 7 lines: fewer than six published terms in that line
+
+\item 4 lines: model does not reproduce the published table
+
+\end{itemize}
+
+\section{Verification}
+
+\begin{itemize}
+
+\item {\bfseries The published table.} Every one of the 41 values $T(n,k)$ the entry publishes was recomputed from the models and agrees exactly, in integer arithmetic, with the indices read off the entry's offset (1) and its stated shape.
+
+\item {\bfseries The claims on the raw data.} Each recurrence was evaluated on the entry's published values alone, with no model involved, wherever the proved range and the published data overlap.
+
+\item {\bfseries The annihilation test.} Carried to the derived bound for each line separately, over the whole vector, in exact integer arithmetic.
+
+\end{itemize}
+
+\section{References}
+
+\begin{enumerate}
+
+\item OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, entry \href{https://oeis.org/A268971}{A268971}, revision 4, last modified Feb 16 2016.
+
+\item R. P. Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge University Press, 2012; \S4.7.
+
+\item J. Berstel and C. Reutenauer, \emph{Noncommutative Rational Series with Applications}, Cambridge University Press, 2011.
+
+\end{enumerate}
+\end{document}

@@ -1,0 +1,112 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\setlength{\parskip}{2pt}
+\title{A proof of the conjectured linear recurrence for OEIS A229458}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
+\date{09 September 2026}
+\begin{document}
+\maketitle
+\section{The conjecture}
+
+The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A229458}{A229458} as
+
+\begin{quote}\itshape Number of defective 3-colorings of an n X 7 0..2 array connected horizontally and vertically with exactly one mistake and colors introduced in row-major 0..2 order\end{quote}
+
+and carries in its Formula section the line:
+
+\begin{quote}\ttfamily Empirical: a(n) = 110*a(n-1) - 5243*a(n-2) + 144650*a(n-3) - 2610593*a(n-4) + 33017408*a(n-5) - 305811128*a(n-6) + 2137462184*a(n-7) - 11513372884*a(n-8) + 48502300256*a(n-9) - 161412354008*a(n-10) + 427044616576*a(n-11) - 901108804624*a(n-12) + 1517344261024*a(n-13) - 2035022988048*a(n-14) + 2164824966496*a(n-15) - 1815145078160*a(n-16) + 1189730382208*a(n-17) - 603502277248*a(n-18) + 234173991424*a(n-19) - 68574152448*a(n-20) + 14906358784*a(n-21) - 2352277504*a(n-22) + 260550656*a(n-23) - 19140608*a(n-24) + 835584*a(n-25) - 16384*a(n-26).\end{quote}
+
+That line carries no separate signature; the entry itself is by R. H. Hardin (Sep 24 2013).
+
+The word {\itshape Empirical} --- equivalently {\itshape Conjecture} --- is the entry's own: the statement is recorded as fitted to the published terms, and no proof is given there. As of revision 9, last modified Apr 27 2021, the entry records no proof and links to none, so the statement is open. This note settles it.
+
+Written out, the claim is
+
+\begin{multline*} a(n) = 110\,a(n-1) - 5243\,a(n-2) + 144650\,a(n-3) - 2610593\,a(n-4) + 33017408\,a(n-5) - 305811128\,a(n-6) + \\ 2137462184\,a(n-7) - 11513372884\,a(n-8) + 48502300256\,a(n-9) - 161412354008\,a(n-10) + 427044616576\,a(n-11) - 901108804624\,a(n-12) + \\ 1517344261024\,a(n-13) - 2035022988048\,a(n-14) + 2164824966496\,a(n-15) - 1815145078160\,a(n-16) + 1189730382208\,a(n-17) - 603502277248\,a(n-18) + \\ 234173991424\,a(n-19) - 68574152448\,a(n-20) + 14906358784\,a(n-21) - 2352277504\,a(n-22) + 260550656\,a(n-23) - 19140608\,a(n-24) + \\ 835584\,a(n-25) - 16384\,a(n-26). \end{multline*}
+
+stated without a range; it first has meaning at $n = 27$, the least index at which all of $a(n-1),\dots,a(n-26)$ are terms of the sequence.
+
+\section{The object}
+
+The name is read as follows. The reading is not a guess: it is pinned against the entry's own published terms, and against an independent enumeration, before anything is proved (Section 7).
+
+Let $A$ be an $n' \times 7$ array of colours from $\{0,\dots,2\}$ with $n' = n$ rows.
+
+The entry's connectivity, {\itshape horizontally and vertically}, joins each cell to the cells at the offsets
+
+\[\mathcal{D} = \{(0,1), (1,0)\},\]
+
+one per axis, so that each edge is counted once. A {\itshape mistake} is an edge whose two cells carry the same colour, and the condition is that there are exactly $1$ of them.
+
+The entry's labelling clause says that reading the array row by row the colours $0,\dots,2$ first occur in increasing order.
+
+$a(n)$ is the number of such arrays. The entry's offset is 1, so its term of index $n$ is the count for $n$ rows.
+
+\section{The count is a walk count}
+
+Every edge joins cells in the same or in consecutive rows, so the mistakes contributed by a row are decided by that row and the one above it. Take as state the last row, the number of mistakes so far capped at $2$, and a counter for how many colours have been introduced; a state is accepting when the mistake count is exactly $1$.
+
+An array of $n'$ rows is then exactly a walk of length $n'$ from the empty state to an accepting one, so $a(n) = w^{\mathsf T}M^{\,n'}f$ and the count is C-finite.
+
+\section{The degree bound, derived}
+
+The reachable part of the digraph has $2482$ states, $969$ after trimming; the forward identification of states with equal numbers of completions of every length, then the mirror identification on the edges coming in, leaves $S = 89$ blocks, and the count satisfies the linear recurrence given by the characteristic polynomial of that $89\times89$ matrix.
+
+\section{The decision procedure}
+
+Let $c_1,\dots,c_D$ be the coefficients of a claimed recurrence $a(n) = \sum_{i=1}^{D} c_i\,a(n-i)$, let $q(t) = t^{D} - \sum_{i=1}^{D} c_i t^{D-i}$ be its characteristic polynomial, and put
+
+\[u_m \;=\; \tilde w^{\mathsf T} L^{\,m-1} q(L)\,\tilde f \qquad (m \ge 1).\]
+
+Expanding the powers of $L$ and using the displayed formula for $a$, one gets $u_m = a(n) - \sum_{i=1}^{D} c_i\,a(n-i)$ with $n = m + D$. So $u_m$ is exactly the residual of the claim at that index, and the recurrence holds at an index $n$ if and only if the corresponding $u_m$ vanishes.
+
+Now $u_m = \tilde w^{\mathsf T} L^{m-1} y$ with $y = q(L)\tilde f$ a fixed vector, so $(u_m)$ satisfies the characteristic polynomial of $L$, of degree $89$: writing that polynomial as $t^{89} - \sum_{i=1}^{89} \lambda_i t^{89-i}$ gives $u_{m+89} = \sum_{i=1}^{89} \lambda_i u_{m+89-i}$. Hence $89$ consecutive vanishing residuals force every later residual to vanish, by induction. The test is therefore finite; and because it locates the {\itshape last} nonvanishing residual, it pins the threshold exactly rather than merely bounding it.
+
+Everything is carried out in exact integer arithmetic on the vector $L^{m-1}y$. The matrix $M$ is never formed.
+
+\section{Results}
+
+\begin{theorem} For A229458, the recurrence of order $26$ displayed in Section 1 holds for every $n \ge 27$, at every index at which it can be stated.\end{theorem}
+
+{\itshape Proof.} The residuals $u_m$ were computed exactly for $m = 1,\dots,136$. Every one of them vanished. After it, more than $S = 89$ consecutive residuals vanish, so by Section 5 every later residual vanishes as well. $\square$
+
+\section{Verification}
+
+Four checks were run, each reproducible from the code accompanying this note, and the first two are what pin the reading of the entry's English.
+
+\begin{itemize}
+
+\item {\bfseries The published terms.} The walk count reproduces all 15 terms the entry publishes, exactly, in integer arithmetic, with the index taken from the entry's stated offset (1) rather than fitted. The first of them are 96, 4212, 145932, 4651079, 141595454, 4182294415, 120864516084, 3435347473308,~\dots
+
+\item {\bfseries An independent enumeration.} For $n = 1,\dots,1$ every one of the $3^{7n}$ arrays was written out and tested cell by cell against the condition as the entry states it --- no transfer matrix, no row window, a separate piece of code. The counts agree with the walk count and with the entry.
+
+\item {\bfseries The claim on the raw data.} Each claim was evaluated on the entry's published terms alone, with no model involved, wherever the proved range and the published data overlap. It holds there.
+
+\item {\bfseries The annihilation test.} Carried to the derived bound $S = 89$ over the whole vector, in exact integer arithmetic, never sampled and never truncated.
+
+\end{itemize}
+
+\section{References}
+
+\begin{enumerate}
+
+\item OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, entry \href{https://oeis.org/A229458}{A229458}, revision 9, last modified Apr 27 2021.
+
+\item R. P. Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge University Press, 2012; \S4.7, the transfer-matrix method.
+
+\item M. Kauers and P. Paule, \emph{The Concrete Tetrahedron}, Springer, 2011; C-finite sequences and their closure properties.
+
+\item J. Berstel and C. Reutenauer, \emph{Noncommutative Rational Series with Applications}, Cambridge University Press, 2011; linear representations of counting automata and their reduction.
+
+\end{enumerate}
+\end{document}

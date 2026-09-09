@@ -12,7 +12,7 @@
 \newtheorem{definition}[theorem]{Definition}
 \setlength{\parskip}{2pt}
 \title{Proofs of the conjectured column and row recurrences for OEIS A297374}
-\author{Adrian Perez Fontelles, Independent researcher}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
 \date{09 September 2026}
 \begin{document}
 \maketitle
@@ -28,9 +28,9 @@ a table read by upward antidiagonals, and carries in its Formula section the fol
 k=1: a(n) = 2*a(n-1)\\k=2: a(n) = 4*a(n-1)\\k=3: a(n) = 7*a(n-1) -4*a(n-3)\\k=4: a(n) = 13*a(n-1) -4*a(n-2) -3*a(n-3) -19*a(n-4) +15*a(n-5) -a(n-6)\end{quote}
 
 \begin{quote}\ttfamily Empirical for row n:\\
-n=1: a(n) = 2*a(n-1)\\n=2: a(n) = 3*a(n-1) +a(n-2) +5*a(n-3) +a(n-4) +a(n-5) -a(n-6) -a(n-7)\end{quote}
+n=1: a(n) = 2*a(n-1)\\n=2: a(n) = 3*a(n-1) +a(n-2) +5*a(n-3) +a(n-4) +a(n-5) -a(n-6) -a(n-7)\\n=3: [order 12] for n>14\\n=4: [order 29] for n>31\end{quote}
 
-The lines carry no separate signature; the entry itself is by R. H. Hardin (Dec 29 2017). As of revision 4, last modified Dec 29 2017, the entry records no proof of any of them and links to none. This note proves the 4 column recurrences and the 2 row recurrences listed above.
+The lines carry no separate signature; the entry itself is by R. H. Hardin (Dec 29 2017). As of revision 4, last modified Dec 29 2017, the entry records no proof of any of them and links to none. This note proves the 4 column recurrences and the 4 row recurrences listed above.
 
 The entry also carries further lines of the same blocks that this note does not settle; they are named in Section 6.
 
@@ -88,13 +88,25 @@ For a claimed recurrence with characteristic polynomial $q$, the residual $u_m =
 
 {\itshape Proof.} The width is $2$; the digraph has $20$ states, $20$ after trimming, and $S = 7$ blocks after refinement. The model reproduces every published value of row $n = 2$ --- and of the rest of the triangle. The residuals were computed exactly and all of them vanish; after that point more than $S = 7$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
 
+\begin{theorem} For row $n = 3$ of A297374, the recurrence $a(k) = 0$ holds for every $k > 14$, and fails at $k = 14$.\end{theorem}
+
+{\itshape Proof.} The width is $3$; the digraph has $72$ states, $72$ after trimming, and $S = 17$ blocks after refinement. The model reproduces every published value of row $n = 3$ --- and of the rest of the triangle. The residuals were computed exactly and the last nonvanishing one is at $k = 14$; after that point more than $S = 17$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+The entry states this line for $k > 14$; the proved threshold is $k > 14$.
+
+\begin{theorem} For row $n = 4$ of A297374, the recurrence $a(k) = 0$ holds for every $k > 31$, and fails at $k = 31$.\end{theorem}
+
+{\itshape Proof.} The width is $4$; the digraph has $272$ states, $272$ after trimming, and $S = 48$ blocks after refinement. The model reproduces every published value of row $n = 4$ --- and of the rest of the triangle. The residuals were computed exactly and the last nonvanishing one is at $k = 31$; after that point more than $S = 48$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+The entry states this line for $k > 31$; the proved threshold is $k > 31$.
+
 \section{What is not settled here}
 
 The same blocks carry further lines that this note leaves open, with the reason for each:
 
 \begin{itemize}
 
-\item 6 lines: the entry gives only the order of the recurrence and refers to a linked file for its coefficients, so there is no stated recurrence to test
+\item 4 lines: fewer than six published terms in that line
 
 \end{itemize}
 

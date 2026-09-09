@@ -3,23 +3,26 @@
 import json, glob, os, collections, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 os.chdir(os.path.join(HERE, ".."))
-seq = tab = 0
-claims = 0
+seqset, tabset = {}, {}
 reasons = collections.Counter()
 for f in glob.glob("data/seq_*.jsonl"):
     for r in map(json.loads, open(f)):
         if r["status"] == "done" and any(c["status"] == "proved" for c in r["claims"]):
-            seq += 1
-            claims += sum(1 for c in r["claims"] if c["status"] == "proved")
+            seqset.setdefault(r["anum"],
+                              sum(1 for c in r["claims"] if c["status"] == "proved"))
         else:
             reasons[r.get("reason", r["status"])] += 1
 for f in glob.glob("data/tab_*.jsonl"):
     for r in map(json.loads, open(f)):
         if r["status"] == "done":
-            tab += 1
-            claims += len(r["claims"])
+            tabset.setdefault(r["anum"], len(r["claims"]))
         else:
             reasons["table: " + r.get("reason", r["status"])] += 1
+for a in list(tabset):
+    if a in seqset:
+        del tabset[a]
+seq, tab = len(seqset), len(tabset)
+claims = sum(seqset.values()) + sum(tabset.values())
 inst = 0
 if os.path.exists("results.json"):
     inst = len(json.load(open("results.json")))

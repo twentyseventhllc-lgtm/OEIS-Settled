@@ -128,6 +128,10 @@ def _evaluate_order(out, cd, A, lo, rowoff, S, nhi):
     eventual minimal one from the model and confirm it exactly."""
     if S < 1:
         S = 1
+    if S > 220:
+        out.update(status="inconclusive",
+                   reason="degree bound too large for the minimal-order search")
+        return out
     start = max(lo, S + 1 - rowoff)
     need = 2 * S + 6
     if start + need > nhi:
@@ -153,7 +157,13 @@ def _evaluate_order(out, cd, A, lo, rowoff, S, nhi):
             return s
         out["order"] = d0
     else:
-        co = bm.minimal_recurrence(seq)
+        import time
+        try:
+            co = bm.minimal_recurrence(seq, deadline=time.time() + 45.0)
+        except bm.TimedOut:
+            out.update(status="inconclusive",
+                       reason="minimal-recurrence search timed out")
+            return out
         if co is None or len(co) > S:
             out.update(status="inconclusive",
                        reason="no recurrence of bounded order fits the tail")

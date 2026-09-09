@@ -1,0 +1,110 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\setlength{\parskip}{2pt}
+\title{A proof of the conjectured linear recurrence for OEIS A253038}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
+\date{09 September 2026}
+\begin{document}
+\maketitle
+\section{The conjecture}
+
+The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A253038}{A253038} as
+
+\begin{quote}\itshape Number of (n+2)X(2+2) 0..3 arrays with every consecutive three elements in every row, column, diagonal and antidiagonal having exactly two distinct values, and new values 0 upwards introduced in row major order\end{quote}
+
+and carries in its Formula section the line:
+
+\begin{quote}\ttfamily Empirical: a(n) = 2*a(n-1) +4*a(n-2) +15*a(n-4) -88*a(n-5) -107*a(n-6) +69*a(n-7) +208*a(n-8) +1570*a(n-9) +623*a(n-10) -2575*a(n-11) -6085*a(n-12) -12938*a(n-13) +8665*a(n-14) +33677*a(n-15) +47606*a(n-16) +37948*a(n-17) -135552*a(n-18) -192203*a(n-19) -136886*a(n-20) +93850*a(n-21) +716500*a(n-22) +430864*a(n-23) -588*a(n-24) -841362*a(n-25) -1722932*a(n-26) +53076*a(n-27) +397976*a(n-28) +1827456*a(n-29) +2007160*a(n-30) -1043680*a(n-31) +865480*a(n-32) -2408520*a(n-33) -2494080*a(n-34) -707600*a(n-35) -2686832*a(n-36) +6166048*a(n-37) +4181856*a(n-38) +1880160*a(n-39) -1085312*a(n-40) -10104640*a(n-41) -313024*a(n-42) +1998208*a(n-43) +3442688*a(n-44) +3872256*a(n-45) -4363008*a(n-46) -91648*a(n-47) +326656*a(n-48) +128000*a(n-49) +844800*a(n-50) -2213888*a(n-51) +593920*a(n-52) +1159168*a(n-53) -520192*a(n-54) -16384*a(n-55) -32768*a(n-56) +16384*a(n-57) for n>61\end{quote}
+
+That line carries no separate signature; the entry itself is by R. H. Hardin (Dec 26 2014).
+
+The word {\itshape Empirical} --- equivalently {\itshape Conjecture} --- is the entry's own: the statement is recorded as fitted to the published terms, and no proof is given there. As of revision 6, last modified Jul 23 2025, the entry records no proof and links to none, so the statement is open. This note settles it.
+
+Written out, the claim is
+
+\begin{multline*} a(n) = 2\,a(n-1) + 4\,a(n-2) + 15\,a(n-4) - 88\,a(n-5) - 107\,a(n-6) + 69\,a(n-7) + \\ 208\,a(n-8) + 1570\,a(n-9) + 623\,a(n-10) - 2575\,a(n-11) - 6085\,a(n-12) - 12938\,a(n-13) + \\ 8665\,a(n-14) + 33677\,a(n-15) + 47606\,a(n-16) + 37948\,a(n-17) - 135552\,a(n-18) - 192203\,a(n-19) - \\ 136886\,a(n-20) + 93850\,a(n-21) + 716500\,a(n-22) + 430864\,a(n-23) - 588\,a(n-24) - 841362\,a(n-25) - \\ 1722932\,a(n-26) + 53076\,a(n-27) + 397976\,a(n-28) + 1827456\,a(n-29) + 2007160\,a(n-30) - 1043680\,a(n-31) + \\ 865480\,a(n-32) - 2408520\,a(n-33) - 2494080\,a(n-34) - 707600\,a(n-35) - 2686832\,a(n-36) + 6166048\,a(n-37) + \\ 4181856\,a(n-38) + 1880160\,a(n-39) - 1085312\,a(n-40) - 10104640\,a(n-41) - 313024\,a(n-42) + 1998208\,a(n-43) + \\ 3442688\,a(n-44) + 3872256\,a(n-45) - 4363008\,a(n-46) - 91648\,a(n-47) + 326656\,a(n-48) + 128000\,a(n-49) + \\ 844800\,a(n-50) - 2213888\,a(n-51) + 593920\,a(n-52) + 1159168\,a(n-53) - 520192\,a(n-54) - 16384\,a(n-55) - \\ 32768\,a(n-56) + 16384\,a(n-57). \end{multline*}
+
+stated for $n > 61$.
+
+\section{The object}
+
+The name is read as follows. The reading is not a guess: it is pinned against the entry's own published terms, and against an independent enumeration, before anything is proved (Section 7).
+
+Let $A$ be an $n' \times 4$ array over $\{0,\dots,3\}$ with $n' = n + 2$ rows.
+
+Every three such cells, with $(\delta,\varepsilon) \in \{(0,1), (1,-1), (1,0), (1,1)\}$, must carry exactly $2$ distinct values.
+
+The entry's labelling clause says that reading the array row by row the values $0,\dots,3$ first occur in increasing order.
+
+$a(n)$ is the number of such arrays. The entry's offset is 1, so its term of index $n$ is the count for $n$ rows.
+
+\section{The count is a walk count}
+
+Every condition looks at three cells in a straight line, so it spans at most three consecutive rows. Taking as state the last two rows together with a counter for how many values have been introduced makes every condition decidable at the moment its lowest row is read.
+
+An array of $n'$ rows is then exactly a walk of length $n'$ from the empty state, so $a(n) = w^{\mathsf T}M^{\,n'}f$ and the count is C-finite.
+
+\section{The degree bound, derived}
+
+The reachable part of the digraph has $3742$ states, $3742$ after trimming; the forward identification of states with equal numbers of completions of every length, then the mirror identification on the edges coming in, leaves $S = 93$ blocks, and the count satisfies the linear recurrence given by the characteristic polynomial of that $93\times93$ matrix. The bound is computed, not assumed.
+
+\section{The decision procedure}
+
+Let $c_1,\dots,c_D$ be the coefficients of a claimed recurrence $a(n) = \sum_{i=1}^{D} c_i\,a(n-i)$, let $q(t) = t^{D} - \sum_{i=1}^{D} c_i t^{D-i}$ be its characteristic polynomial, and put
+
+\[u_m \;=\; \tilde w^{\mathsf T} L^{\,m-1} q(L)\,\tilde f \qquad (m \ge 1).\]
+
+Expanding the powers of $L$ and using the displayed formula for $a$, one gets $u_m = a(n) - \sum_{i=1}^{D} c_i\,a(n-i)$ with $n = m + D$. So $u_m$ is exactly the residual of the claim at that index, and the recurrence holds at an index $n$ if and only if the corresponding $u_m$ vanishes.
+
+Now $u_m = \tilde w^{\mathsf T} L^{m-1} y$ with $y = q(L)\tilde f$ a fixed vector, so $(u_m)$ satisfies the characteristic polynomial of $L$, of degree $93$: writing that polynomial as $t^{93} - \sum_{i=1}^{93} \lambda_i t^{93-i}$ gives $u_{m+93} = \sum_{i=1}^{93} \lambda_i u_{m+93-i}$. Hence $93$ consecutive vanishing residuals force every later residual to vanish, by induction. The test is therefore finite; and because it locates the {\itshape last} nonvanishing residual, it pins the threshold exactly rather than merely bounding it.
+
+Everything is carried out in exact integer arithmetic on the vector $L^{m-1}y$. The matrix $M$ is never formed.
+
+\section{Results}
+
+\begin{theorem} For A253038, the recurrence of order $57$ displayed in Section 1 holds for every $n > 61$, and fails at $n = 61$.\end{theorem}
+
+{\itshape Proof.} The residuals $u_m$ were computed exactly for $m = 1,\dots,181$. The last nonvanishing one is at $m = 4$, that is at $n = 61$. After it, more than $S = 93$ consecutive residuals vanish, so by Section 5 every later residual vanishes as well. $\square$
+
+The entry claims the recurrence for $n > 61$. The theorem is at least as strong.
+
+\section{Verification}
+
+Four checks were run, each reproducible from the code accompanying this note, and the first two are what pin the reading of the entry's English.
+
+\begin{itemize}
+
+\item {\bfseries The published terms.} The walk count reproduces all 25 terms the entry publishes, exactly, in integer arithmetic, with the index taken from the entry's stated offset (1) rather than fitted. The first of them are 341, 540, 998, 1866, 3894, 8340, 18180, 40264,~\dots
+
+\item {\bfseries An independent enumeration.} For $n = 1,\dots,2$ every one of the $4^{4n}$ arrays was written out and tested cell by cell against the condition as the entry states it --- no transfer matrix, no row window, a separate piece of code. The counts agree with the walk count and with the entry.
+
+\item {\bfseries The claim on the raw data.} Each claim was evaluated on the entry's published terms alone, with no model involved, wherever the proved range and the published data overlap. It holds there.
+
+\item {\bfseries The annihilation test.} Carried to the derived bound $S = 93$ over the whole vector, in exact integer arithmetic, never sampled and never truncated.
+
+\end{itemize}
+
+\section{References}
+
+\begin{enumerate}
+
+\item OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, entry \href{https://oeis.org/A253038}{A253038}, revision 6, last modified Jul 23 2025.
+
+\item R. P. Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge University Press, 2012; \S4.7, the transfer-matrix method.
+
+\item M. Kauers and P. Paule, \emph{The Concrete Tetrahedron}, Springer, 2011; C-finite sequences and their closure properties.
+
+\item J. Berstel and C. Reutenauer, \emph{Noncommutative Rational Series with Applications}, Cambridge University Press, 2011; linear representations of counting automata and their reduction.
+
+\end{enumerate}
+\end{document}

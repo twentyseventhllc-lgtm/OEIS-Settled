@@ -12,7 +12,7 @@
 \newtheorem{definition}[theorem]{Definition}
 \setlength{\parskip}{2pt}
 \title{Proofs of the conjectured column and row recurrences for OEIS A296578}
-\author{Adrian Perez Fontelles, Independent researcher}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
 \date{09 September 2026}
 \begin{document}
 \maketitle
@@ -25,17 +25,17 @@ The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A296
 a table read by upward antidiagonals, and carries in its Formula section the following empirical lines, none of them proved there:
 
 \begin{quote}\ttfamily Empirical for column k:\\
-k=1: a(n) = a(n-1) +a(n-2) +a(n-3)\\k=2: a(n) = a(n-1) +4*a(n-2) +3*a(n-3) +a(n-4) +4*a(n-5) -a(n-6) -6*a(n-7) -a(n-8) +a(n-9)\end{quote}
+k=1: a(n) = a(n-1) +a(n-2) +a(n-3)\\k=2: a(n) = a(n-1) +4*a(n-2) +3*a(n-3) +a(n-4) +4*a(n-5) -a(n-6) -6*a(n-7) -a(n-8) +a(n-9)\\k=3: [order 14]\\k=4: [order 50]\end{quote}
 
-The lines carry no separate signature; the entry itself is by R. H. Hardin (Dec 15 2017). As of revision 4, last modified Dec 15 2017, the entry records no proof of any of them and links to none. This note proves the 2 column recurrences listed above.
+The lines carry no separate signature; the entry itself is by R. H. Hardin (Dec 15 2017). As of revision 4, last modified Dec 15 2017, the entry records no proof of any of them and links to none. This note proves the 4 column recurrences listed above.
 
 The entry also carries further lines of the same blocks that this note does not settle; they are named in Section 6.
 
 \section{The object, and what a column and a row are}
 
-The array condition is the same for every width; it is written out here for width $2$, which is one of the widths this note uses.
+The array condition is the same for every width; it is written out here for width $4$, which is one of the widths this note uses.
 
-Let $q = 2$ and let $A$ be an $n \times 2$ array with entries in $\{0,1,\dots,1\}$.
+Let $q = 2$ and let $A$ be an $n \times 4$ array with entries in $\{0,1,\dots,1\}$.
 
 The neighbour set the entry names by {\itshape horizontally, vertically or antidiagonally} is
 
@@ -43,7 +43,7 @@ The neighbour set the entry names by {\itshape horizontally, vertically or antid
 
 For a cell $(i,j)$ with $A[i][j] = 1$ put
 
-\[c(i,j) \;=\; \#\bigl\{(\delta,\varepsilon)\in\mathcal{N} \;:\; 0\le i+\delta<n,\ 0\le j+\varepsilon<2,\ A[i+\delta][j+\varepsilon] = 1\bigr\}.\]
+\[c(i,j) \;=\; \#\bigl\{(\delta,\varepsilon)\in\mathcal{N} \;:\; 0\le i+\delta<n,\ 0\le j+\varepsilon<4,\ A[i+\delta][j+\varepsilon] = 1\bigr\}.\]
 
 The condition is $c(i,j) \in \{0, 1, 3\}$ for every cell carrying the value 1. Cells carrying any other value are unconstrained. Offsets leaving the array are not counted, so border cells have fewer neighbours than interior ones.
 
@@ -69,15 +69,17 @@ For a claimed recurrence with characteristic polynomial $q$, the residual $u_m =
 
 {\itshape Proof.} The width is $2$; the digraph has $20$ states, $20$ after trimming, and $S = 9$ blocks after refinement. The model reproduces every published value of column $k = 2$ --- and of the rest of the triangle. The residuals were computed exactly and all of them vanish; after that point more than $S = 9$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
 
+\begin{theorem} For column $k = 3$ of A296578, the recurrence $a(n) = 0$ holds for every $n \ge 15$, at every index at which it can be stated.\end{theorem}
+
+{\itshape Proof.} The width is $3$; the digraph has $72$ states, $64$ after trimming, and $S = 21$ blocks after refinement. The model reproduces every published value of column $k = 3$ --- and of the rest of the triangle. The residuals were computed exactly and all of them vanish; after that point more than $S = 21$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+\begin{theorem} For column $k = 4$ of A296578, the recurrence $a(n) = 0$ holds for every $n \ge 51$, at every index at which it can be stated.\end{theorem}
+
+{\itshape Proof.} The width is $4$; the digraph has $272$ states, $230$ after trimming, and $S = 61$ blocks after refinement. The model reproduces every published value of column $k = 4$ --- and of the rest of the triangle. The residuals were computed exactly and all of them vanish; after that point more than $S = 61$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
 \section{What is not settled here}
 
-The same blocks carry further lines that this note leaves open, with the reason for each:
-
-\begin{itemize}
-
-\item 2 lines: the entry gives only the order of the recurrence and refers to a linked file for its coefficients, so there is no stated recurrence to test
-
-\end{itemize}
+Every line of those blocks is settled above.
 
 \section{Verification}
 

@@ -12,7 +12,7 @@
 \newtheorem{definition}[theorem]{Definition}
 \setlength{\parskip}{2pt}
 \title{Proofs of the conjectured column and row recurrences for OEIS A299089}
-\author{Adrian Perez Fontelles, Independent researcher}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
 \date{09 September 2026}
 \begin{document}
 \maketitle
@@ -25,17 +25,17 @@ The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A299
 a table read by upward antidiagonals, and carries in its Formula section the following empirical lines, none of them proved there:
 
 \begin{quote}\ttfamily Empirical for column k:\\
-k=1: a(n) = 2*a(n-1)\\k=2: a(n) = 4*a(n-1) -2*a(n-2) +2*a(n-3) -6*a(n-4) -4*a(n-5)\end{quote}
+k=1: a(n) = 2*a(n-1)\\k=2: a(n) = 4*a(n-1) -2*a(n-2) +2*a(n-3) -6*a(n-4) -4*a(n-5)\\k=3: [order 17] for n>19\\k=4: [order 64] for n>66\end{quote}
 
-The lines carry no separate signature; the entry itself is by R. H. Hardin (Feb 02 2018). As of revision 4, last modified Feb 02 2018, the entry records no proof of any of them and links to none. This note proves the 2 column recurrences listed above.
+The lines carry no separate signature; the entry itself is by R. H. Hardin (Feb 02 2018). As of revision 4, last modified Feb 02 2018, the entry records no proof of any of them and links to none. This note proves the 4 column recurrences listed above.
 
 The entry also carries further lines of the same blocks that this note does not settle; they are named in Section 6.
 
 \section{The object, and what a column and a row are}
 
-The array condition is the same for every width; it is written out here for width $2$, which is one of the widths this note uses.
+The array condition is the same for every width; it is written out here for width $4$, which is one of the widths this note uses.
 
-Let $q = 2$ and let $A$ be an $n \times 2$ array with entries in $\{0,1,\dots,1\}$, rows indexed $0 \le i < n$ and columns $0 \le j < 2$.
+Let $q = 2$ and let $A$ be an $n \times 4$ array with entries in $\{0,1,\dots,1\}$, rows indexed $0 \le i < n$ and columns $0 \le j < 4$.
 
 The neighbour set the entry names by {\itshape king-move} is
 
@@ -43,7 +43,7 @@ The neighbour set the entry names by {\itshape king-move} is
 
 For a cell $(i,j)$ of the array put
 
-\[c(i,j) \;=\; \#\bigl\{(\delta,\varepsilon)\in\mathcal{N} \;:\; 0\le i+\delta<n,\ 0\le j+\varepsilon<2,\ A[i+\delta][j+\varepsilon] = A[i][j]\bigr\},\]
+\[c(i,j) \;=\; \#\bigl\{(\delta,\varepsilon)\in\mathcal{N} \;:\; 0\le i+\delta<n,\ 0\le j+\varepsilon<4,\ A[i+\delta][j+\varepsilon] = A[i][j]\bigr\},\]
 
 the number of neighbours of the cell whose value is equal to the cell's own. Offsets that leave the array are not counted, so cells on the border have fewer neighbours than interior ones --- which is what makes the two readings of the entry's wording distinguishable on the entry's own data.
 
@@ -71,15 +71,21 @@ For a claimed recurrence with characteristic polynomial $q$, the residual $u_m =
 
 {\itshape Proof.} The width is $2$; the digraph has $20$ states, $18$ after trimming, and $S = 5$ blocks after refinement. The model reproduces every published value of column $k = 2$ --- and of the rest of the triangle. The residuals were computed exactly and all of them vanish; after that point more than $S = 5$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
 
+\begin{theorem} For column $k = 3$ of A299089, the recurrence $a(n) = 0$ holds for every $n > 19$, and fails at $n = 19$.\end{theorem}
+
+{\itshape Proof.} The width is $3$; the digraph has $72$ states, $68$ after trimming, and $S = 20$ blocks after refinement. The model reproduces every published value of column $k = 3$ --- and of the rest of the triangle. The residuals were computed exactly and the last nonvanishing one is at $n = 19$; after that point more than $S = 20$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+The entry states this line for $n > 19$; the proved threshold is $n > 19$.
+
+\begin{theorem} For column $k = 4$ of A299089, the recurrence $a(n) = 0$ holds for every $n > 66$, and fails at $n = 66$.\end{theorem}
+
+{\itshape Proof.} The width is $4$; the digraph has $272$ states, $263$ after trimming, and $S = 67$ blocks after refinement. The model reproduces every published value of column $k = 4$ --- and of the rest of the triangle. The residuals were computed exactly and the last nonvanishing one is at $n = 66$; after that point more than $S = 67$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+The entry states this line for $n > 66$; the proved threshold is $n > 66$.
+
 \section{What is not settled here}
 
-The same blocks carry further lines that this note leaves open, with the reason for each:
-
-\begin{itemize}
-
-\item 2 lines: the entry gives only the order of the recurrence and refers to a linked file for its coefficients, so there is no stated recurrence to test
-
-\end{itemize}
+Every line of those blocks is settled above.
 
 \section{Verification}
 

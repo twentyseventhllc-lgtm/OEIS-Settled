@@ -1,0 +1,140 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\setlength{\parskip}{2pt}
+\title{A proof of the conjectured linear recurrence and generating function and closed form for OEIS A223954}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
+\date{09 September 2026}
+\begin{document}
+\maketitle
+\section{The conjecture}
+
+The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A223954}{A223954} as
+
+\begin{quote}\itshape Number of 7 X n 0..1 arrays with diagonals and antidiagonals unimodal and rows nondecreasing\end{quote}
+
+and carries in its Formula section the lines:
+
+\begin{quote}\ttfamily Empirical: a(n) = (4/315)*n\textasciicircum{}7 - (1/45)*n\textasciicircum{}6 + (34/45)*n\textasciicircum{}5 + (221/72)*n\textasciicircum{}4 + (4507/180)*n\textasciicircum{}3 + (42283/360)*n\textasciicircum{}2 + (53997/140)*n + 7577 for n>5.\end{quote}
+
+\begin{quote}\ttfamily G.f.: x*(128 + 1163*x - 7043*x\textasciicircum{}2 + 11972*x\textasciicircum{}3 - 3753*x\textasciicircum{}4 - 9075*x\textasciicircum{}5 + 7046*x\textasciicircum{}6 + 2119*x\textasciicircum{}7 - 1755*x\textasciicircum{}8 - 2009*x\textasciicircum{}9 + 1146*x\textasciicircum{}10 + 346*x\textasciicircum{}11 - 221*x\textasciicircum{}12) / (1 - x)\textasciicircum{}8.\end{quote}
+
+\begin{quote}\ttfamily a(n) = 8*a(n-1) - 28*a(n-2) + 56*a(n-3) - 70*a(n-4) + 56*a(n-5) - 28*a(n-6) + 8*a(n-7) - a(n-8) for n>13.\end{quote}
+
+That line carries no separate signature; the entry itself is by R. H. Hardin (Mar 29 2013).
+
+The word {\itshape Empirical} --- equivalently {\itshape Conjecture} --- is the entry's own: the statement is recorded as fitted to the published terms, and no proof is given there. As of revision 7, last modified Aug 24 2018, the entry records no proof and links to none, so the statement is open. This note settles it.
+
+Written out, the claim is
+
+\[a(n) = 7577 + \frac{53997}{140}n + \frac{42283}{360}n^{2} + \frac{4507}{180}n^{3} + \frac{221}{72}n^{4} + \frac{34}{45}n^{5} - \frac{1}{45}n^{6} + \frac{4}{315}n^{7}.\]
+
+stated for $n > 5$.
+
+Written out, the claim is
+
+\[\sum_{n \ge 1} a(n)\,x^n \;=\; \frac{128x + 1163x^{2} - 7043x^{3} + 11972x^{4} - 3753x^{5} - 9075x^{6} + 7046x^{7} + 2119x^{8} - 1755x^{9} - 2009x^{10} + 1146x^{11} + 346x^{12} - 221x^{13}}{1 - 8x + 28x^{2} - 56x^{3} + 70x^{4} - 56x^{5} + 28x^{6} - 8x^{7} + x^{8}}.\]
+
+Written out, the claim is
+
+\begin{multline*} a(n) = 8\,a(n-1) - 28\,a(n-2) + 56\,a(n-3) - 70\,a(n-4) + 56\,a(n-5) - 28\,a(n-6) + \\ 8\,a(n-7) - a(n-8). \end{multline*}
+
+stated for $n > 13$.
+
+\section{The object}
+
+The name is read as follows. The reading is not a guess: it is pinned against the entry's own published terms, and against an independent enumeration, before anything is proved (Section 7).
+
+Let $q = 2$ and let $A$ be an $n' \times 7$ array over $\{0,\dots,1\}$ with $n' = n$ rows. The entry writes the growing direction across; the array is transposed here. Transposing exchanges rows with columns and keeps diagonals, and it reverses the reading direction of the antidiagonals --- so a monotone condition on those becomes the opposite one, while unimodality, which a reversal preserves, does not change.
+
+A row is read left to right, a column top to bottom, a diagonal downwards and to the right, an antidiagonal downwards and to the left. A sequence is {\itshape unimodal} when it is nondecreasing and then nonincreasing.
+
+Every one of the array's antidiagonals is unimodal.
+
+Every one of the array's columns is nondecreasing.
+
+Every one of the array's diagonals is unimodal.
+
+$a(n)$ is the number of such arrays. The entry's offset is 1, so its term of index $n$ is the count for $n$ columns.
+
+\section{The count is a walk count}
+
+Read the array one row at a time. Conditions along a row are decided by that row alone. A condition along a column, a diagonal or an antidiagonal compares entries in consecutive rows, so it is decided one step at a time --- except that unimodality along such a line must remember whether that line has already turned from rising to falling.
+
+Accordingly the state is the last row together with one bit for each of the diagonals, antidiagonals through its entries, saying whether that line has already turned. Adding a row moves those bits along the line: a column keeps its own bit, a diagonal passes its bit one place to the right and starts a fresh line at the left border, an antidiagonal passes it one place to the left and starts a fresh line at the right border.
+
+An array of $n'$ rows is then exactly a walk of length $n'$ from the empty state, and every array arises from exactly one walk. With $M$ the adjacency matrix of the state digraph, $w$ the indicator of its start and $f$ of its accepting states, $a(n) = w^{\mathsf T}M^{\,n'}f$, so the count is C-finite.
+
+\section{The degree bound, derived}
+
+The reachable part of that digraph has $1361$ states, $1361$ after discarding states from which no accepting state is reachable. States from which the same number of arrays can be completed, for every remaining number of rows, are then identified by partition refinement --- start from the partition by acceptance and separate two states as soon as they send different numbers of edges into some block. On the blocks the number of completions of each length is constant, so the quotient counts exactly what the original does.
+
+The refinement, applied first forwards and then in the mirror direction on the edges coming in, leaves $S = 65$ blocks, and the count satisfies the linear recurrence given by the characteristic polynomial of the $65 \times 65$ quotient matrix. That degree bound is computed here, not assumed, and it is the only one the decision procedure below uses.
+
+\section{The decision procedure}
+
+Let $c_1,\dots,c_D$ be the coefficients of a claimed recurrence $a(n) = \sum_{i=1}^{D} c_i\,a(n-i)$, let $q(t) = t^{D} - \sum_{i=1}^{D} c_i t^{D-i}$ be its characteristic polynomial, and put
+
+\[u_m \;=\; \tilde w^{\mathsf T} L^{\,m-1} q(L)\,\tilde f \qquad (m \ge 1).\]
+
+Expanding the powers of $L$ and using the displayed formula for $a$, one gets $u_m = a(n) - \sum_{i=1}^{D} c_i\,a(n-i)$ with $n = m + D$. So $u_m$ is exactly the residual of the claim at that index, and the recurrence holds at an index $n$ if and only if the corresponding $u_m$ vanishes.
+
+Now $u_m = \tilde w^{\mathsf T} L^{m-1} y$ with $y = q(L)\tilde f$ a fixed vector, so $(u_m)$ satisfies the characteristic polynomial of $L$, of degree $65$: writing that polynomial as $t^{65} - \sum_{i=1}^{65} \lambda_i t^{65-i}$ gives $u_{m+65} = \sum_{i=1}^{65} \lambda_i u_{m+65-i}$. Hence $65$ consecutive vanishing residuals force every later residual to vanish, by induction. The test is therefore finite; and because it locates the {\itshape last} nonvanishing residual, it pins the threshold exactly rather than merely bounding it.
+
+Everything is carried out in exact integer arithmetic on the vector $L^{m-1}y$. The matrix $M$ is never formed.
+
+\section{Results}
+
+\begin{theorem} For A223954, $a(n)$ is the polynomial $7577 + \frac{53997}{140}n + \frac{42283}{360}n^{2} + \frac{4507}{180}n^{3} + \frac{221}{72}n^{4} + \frac{34}{45}n^{5} - \frac{1}{45}n^{6} + \frac{4}{315}n^{7}$ for every $n > 5$, and not at $n = 5$.\end{theorem}
+
+{\itshape Proof.} A polynomial of degree $7$ is annihilated by the difference operator $(E-1)^{8}$, whose characteristic polynomial is $(t-1)^{8}$. So $a(n) - P(n)$, with $P$ the claimed polynomial, satisfies the linear recurrence whose characteristic polynomial is the product of that with the characteristic polynomial of $L$, of degree $S + 8 = 73$. Its values were computed exactly; the last nonvanishing one is at $n = 5$, and more than $73$ consecutive vanishing values follow, so every later one vanishes as well. $\square$
+
+\begin{theorem} For A223954, the generating function is exactly $\sum_{n\ge 1} a(n)x^n = \frac{128x + 1163x^{2} - 7043x^{3} + 11972x^{4} - 3753x^{5} - 9075x^{6} + 7046x^{7} + 2119x^{8} - 1755x^{9} - 2009x^{10} + 1146x^{11} + 346x^{12} - 221x^{13}}{1 - 8x + 28x^{2} - 56x^{3} + 70x^{4} - 56x^{5} + 28x^{6} - 8x^{7} + x^{8}}$.\end{theorem}
+
+{\itshape Proof.} Let $N(x)$ and $D(x)$ be the numerator and denominator above, $D(0)=1$. The residual test applied to the recurrence read off $D$ --- namely $a(n) = \sum_i c_i a(n-i)$ with $c_i$ the negated coefficients of $D$ --- gives vanishing residuals for every $n > 13$, so the power series $F(x)=\sum_{n\ge 1}a(n)x^n$ satisfies $[x^k]\bigl(F(x)D(x)\bigr) = 0$ for every $k > 14$. The remaining coefficients of $F(x)D(x)$, for $k \le 24$, were computed from the walk count and agree with $N(x)$ term by term. Hence $F(x)D(x) = N(x)$ identically, which is the assertion. $\square$
+
+\begin{theorem} For A223954, the recurrence $a(n) = 8\,a(n-1) - 28\,a(n-2) + 56\,a(n-3) - 70\,a(n-4) + 56\,a(n-5) - 28\,a(n-6) + 8\,a(n-7) - a(n-8)$ holds for every $n > 13$, and fails at $n = 13$.\end{theorem}
+
+{\itshape Proof.} The residuals $u_m$ were computed exactly for $m = 1,\dots,106$. The last nonvanishing one is at $m = 5$, that is at $n = 13$. After it, more than $S = 65$ consecutive residuals vanish, so by Section 5 every later residual vanishes as well. $\square$
+
+The entry claims the recurrence for $n > 13$. The theorem is at least as strong.
+
+\section{Verification}
+
+Four checks were run, each reproducible from the code accompanying this note, and the first two are what pin the reading of the entry's English.
+
+\begin{itemize}
+
+\item {\bfseries The published terms.} The walk count reproduces all 27 terms the entry publishes, exactly, in integer arithmetic, with the index taken from the entry's stated offset (1) rather than fitted. The first of them are 128, 2187, 6869, 12856, 20275, 31899, 52532, 89135,~\dots
+
+\item {\bfseries An independent enumeration.} For $n = 1,\dots,2$ every one of the $2^{7n}$ arrays was written out and tested cell by cell against the condition as the entry states it --- no transfer matrix, no row window, a separate piece of code. The counts agree with the walk count and with the entry.
+
+\item {\bfseries The claim on the raw data.} Each claim was evaluated on the entry's published terms alone, with no model involved, wherever the proved range and the published data overlap. It holds there.
+
+\item {\bfseries The annihilation test.} Carried to the derived bound $S = 65$ over the whole vector, in exact integer arithmetic, never sampled and never truncated.
+
+\end{itemize}
+
+\section{References}
+
+\begin{enumerate}
+
+\item OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, entry \href{https://oeis.org/A223954}{A223954}, revision 7, last modified Aug 24 2018.
+
+\item R. P. Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge University Press, 2012; \S4.7, the transfer-matrix method.
+
+\item M. Kauers and P. Paule, \emph{The Concrete Tetrahedron}, Springer, 2011; C-finite sequences and their closure properties.
+
+\item J. Berstel and C. Reutenauer, \emph{Noncommutative Rational Series with Applications}, Cambridge University Press, 2011; linear representations of counting automata and their reduction.
+
+\end{enumerate}
+\end{document}

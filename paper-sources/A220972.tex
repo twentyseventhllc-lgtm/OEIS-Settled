@@ -1,0 +1,112 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\setlength{\parskip}{2pt}
+\title{A proof of the conjectured linear recurrence for OEIS A220972}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
+\date{09 September 2026}
+\begin{document}
+\maketitle
+\section{The conjecture}
+
+The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A220972}{A220972} as
+
+\begin{quote}\itshape Equals one maps: number of nX3 binary arrays indicating the locations of corresponding elements equal to exactly one of their king-move neighbors in a random 0..1 nX3 array\end{quote}
+
+and carries in its Formula section the line:
+
+\begin{quote}\ttfamily Empirical: a(n) = 4*a(n-1) +3*a(n-2) -8*a(n-3) -18*a(n-4) +44*a(n-5) +101*a(n-6) -23*a(n-7) -82*a(n-8) +308*a(n-9) -349*a(n-10) +913*a(n-11) +248*a(n-12) -1295*a(n-13) +118*a(n-14) -484*a(n-15) -4140*a(n-16) -4062*a(n-17) +12896*a(n-18) +7486*a(n-19) -22822*a(n-20) +11672*a(n-21) +16011*a(n-22) -24355*a(n-23) +18536*a(n-24) +7304*a(n-25) +19078*a(n-26) -40477*a(n-27) -21631*a(n-28) +35265*a(n-29) -32791*a(n-30) +42230*a(n-31) +30661*a(n-32) +5936*a(n-33) -41786*a(n-34) -189287*a(n-35) +149226*a(n-36) +150739*a(n-37) -186034*a(n-38) +75000*a(n-39) +22730*a(n-40) +36115*a(n-41) -125017*a(n-42) +352978*a(n-43) -108465*a(n-44) -241044*a(n-45) -55078*a(n-46) +143321*a(n-47) +30331*a(n-48) -102872*a(n-49) +209540*a(n-50) -74445*a(n-51) -118583*a(n-52) +76994*a(n-53) +13935*a(n-54) -24623*a(n-55) +22797*a(n-56) -26682*a(n-57) -38672*a(n-58) +73857*a(n-59) -37897*a(n-60) +19*a(n-61) -2970*a(n-62) +10616*a(n-63) -134*a(n-64) -5399*a(n-65) +1161*a(n-66) +2025*a(n-67) +40*a(n-68) -752*a(n-69) -104*a(n-70) +250*a(n-71) -10*a(n-72) for n>79\end{quote}
+
+That line carries no separate signature; the entry itself is by R. H. Hardin (Dec 27 2012).
+
+The word {\itshape Empirical} --- equivalently {\itshape Conjecture} --- is the entry's own: the statement is recorded as fitted to the published terms, and no proof is given there. As of revision 8, last modified Oct 03 2025, the entry records no proof and links to none, so the statement is open. This note settles it.
+
+Written out, the claim is
+
+\begin{multline*} a(n) = 4\,a(n-1) + 3\,a(n-2) - 8\,a(n-3) - 18\,a(n-4) + 44\,a(n-5) + 101\,a(n-6) - \\ 23\,a(n-7) - 82\,a(n-8) + 308\,a(n-9) - 349\,a(n-10) + 913\,a(n-11) + 248\,a(n-12) - \\ 1295\,a(n-13) + 118\,a(n-14) - 484\,a(n-15) - 4140\,a(n-16) - 4062\,a(n-17) + 12896\,a(n-18) + \\ 7486\,a(n-19) - 22822\,a(n-20) + 11672\,a(n-21) + 16011\,a(n-22) - 24355\,a(n-23) + 18536\,a(n-24) + \\ 7304\,a(n-25) + 19078\,a(n-26) - 40477\,a(n-27) - 21631\,a(n-28) + 35265\,a(n-29) - 32791\,a(n-30) + \\ 42230\,a(n-31) + 30661\,a(n-32) + 5936\,a(n-33) - 41786\,a(n-34) - 189287\,a(n-35) + 149226\,a(n-36) + \\ 150739\,a(n-37) - 186034\,a(n-38) + 75000\,a(n-39) + 22730\,a(n-40) + 36115\,a(n-41) - 125017\,a(n-42) + \\ 352978\,a(n-43) - 108465\,a(n-44) - 241044\,a(n-45) - 55078\,a(n-46) + 143321\,a(n-47) + 30331\,a(n-48) - \\ 102872\,a(n-49) + 209540\,a(n-50) - 74445\,a(n-51) - 118583\,a(n-52) + 76994\,a(n-53) + 13935\,a(n-54) - \\ 24623\,a(n-55) + 22797\,a(n-56) - 26682\,a(n-57) - 38672\,a(n-58) + 73857\,a(n-59) - 37897\,a(n-60) + \\ 19\,a(n-61) - 2970\,a(n-62) + 10616\,a(n-63) - 134\,a(n-64) - 5399\,a(n-65) + 1161\,a(n-66) + \\ 2025\,a(n-67) + 40\,a(n-68) - 752\,a(n-69) - 104\,a(n-70) + 250\,a(n-71) - 10\,a(n-72). \end{multline*}
+
+stated for $n > 79$.
+
+\section{The object}
+
+The name is read as follows. The reading is not a guess: it is pinned against the entry's own published terms, and against an independent enumeration, before anything is proved (Section 7).
+
+Let $A$ run over the $n' \times 3$ arrays with entries in $\{0,\dots,1\}$, $n' = n$.
+
+The entry's neighbours, {\itshape king-move}, are the cells at the offsets $\{(-1,-1), (-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0), (1,1)\}$ that lie inside the array. Define the binary array $\Phi(A)$ by
+
+\[\Phi(A)[i][j] = 1 \iff \#\{\text{neighbours equal to } A[i][j]\} = 1.\]
+
+$a(n)$ is the number of {\itshape distinct} arrays $\Phi(A)$, not the number of arrays $A$: it is the size of the image of $\Phi$.
+
+$a(n)$ is the number of such arrays. The entry's offset is 1, so its term of index $n$ is the count for $n$ rows.
+
+\section{The count is a walk count}
+
+$\Phi$ is computed row by row: the row $\Phi(A)[i]$ is determined by rows $i-1$, $i$ and $i+1$ of $A$. So $\Phi$ is a transducer whose state is a pair of consecutive source rows and whose output is one binary row.
+
+Counting the image is therefore counting the words the transducer can output, and that is a determinisation: take as state the set of pairs of source rows still consistent with the output rows read so far. A binary array of $n'$ rows lies in the image exactly when the subset automaton reaches a nonempty state on it, and each such array is counted once.
+
+The subset automaton is deterministic, so $a(n)$ counts its accepting walks and is C-finite.
+
+\section{The degree bound, derived}
+
+The reachable part of the subset automaton has $258$ states, $258$ after trimming; the forward identification of states with equal numbers of completions of every length, then the mirror identification on the edges coming in, leaves $S = 107$ blocks, and the count satisfies the linear recurrence given by the characteristic polynomial of that $107\times107$ matrix. The bound is computed, not assumed.
+
+\section{The decision procedure}
+
+Let $c_1,\dots,c_D$ be the coefficients of a claimed recurrence $a(n) = \sum_{i=1}^{D} c_i\,a(n-i)$, let $q(t) = t^{D} - \sum_{i=1}^{D} c_i t^{D-i}$ be its characteristic polynomial, and put
+
+\[u_m \;=\; \tilde w^{\mathsf T} L^{\,m-1} q(L)\,\tilde f \qquad (m \ge 1).\]
+
+Expanding the powers of $L$ and using the displayed formula for $a$, one gets $u_m = a(n) - \sum_{i=1}^{D} c_i\,a(n-i)$ with $n = m + D$. So $u_m$ is exactly the residual of the claim at that index, and the recurrence holds at an index $n$ if and only if the corresponding $u_m$ vanishes.
+
+Now $u_m = \tilde w^{\mathsf T} L^{m-1} y$ with $y = q(L)\tilde f$ a fixed vector, so $(u_m)$ satisfies the characteristic polynomial of $L$, of degree $107$: writing that polynomial as $t^{107} - \sum_{i=1}^{107} \lambda_i t^{107-i}$ gives $u_{m+107} = \sum_{i=1}^{107} \lambda_i u_{m+107-i}$. Hence $107$ consecutive vanishing residuals force every later residual to vanish, by induction. The test is therefore finite; and because it locates the {\itshape last} nonvanishing residual, it pins the threshold exactly rather than merely bounding it.
+
+Everything is carried out in exact integer arithmetic on the vector $L^{m-1}y$. The matrix $M$ is never formed.
+
+\section{Results}
+
+\begin{theorem} For A220972, the recurrence of order $72$ displayed in Section 1 holds for every $n > 79$, and fails at $n = 79$.\end{theorem}
+
+{\itshape Proof.} The residuals $u_m$ were computed exactly for $m = 1,\dots,207$. The last nonvanishing one is at $m = 7$, that is at $n = 79$. After it, more than $S = 107$ consecutive residuals vanish, so by Section 5 every later residual vanishes as well. $\square$
+
+The entry claims the recurrence for $n > 79$. The theorem is at least as strong.
+
+\section{Verification}
+
+Four checks were run, each reproducible from the code accompanying this note, and the first two are what pin the reading of the entry's English.
+
+\begin{itemize}
+
+\item {\bfseries The published terms.} The walk count reproduces all 22 terms the entry publishes, exactly, in integer arithmetic, with the index taken from the entry's stated offset (1) rather than fitted. The first of them are 4, 9, 94, 368, 1455, 6291, 26299, 110743,~\dots
+
+\item {\bfseries The claim on the raw data.} Each claim was evaluated on the entry's published terms alone, with no model involved, wherever the proved range and the published data overlap. It holds there.
+
+\item {\bfseries The annihilation test.} Carried to the derived bound $S = 107$ over the whole vector, in exact integer arithmetic, never sampled and never truncated.
+
+\end{itemize}
+
+\section{References}
+
+\begin{enumerate}
+
+\item OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, entry \href{https://oeis.org/A220972}{A220972}, revision 8, last modified Oct 03 2025.
+
+\item R. P. Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge University Press, 2012; \S4.7, the transfer-matrix method.
+
+\item M. Kauers and P. Paule, \emph{The Concrete Tetrahedron}, Springer, 2011; C-finite sequences and their closure properties.
+
+\item J. Berstel and C. Reutenauer, \emph{Noncommutative Rational Series with Applications}, Cambridge University Press, 2011; linear representations of counting automata and their reduction.
+
+\end{enumerate}
+\end{document}

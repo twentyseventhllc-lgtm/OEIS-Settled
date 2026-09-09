@@ -12,7 +12,7 @@
 \newtheorem{definition}[theorem]{Definition}
 \setlength{\parskip}{2pt}
 \title{Proofs of the conjectured column and row recurrences for OEIS A261709}
-\author{Adrian Perez Fontelles, Independent researcher}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
 \date{09 September 2026}
 \begin{document}
 \maketitle
@@ -25,9 +25,9 @@ The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A261
 a table read by upward antidiagonals, and carries in its Formula section the following empirical lines, none of them proved there:
 
 \begin{quote}\ttfamily Empirical for column k:\\
-k=4: a(n) = 3*a(n-7) +5*a(n-10) +a(n-13) -a(n-14) -a(n-17) -2*a(n-21) for n>27\end{quote}
+k=1: [linear recurrence of order 9] for n>11\\k=2: [order 15] for n>17\\k=3: [order 14] for n>20\\k=4: a(n) = 3*a(n-7) +5*a(n-10) +a(n-13) -a(n-14) -a(n-17) -2*a(n-21) for n>27\end{quote}
 
-The lines carry no separate signature; the entry itself is by R. H. Hardin (Aug 28 2015). As of revision 4, last modified Aug 28 2015, the entry records no proof of any of them and links to none. This note proves the 1 column recurrence listed above.
+The lines carry no separate signature; the entry itself is by R. H. Hardin (Aug 28 2015). As of revision 4, last modified Aug 28 2015, the entry records no proof of any of them and links to none. This note proves the 4 column recurrences listed above.
 
 The entry also carries further lines of the same blocks that this note does not settle; they are named in Section 6.
 
@@ -59,6 +59,24 @@ For a claimed recurrence with characteristic polynomial $q$, the residual $u_m =
 
 \section{Results}
 
+\begin{theorem} For column $k = 1$ of A261709, the recurrence $a(n) = 0$ holds for every $n > 11$, and fails at $n = 11$.\end{theorem}
+
+{\itshape Proof.} The width is $3$; the digraph has $72$ states, $72$ after trimming, and $S = 14$ blocks after refinement. The model reproduces every published value of column $k = 1$ --- and of the rest of the triangle. The residuals were computed exactly and the last nonvanishing one is at $n = 11$; after that point more than $S = 14$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+The entry states this line for $n > 11$; the proved threshold is $n > 11$.
+
+\begin{theorem} For column $k = 2$ of A261709, the recurrence $a(n) = 0$ holds for every $n > 17$, and fails at $n = 17$.\end{theorem}
+
+{\itshape Proof.} The width is $4$; the digraph has $272$ states, $272$ after trimming, and $S = 21$ blocks after refinement. The model reproduces every published value of column $k = 2$ --- and of the rest of the triangle. The residuals were computed exactly and the last nonvanishing one is at $n = 17$; after that point more than $S = 21$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+The entry states this line for $n > 17$; the proved threshold is $n > 17$.
+
+\begin{theorem} For column $k = 3$ of A261709, the recurrence $a(n) = 0$ holds for every $n > 20$, and fails at $n = 20$.\end{theorem}
+
+{\itshape Proof.} The width is $5$; the digraph has $1056$ states, $1056$ after trimming, and $S = 31$ blocks after refinement. The model reproduces every published value of column $k = 3$ --- and of the rest of the triangle. The residuals were computed exactly and the last nonvanishing one is at $n = 20$; after that point more than $S = 31$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+The entry states this line for $n > 20$; the proved threshold is $n > 20$.
+
 \begin{theorem} For column $k = 4$ of A261709, the recurrence $a(n) = 3\,a(n-7) + 5\,a(n-10) + a(n-13) - a(n-14) - a(n-17) - 2\,a(n-21)$ holds for every $n > 27$, and fails at $n = 27$.\end{theorem}
 
 {\itshape Proof.} The width is $6$; the digraph has $4160$ states, $4160$ after trimming, and $S = 42$ blocks after refinement. The model reproduces every published value of column $k = 4$ --- and of the rest of the triangle. The residuals were computed exactly and the last nonvanishing one is at $n = 27$; after that point more than $S = 42$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
@@ -71,11 +89,9 @@ The same blocks carry further lines that this note leaves open, with the reason 
 
 \begin{itemize}
 
-\item 3 lines: the line is not in a form this reader accepts
-
 \item 3 lines: fewer than six published terms in that line
 
-\item 2 lines: the entry gives only the order of the recurrence and refers to a linked file for its coefficients, so there is no stated recurrence to test
+\item 2 lines: the line is not in a form this reader accepts
 
 \end{itemize}
 

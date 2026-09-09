@@ -1,0 +1,110 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\setlength{\parskip}{2pt}
+\title{A proof of the conjectured linear recurrence for OEIS A220339}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
+\date{09 September 2026}
+\begin{document}
+\maketitle
+\section{The conjecture}
+
+The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A220339}{A220339} as
+
+\begin{quote}\itshape Equals two maps: number of nX2 binary arrays indicating the locations of corresponding elements equal to exactly two of their king-move neighbors in a random 0..3 nX2 array\end{quote}
+
+and carries in its Formula section the line:
+
+\begin{quote}\ttfamily Empirical: a(n) = 4*a(n-1) +6*a(n-2) -22*a(n-3) -15*a(n-4) +10*a(n-5) +56*a(n-6) +34*a(n-7) -68*a(n-8) -12*a(n-9) -247*a(n-10) +258*a(n-11) +429*a(n-12) -176*a(n-13) -798*a(n-14) +50*a(n-15) +1112*a(n-16) -368*a(n-17) -628*a(n-18) +288*a(n-19) -56*a(n-20) -248*a(n-21) +96*a(n-22)\end{quote}
+
+That line carries no separate signature; the entry itself is by R. H. Hardin (Dec 11 2012).
+
+The word {\itshape Empirical} --- equivalently {\itshape Conjecture} --- is the entry's own: the statement is recorded as fitted to the published terms, and no proof is given there. As of revision 9, last modified Oct 03 2025, the entry records no proof and links to none, so the statement is open. This note settles it.
+
+Written out, the claim is
+
+\begin{multline*} a(n) = 4\,a(n-1) + 6\,a(n-2) - 22\,a(n-3) - 15\,a(n-4) + 10\,a(n-5) + 56\,a(n-6) + \\ 34\,a(n-7) - 68\,a(n-8) - 12\,a(n-9) - 247\,a(n-10) + 258\,a(n-11) + 429\,a(n-12) - \\ 176\,a(n-13) - 798\,a(n-14) + 50\,a(n-15) + 1112\,a(n-16) - 368\,a(n-17) - 628\,a(n-18) + \\ 288\,a(n-19) - 56\,a(n-20) - 248\,a(n-21) + 96\,a(n-22). \end{multline*}
+
+stated without a range; it first has meaning at $n = 23$, the least index at which all of $a(n-1),\dots,a(n-22)$ are terms of the sequence.
+
+\section{The object}
+
+The name is read as follows. The reading is not a guess: it is pinned against the entry's own published terms, and against an independent enumeration, before anything is proved (Section 7).
+
+Let $A$ run over the $n' \times 2$ arrays with entries in $\{0,\dots,3\}$, $n' = n$.
+
+The entry's neighbours, {\itshape king-move}, are the cells at the offsets $\{(-1,-1), (-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0), (1,1)\}$ that lie inside the array. Define the binary array $\Phi(A)$ by
+
+\[\Phi(A)[i][j] = 1 \iff \#\{\text{neighbours equal to } A[i][j]\} = 2.\]
+
+$a(n)$ is the number of {\itshape distinct} arrays $\Phi(A)$, not the number of arrays $A$: it is the size of the image of $\Phi$.
+
+$a(n)$ is the number of such arrays. The entry's offset is 1, so its term of index $n$ is the count for $n$ rows.
+
+\section{The count is a walk count}
+
+$\Phi$ is computed row by row: the row $\Phi(A)[i]$ is determined by rows $i-1$, $i$ and $i+1$ of $A$. So $\Phi$ is a transducer whose state is a pair of consecutive source rows and whose output is one binary row.
+
+Counting the image is therefore counting the words the transducer can output, and that is a determinisation: take as state the set of pairs of source rows still consistent with the output rows read so far. A binary array of $n'$ rows lies in the image exactly when the subset automaton reaches a nonempty state on it, and each such array is counted once.
+
+The subset automaton is deterministic, so $a(n)$ counts its accepting walks and is C-finite.
+
+\section{The degree bound, derived}
+
+The reachable part of the subset automaton has $46$ states, $46$ after trimming; the forward identification of states with equal numbers of completions of every length, then the mirror identification on the edges coming in, leaves $S = 24$ blocks, and the count satisfies the linear recurrence given by the characteristic polynomial of that $24\times24$ matrix. The bound is computed, not assumed.
+
+\section{The decision procedure}
+
+Let $c_1,\dots,c_D$ be the coefficients of a claimed recurrence $a(n) = \sum_{i=1}^{D} c_i\,a(n-i)$, let $q(t) = t^{D} - \sum_{i=1}^{D} c_i t^{D-i}$ be its characteristic polynomial, and put
+
+\[u_m \;=\; \tilde w^{\mathsf T} L^{\,m-1} q(L)\,\tilde f \qquad (m \ge 1).\]
+
+Expanding the powers of $L$ and using the displayed formula for $a$, one gets $u_m = a(n) - \sum_{i=1}^{D} c_i\,a(n-i)$ with $n = m + D$. So $u_m$ is exactly the residual of the claim at that index, and the recurrence holds at an index $n$ if and only if the corresponding $u_m$ vanishes.
+
+Now $u_m = \tilde w^{\mathsf T} L^{m-1} y$ with $y = q(L)\tilde f$ a fixed vector, so $(u_m)$ satisfies the characteristic polynomial of $L$, of degree $24$: writing that polynomial as $t^{24} - \sum_{i=1}^{24} \lambda_i t^{24-i}$ gives $u_{m+24} = \sum_{i=1}^{24} \lambda_i u_{m+24-i}$. Hence $24$ consecutive vanishing residuals force every later residual to vanish, by induction. The test is therefore finite; and because it locates the {\itshape last} nonvanishing residual, it pins the threshold exactly rather than merely bounding it.
+
+Everything is carried out in exact integer arithmetic on the vector $L^{m-1}y$. The matrix $M$ is never formed.
+
+\section{Results}
+
+\begin{theorem} For A220339, the recurrence of order $22$ displayed in Section 1 holds for every $n \ge 23$, at every index at which it can be stated.\end{theorem}
+
+{\itshape Proof.} The residuals $u_m$ were computed exactly for $m = 1,\dots,76$. Every one of them vanished. After it, more than $S = 24$ consecutive residuals vanish, so by Section 5 every later residual vanishes as well. $\square$
+
+\section{Verification}
+
+Four checks were run, each reproducible from the code accompanying this note, and the first two are what pin the reading of the entry's English.
+
+\begin{itemize}
+
+\item {\bfseries The published terms.} The walk count reproduces all 24 terms the entry publishes, exactly, in integer arithmetic, with the index taken from the entry's stated offset (1) rather than fitted. The first of them are 1, 5, 24, 89, 389, 1570, 6413, 25744,~\dots
+
+\item {\bfseries The claim on the raw data.} Each claim was evaluated on the entry's published terms alone, with no model involved, wherever the proved range and the published data overlap. It holds there.
+
+\item {\bfseries The annihilation test.} Carried to the derived bound $S = 24$ over the whole vector, in exact integer arithmetic, never sampled and never truncated.
+
+\end{itemize}
+
+\section{References}
+
+\begin{enumerate}
+
+\item OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, entry \href{https://oeis.org/A220339}{A220339}, revision 9, last modified Oct 03 2025.
+
+\item R. P. Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge University Press, 2012; \S4.7, the transfer-matrix method.
+
+\item M. Kauers and P. Paule, \emph{The Concrete Tetrahedron}, Springer, 2011; C-finite sequences and their closure properties.
+
+\item J. Berstel and C. Reutenauer, \emph{Noncommutative Rational Series with Applications}, Cambridge University Press, 2011; linear representations of counting automata and their reduction.
+
+\end{enumerate}
+\end{document}

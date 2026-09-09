@@ -1,0 +1,114 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\setlength{\parskip}{2pt}
+\title{A proof of the conjectured linear recurrence for OEIS A231465}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
+\date{09 September 2026}
+\begin{document}
+\maketitle
+\section{The conjecture}
+
+The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A231465}{A231465} as
+
+\begin{quote}\itshape Number of (2+1)X(n+1) 0..3 arrays with no element unequal to a strict majority of its horizontal, diagonal and antidiagonal neighbors, with values 0..3 introduced in row major order\end{quote}
+
+and carries in its Formula section the line:
+
+\begin{quote}\ttfamily Empirical: a(n) = 7*a(n-1) +15*a(n-2) -167*a(n-3) -164*a(n-4) +2252*a(n-5) +1016*a(n-6) -19092*a(n-7) -3372*a(n-8) +110426*a(n-9) +7229*a(n-10) -476069*a(n-11) -5821*a(n-12) +1579769*a(n-13) -6768*a(n-14) -4121058*a(n-15) -8571*a(n-16) +8605523*a(n-17) +144802*a(n-18) -14603860*a(n-19) -452700*a(n-20) +20417020*a(n-21) +778535*a(n-22) -23687301*a(n-23) -869454*a(n-24) +22835452*a(n-25) +638591*a(n-26) -18237245*a(n-27) -206165*a(n-28) +11922975*a(n-29) -148812*a(n-30) -6238980*a(n-31) +241061*a(n-32) +2535855*a(n-33) -158253*a(n-34) -766935*a(n-35) +61092*a(n-36) +160434*a(n-37) -13203*a(n-38) -20493*a(n-39) +1215*a(n-40) +1215*a(n-41)\end{quote}
+
+That line carries no separate signature; the entry itself is by R. H. Hardin (Nov 09 2013).
+
+The word {\itshape Empirical} --- equivalently {\itshape Conjecture} --- is the entry's own: the statement is recorded as fitted to the published terms, and no proof is given there. As of revision 6, last modified Jul 23 2025, the entry records no proof and links to none, so the statement is open. This note settles it.
+
+Written out, the claim is
+
+\begin{multline*} a(n) = 7\,a(n-1) + 15\,a(n-2) - 167\,a(n-3) - 164\,a(n-4) + 2252\,a(n-5) + 1016\,a(n-6) - \\ 19092\,a(n-7) - 3372\,a(n-8) + 110426\,a(n-9) + 7229\,a(n-10) - 476069\,a(n-11) - 5821\,a(n-12) + \\ 1579769\,a(n-13) - 6768\,a(n-14) - 4121058\,a(n-15) - 8571\,a(n-16) + 8605523\,a(n-17) + 144802\,a(n-18) - \\ 14603860\,a(n-19) - 452700\,a(n-20) + 20417020\,a(n-21) + 778535\,a(n-22) - 23687301\,a(n-23) - 869454\,a(n-24) + \\ 22835452\,a(n-25) + 638591\,a(n-26) - 18237245\,a(n-27) - 206165\,a(n-28) + 11922975\,a(n-29) - 148812\,a(n-30) - \\ 6238980\,a(n-31) + 241061\,a(n-32) + 2535855\,a(n-33) - 158253\,a(n-34) - 766935\,a(n-35) + 61092\,a(n-36) + \\ 160434\,a(n-37) - 13203\,a(n-38) - 20493\,a(n-39) + 1215\,a(n-40) + 1215\,a(n-41). \end{multline*}
+
+stated without a range; it first has meaning at $n = 42$, the least index at which all of $a(n-1),\dots,a(n-41)$ are terms of the sequence.
+
+\section{The object}
+
+The name is read as follows. The reading is not a guess: it is pinned against the entry's own published terms, and against an independent enumeration, before anything is proved (Section 7).
+
+Let $A$ be an $n' \times 3$ array over $\{0,\dots,3\}$ with $n' = n + 1$ rows, the entry's array transposed so the growing direction is downwards, the neighbour offsets transposed with it.
+
+The entry's {\itshape horizontal, diagonal and antidiagonal} neighbours of a cell are those at the offsets
+
+\[\mathcal{N} = \{(-1,-1), (-1,0), (-1,1), (1,-1), (1,0), (1,1)\}\]
+
+that lie inside the array. A cell $(i,j)$ is called {\itshape bad} when strictly more than half of its neighbours $v$ satisfy $v \ne A[i][j]$ --- that is, when the cell is unequal to a strict majority of its neighbours. Cells with no neighbour at all are never bad.
+
+The condition is that no cell is bad.
+
+The entry's further clause, that the values $0,\dots,3$ are introduced in row major order, means that reading the array row by row the first occurrences of the values happen in increasing order.
+
+$a(n)$ is the number of such arrays. The entry's offset is 1, so its term of index $n$ is the count for $n$ columns.
+
+\section{The count is a walk count}
+
+Every neighbour offset moves at most one row, so whether a cell of row $i$ is bad is decided by rows $i-1$, $i$ and $i+1$. Take as state the last two rows, and a counter for how many values have been introduced. Appending a row decides the row before it, and the last row is decided by the accepting condition, which reads it off the state.
+
+An array of $n'$ rows is then exactly a walk of length $n'$ from the empty state to an accepting one, and every array arises from exactly one walk, so $a(n) = w^{\mathsf T}M^{\,n'}f$ and the count is C-finite.
+
+\section{The degree bound, derived}
+
+The reachable part of the digraph has $5975$ states, $756$ after trimming; the forward identification of states with equal numbers of completions of every length, then the mirror identification on the edges coming in, leaves $S = 44$ blocks, and the count satisfies the linear recurrence given by the characteristic polynomial of that $44\times44$ matrix. The bound is computed, not assumed.
+
+\section{The decision procedure}
+
+Let $c_1,\dots,c_D$ be the coefficients of a claimed recurrence $a(n) = \sum_{i=1}^{D} c_i\,a(n-i)$, let $q(t) = t^{D} - \sum_{i=1}^{D} c_i t^{D-i}$ be its characteristic polynomial, and put
+
+\[u_m \;=\; \tilde w^{\mathsf T} L^{\,m-1} q(L)\,\tilde f \qquad (m \ge 1).\]
+
+Expanding the powers of $L$ and using the displayed formula for $a$, one gets $u_m = a(n) - \sum_{i=1}^{D} c_i\,a(n-i)$ with $n = m + D$. So $u_m$ is exactly the residual of the claim at that index, and the recurrence holds at an index $n$ if and only if the corresponding $u_m$ vanishes.
+
+Now $u_m = \tilde w^{\mathsf T} L^{m-1} y$ with $y = q(L)\tilde f$ a fixed vector, so $(u_m)$ satisfies the characteristic polynomial of $L$, of degree $44$: writing that polynomial as $t^{44} - \sum_{i=1}^{44} \lambda_i t^{44-i}$ gives $u_{m+44} = \sum_{i=1}^{44} \lambda_i u_{m+44-i}$. Hence $44$ consecutive vanishing residuals force every later residual to vanish, by induction. The test is therefore finite; and because it locates the {\itshape last} nonvanishing residual, it pins the threshold exactly rather than merely bounding it.
+
+Everything is carried out in exact integer arithmetic on the vector $L^{m-1}y$. The matrix $M$ is never formed.
+
+\section{Results}
+
+\begin{theorem} For A231465, the recurrence of order $41$ displayed in Section 1 holds for every $n \ge 42$, at every index at which it can be stated.\end{theorem}
+
+{\itshape Proof.} The residuals $u_m$ were computed exactly for $m = 1,\dots,115$. Every one of them vanished. After it, more than $S = 44$ consecutive residuals vanish, so by Section 5 every later residual vanishes as well. $\square$
+
+\section{Verification}
+
+Four checks were run, each reproducible from the code accompanying this note, and the first two are what pin the reading of the entry's English.
+
+\begin{itemize}
+
+\item {\bfseries The published terms.} The walk count reproduces all 24 terms the entry publishes, exactly, in integer arithmetic, with the index taken from the entry's stated offset (1) rather than fitted. The first of them are 4, 8, 38, 90, 363, 1163, 4151, 16054,~\dots
+
+\item {\bfseries An independent enumeration.} For $n = 1,\dots,2$ every one of the $4^{3n}$ arrays was written out and tested cell by cell against the condition as the entry states it --- no transfer matrix, no row window, a separate piece of code. The counts agree with the walk count and with the entry.
+
+\item {\bfseries The claim on the raw data.} Each claim was evaluated on the entry's published terms alone, with no model involved, wherever the proved range and the published data overlap. It holds there.
+
+\item {\bfseries The annihilation test.} Carried to the derived bound $S = 44$ over the whole vector, in exact integer arithmetic, never sampled and never truncated.
+
+\end{itemize}
+
+\section{References}
+
+\begin{enumerate}
+
+\item OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, entry \href{https://oeis.org/A231465}{A231465}, revision 6, last modified Jul 23 2025.
+
+\item R. P. Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge University Press, 2012; \S4.7, the transfer-matrix method.
+
+\item M. Kauers and P. Paule, \emph{The Concrete Tetrahedron}, Springer, 2011; C-finite sequences and their closure properties.
+
+\item J. Berstel and C. Reutenauer, \emph{Noncommutative Rational Series with Applications}, Cambridge University Press, 2011; linear representations of counting automata and their reduction.
+
+\end{enumerate}
+\end{document}

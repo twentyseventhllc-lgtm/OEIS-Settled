@@ -1,0 +1,108 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\setlength{\parskip}{2pt}
+\title{A proof of the conjectured order of the recurrence for OEIS A231742}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
+\date{09 September 2026}
+\begin{document}
+\maketitle
+\section{The conjecture}
+
+The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A231742}{A231742} as
+
+\begin{quote}\itshape Number of nX3 0..3 arrays with no element less than a strict majority of its horizontal and vertical neighbors\end{quote}
+
+and carries in its Formula section the line:
+
+\begin{quote}\ttfamily Empirical recurrence of order 87 (see link above)\end{quote}
+
+That line carries no separate signature; the entry itself is by R. H. Hardin (Nov 13 2013).
+
+The word {\itshape Empirical} --- equivalently {\itshape Conjecture} --- is the entry's own: the statement is recorded as fitted to the published terms, and no proof is given there. As of revision 7, last modified Jul 23 2025, the entry records no proof and links to none, so the statement is open. This note settles it.
+
+The entry states only that the sequence satisfies a linear recurrence of order $87$ and refers to a linked file for its coefficients, which this note does not use. What is proved below is the corresponding exact statement: the least order of a linear recurrence the sequence eventually satisfies, and the exact index beyond which it holds.
+
+\section{The object}
+
+The name is read as follows. The reading is not a guess: it is pinned against the entry's own published terms, and against an independent enumeration, before anything is proved (Section 7).
+
+Let $A$ be an $n' \times 3$ array over $\{0,\dots,3\}$ with $n' = n$ rows.
+
+The entry's {\itshape horizontal and vertical} neighbours of a cell are those at the offsets
+
+\[\mathcal{N} = \{(-1,0), (0,-1), (0,1), (1,0)\}\]
+
+that lie inside the array. A cell $(i,j)$ is called {\itshape bad} when strictly more than half of its neighbours $v$ satisfy $A[i][j] < v$ --- that is, when the cell is less than a strict majority of its neighbours. Cells with no neighbour at all are never bad.
+
+The condition is that no cell is bad.
+
+$a(n)$ is the number of such arrays. The entry's offset is 1, so its term of index $n$ is the count for $n$ rows.
+
+\section{The count is a walk count}
+
+Every neighbour offset moves at most one row, so whether a cell of row $i$ is bad is decided by rows $i-1$, $i$ and $i+1$. Take as state the last two rows. Appending a row decides the row before it, and the last row is decided by the accepting condition, which reads it off the state.
+
+An array of $n'$ rows is then exactly a walk of length $n'$ from the empty state to an accepting one, and every array arises from exactly one walk, so $a(n) = w^{\mathsf T}M^{\,n'}f$ and the count is C-finite.
+
+\section{The degree bound, derived}
+
+The reachable part of the digraph has $5889$ states, $1131$ after trimming; the forward identification of states with equal numbers of completions of every length, then the mirror identification on the edges coming in, leaves $S = 92$ blocks, and the count satisfies the linear recurrence given by the characteristic polynomial of that $92\times92$ matrix. The bound is computed, not assumed.
+
+\section{The decision procedure}
+
+Let $c_1,\dots,c_D$ be the coefficients of a claimed recurrence $a(n) = \sum_{i=1}^{D} c_i\,a(n-i)$, let $q(t) = t^{D} - \sum_{i=1}^{D} c_i t^{D-i}$ be its characteristic polynomial, and put
+
+\[u_m \;=\; \tilde w^{\mathsf T} L^{\,m-1} q(L)\,\tilde f \qquad (m \ge 1).\]
+
+Expanding the powers of $L$ and using the displayed formula for $a$, one gets $u_m = a(n) - \sum_{i=1}^{D} c_i\,a(n-i)$ with $n = m + D$. So $u_m$ is exactly the residual of the claim at that index, and the recurrence holds at an index $n$ if and only if the corresponding $u_m$ vanishes.
+
+Now $u_m = \tilde w^{\mathsf T} L^{m-1} y$ with $y = q(L)\tilde f$ a fixed vector, so $(u_m)$ satisfies the characteristic polynomial of $L$, of degree $92$: writing that polynomial as $t^{92} - \sum_{i=1}^{92} \lambda_i t^{92-i}$ gives $u_{m+92} = \sum_{i=1}^{92} \lambda_i u_{m+92-i}$. Hence $92$ consecutive vanishing residuals force every later residual to vanish, by induction. The test is therefore finite; and because it locates the {\itshape last} nonvanishing residual, it pins the threshold exactly rather than merely bounding it.
+
+Everything is carried out in exact integer arithmetic on the vector $L^{m-1}y$. The matrix $M$ is never formed.
+
+\section{Results}
+
+\begin{theorem} For A231742, the least order of a linear recurrence that $a$ eventually satisfies is exactly $87$, and that recurrence holds for every $n > 88$, the entry's own figure.\end{theorem}
+
+{\itshape Proof.} The count is C-finite of order at most $S = 92$, so the minimal annihilator of the tail $(a(n))_{n \ge M}$ is the same for every $M$ beyond $S$: the nilpotent part of $L$ is killed after $S$ steps. Taking such an $M$ and $190$ consecutive terms from there, the Berlekamp--Massey algorithm over $\mathbb{Q}$ returns the minimal linear recurrence generating them; since the sequence satisfies one of order at most $S$, $2S$ terms determine it. Its order is $87$. That recurrence was then put through the residual test of Section 5: the last nonvanishing residual is at $n = 88$, followed by more than $S = 92$ consecutive vanishing ones, so it holds for every larger $n$. No recurrence of smaller order can hold eventually, since the tail's minimal annihilator is what the algorithm returned. $\square$
+
+\section{Verification}
+
+Four checks were run, each reproducible from the code accompanying this note, and the first two are what pin the reading of the entry's English.
+
+\begin{itemize}
+
+\item {\bfseries The published terms.} The walk count reproduces all 16 terms the entry publishes, exactly, in integer arithmetic, with the index taken from the entry's stated offset (1) rather than fitted. The first of them are 16, 318, 4430, 60806, 784076, 9945132, 126926437, 1625269595,~\dots
+
+\item {\bfseries An independent enumeration.} For $n = 1,\dots,2$ every one of the $4^{3n}$ arrays was written out and tested cell by cell against the condition as the entry states it --- no transfer matrix, no row window, a separate piece of code. The counts agree with the walk count and with the entry.
+
+\item {\bfseries The claim on the raw data.} Each claim was evaluated on the entry's published terms alone, with no model involved, wherever the proved range and the published data overlap. It holds there.
+
+\item {\bfseries The annihilation test.} Carried to the derived bound $S = 92$ over the whole vector, in exact integer arithmetic, never sampled and never truncated.
+
+\end{itemize}
+
+\section{References}
+
+\begin{enumerate}
+
+\item OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, entry \href{https://oeis.org/A231742}{A231742}, revision 7, last modified Jul 23 2025.
+
+\item R. P. Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge University Press, 2012; \S4.7, the transfer-matrix method.
+
+\item M. Kauers and P. Paule, \emph{The Concrete Tetrahedron}, Springer, 2011; C-finite sequences and their closure properties.
+
+\item J. Berstel and C. Reutenauer, \emph{Noncommutative Rational Series with Applications}, Cambridge University Press, 2011; linear representations of counting automata and their reduction.
+
+\end{enumerate}
+\end{document}

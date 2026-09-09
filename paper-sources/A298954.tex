@@ -12,7 +12,7 @@
 \newtheorem{definition}[theorem]{Definition}
 \setlength{\parskip}{2pt}
 \title{A proof of the conjectured linear recurrence for OEIS A298954}
-\author{Adrian Perez Fontelles, Independent researcher}
+\author{Adrian Perez Fontelles and Gaspard Moulinier, Independent researchers}
 \date{09 September 2026}
 \begin{document}
 \maketitle
@@ -96,7 +96,7 @@ Let $c_1,\dots,c_D$ be the coefficients of a claimed recurrence $a(n) = \sum_{i=
 
 \[u_m \;=\; \tilde w^{\mathsf T} L^{\,m-1} q(L)\,\tilde f \qquad (m \ge 1).\]
 
-Expanding the powers of $L$ and using the displayed formula for $a$, one gets $u_m = a(n) - \sum_{i=1}^{D} c_i\,a(n-i)$ with $n = m + D + 0$. So $u_m$ is exactly the residual of the claim at $n = m + D + 0$, and the recurrence holds at an index $n$ if and only if the corresponding $u_m$ vanishes.
+Expanding the powers of $L$ and using the displayed formula for $a$, one gets $u_m = a(n) - \sum_{i=1}^{D} c_i\,a(n-i)$ with $n = m + D$. So $u_m$ is exactly the residual of the claim at that index, and the recurrence holds at an index $n$ if and only if the corresponding $u_m$ vanishes.
 
 Now $u_m = \tilde w^{\mathsf T} L^{m-1} y$ with $y = q(L)\tilde f$ a fixed vector, so $(u_m)$ satisfies the characteristic polynomial of $L$, of degree $74$: writing that polynomial as $t^{74} - \sum_{i=1}^{74} \lambda_i t^{74-i}$ gives $u_{m+74} = \sum_{i=1}^{74} \lambda_i u_{m+74-i}$. Hence $74$ consecutive vanishing residuals force every later residual to vanish, by induction. The test is therefore finite; and because it locates the {\itshape last} nonvanishing residual, it pins the threshold exactly rather than merely bounding it.
 
