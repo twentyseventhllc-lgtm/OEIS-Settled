@@ -34,6 +34,7 @@ FAMILY_MODULE = {
     "consecutive-triple": "fam_triple",
     "existential-neighbour": "fam_exists",
     "defective-colouring": "fam_mistakes",
+    "lexicographic-order": "fam_lexorder",
 }
 
 SIG = re.compile(r"-\s*_([^_]+)_,\s*([A-Z][a-z]{2} \d{2} \d{4})\s*$")

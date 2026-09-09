@@ -60,6 +60,7 @@ FAMILY_MODULE = {
     "consecutive-triple": "fam_triple",
     "existential-neighbour": "fam_exists",
     "defective-colouring": "fam_mistakes",
+    "lexicographic-order": "fam_lexorder",
 }
 BRUTE_BUDGET = 200_000
 
