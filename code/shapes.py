@@ -8,6 +8,24 @@ growing direction across.
 import re
 
 
+def parse_table_shape(s):
+    """For a table name, (rowoff, coloff) with rows = n + rowoff and
+    columns = k + coloff."""
+    t = s.replace(" ", "").lower()
+    if t == "nxk":
+        return 0, 0
+    m = re.fullmatch(r"\(n\+(\d+)\)x\(k\+(\d+)\)", t)
+    if m:
+        return int(m.group(1)), int(m.group(2))
+    m = re.fullmatch(r"nx\(k\+(\d+)\)", t)
+    if m:
+        return 0, int(m.group(1))
+    m = re.fullmatch(r"\(n\+(\d+)\)xk", t)
+    if m:
+        return int(m.group(1)), 0
+    return None, None
+
+
 def parse_shape(s):
     t = s.replace(" ", "").lower()
     m = re.fullmatch(r"n?x?k?", t)

@@ -11,6 +11,11 @@ FAMILY_MODULE = {
     "marked-value-neighbours": "fam_marked",
     "constant-stress": "fam_stress",
     "clockwise-perimeter": "fam_perimeter",
+    "neighbour-count-equals-value": "fam_countval",
+    "digit-window": "fam_digits",
+    "subblock-line-sum": "fam_linesum",
+    "monotone-derived": "fam_monotone",
+    "line-monotonicity": "fam_unimodal",
 }
 
 SIG = re.compile(r"-\s*_([^_]+)_,\s*([A-Z][a-z]{2} \d{2} \d{4})\s*$")
@@ -174,59 +179,11 @@ def make(rec, date=None):
           f"so its term of index $n$ is the count for $n$ "
           f"{'columns' if sp.get('transposed') else 'rows'}.")
 
-    # -------------------------------------------------------------- §3
-    P.section("The count is a walk count")
-    P.par(fam.window_reason() + " A window of three consecutive rows "
-          "therefore decides the whole of its middle row.")
-    P.par(f"Let $R = \\{{0,\\dots,{q-1}\\}}^{{{W}}}$ be the set of rows, so "
-          f"$|R| = {q**W}$, and adjoin a symbol $\\top$ standing for "
-          f"``no row above''. Take as states the pairs")
-    P.display(r"\Sigma \;=\; (R \cup \{\top\}) \times R,")
-    P.par(r"with an edge from $(p,c)$ to $(c,x)$ exactly when row $c$ "
-          r"satisfies the condition in the window $(p,c,x)$, and call $(p,c)$ "
-          r"accepting when $c$ satisfies the condition in the window "
-          r"$(p,c,\bot)$, where $\bot$ stands for ``no row below''.")
-    P.par(r"An array with rows $r_1,\dots,r_n$ is then exactly a walk")
-    P.display(r"(\top,r_1) \to (r_1,r_2) \to \cdots \to (r_{n-1},r_n)")
-    P.par(r"of length $n-1$ beginning at a state $(\top,r_1)$ "
-          + fam.start_condition() +
-          r"and ending at an accepting state. Every array gives one such walk "
-          r"and every such walk one array. With $M$ the adjacency matrix, $w$ "
-          r"the indicator of the allowed starting states and $f$ that of the "
-          r"accepting ones,")
-    P.display(r"a(n) \;=\; w^{\mathsf T} M^{\,n-1} f \qquad (n \ge 1),")
-    P.par(r"so $a$ satisfies the linear recurrence whose characteristic "
-          r"polynomial is that of $M$, and is in particular C-finite. The "
-          r"argument is the transfer-matrix method; see Stanley~\S4.7.")
-
-    # -------------------------------------------------------------- §4
-    P.section("The degree bound, derived")
-    P.par(f"The construction gives ${rec['nfull']}$ states. Removing states "
-          f"unreachable from a start state, and states from which no accepting "
-          f"state can be reached, leaves ${rec['ntrim']}$; neither removal "
-          f"changes any count.")
-    P.par(r"Two states from which the same number of arrays can be completed, "
-          r"for every remaining number of rows, contribute identically to "
-          r"$w^{\mathsf T}M^{\,n-1}f$ and may be identified. The coarsest such "
-          r"identification is computed by partition refinement: begin with the "
-          r"partition by acceptance and separate two states as soon as they "
-          r"send different numbers of edges into some block. The refinement "
-          r"terminates; on its blocks the number of completions of each length "
-          r"is constant by induction on that length, so the quotient digraph "
-          r"counts exactly what the original does.")
-    P.par(f"Here the refinement leaves $S = {S}$ blocks. Writing $L$ for the "
-          f"$S\\times S$ quotient matrix, $\\tilde w$ for the start weights "
-          f"summed over each block and $\\tilde f$ for the acceptance "
-          f"indicator,")
-    P.display(r"a(n) \;=\; \tilde w^{\mathsf T} L^{\,n-1} \tilde f \qquad (n \ge 1),")
-    P.par(f"and $a$ satisfies the linear recurrence given by the characteristic "
-          f"polynomial of $L$, of degree ${S}$. **This is the only bound used "
-          f"below, and it is computed, not assumed.**".replace("**", ""))
-    if q ** (W * 8) > 10 ** 12:
-        P.par(f"For scale: at $n = 8$ there are ${q}^{{{8*W}}}$ arrays, about "
-              f"$10^{{{round(8*W*math.log10(q))}}}$, against ${S}$ blocks here. "
-              f"Direct enumeration settles nothing at that size; the walk "
-              f"count does.")
+    # -------------------------------------------------------------- §3, §4
+    if hasattr(fam, "model_sections"):
+        fam.model_sections(P, rec, paper)
+    else:
+        _rowtransfer_sections(P, rec, paper, fam, sp, W, q, S, off)
 
     # -------------------------------------------------------------- §5
     P.section("The decision procedure")
@@ -365,3 +322,61 @@ def make(rec, date=None):
           r"linear representations of counting automata and their reduction.")
     P.raw(r"\end{enumerate}")
     return P
+
+
+def _rowtransfer_sections(P, rec, paper, fam, sp, W, q, S, off):
+    # -------------------------------------------------------------- §3
+    P.section("The count is a walk count")
+    P.par(fam.window_reason() + " A window of three consecutive rows "
+          "therefore decides the whole of its middle row.")
+    P.par(f"Let $R = \\{{0,\\dots,{q-1}\\}}^{{{W}}}$ be the set of rows, so "
+          f"$|R| = {q**W}$, and adjoin a symbol $\\top$ standing for "
+          f"``no row above''. Take as states the pairs")
+    P.display(r"\Sigma \;=\; (R \cup \{\top\}) \times R,")
+    P.par(r"with an edge from $(p,c)$ to $(c,x)$ exactly when row $c$ "
+          r"satisfies the condition in the window $(p,c,x)$, and call $(p,c)$ "
+          r"accepting when $c$ satisfies the condition in the window "
+          r"$(p,c,\bot)$, where $\bot$ stands for ``no row below''.")
+    P.par(r"An array with rows $r_1,\dots,r_n$ is then exactly a walk")
+    P.display(r"(\top,r_1) \to (r_1,r_2) \to \cdots \to (r_{n-1},r_n)")
+    P.par(r"of length $n-1$ beginning at a state $(\top,r_1)$ "
+          + fam.start_condition() +
+          r"and ending at an accepting state. Every array gives one such walk "
+          r"and every such walk one array. With $M$ the adjacency matrix, $w$ "
+          r"the indicator of the allowed starting states and $f$ that of the "
+          r"accepting ones,")
+    P.display(r"a(n) \;=\; w^{\mathsf T} M^{\,n-1} f \qquad (n \ge 1),")
+    P.par(r"so $a$ satisfies the linear recurrence whose characteristic "
+          r"polynomial is that of $M$, and is in particular C-finite. The "
+          r"argument is the transfer-matrix method; see Stanley~\S4.7.")
+
+    # -------------------------------------------------------------- §4
+    P.section("The degree bound, derived")
+    P.par(f"The construction gives ${rec['nfull']}$ states. Removing states "
+          f"unreachable from a start state, and states from which no accepting "
+          f"state can be reached, leaves ${rec['ntrim']}$; neither removal "
+          f"changes any count.")
+    P.par(r"Two states from which the same number of arrays can be completed, "
+          r"for every remaining number of rows, contribute identically to "
+          r"$w^{\mathsf T}M^{\,n-1}f$ and may be identified. The coarsest such "
+          r"identification is computed by partition refinement: begin with the "
+          r"partition by acceptance and separate two states as soon as they "
+          r"send different numbers of edges into some block. The refinement "
+          r"terminates; on its blocks the number of completions of each length "
+          r"is constant by induction on that length, so the quotient digraph "
+          r"counts exactly what the original does.")
+    P.par(f"Here the refinement leaves $S = {S}$ blocks. Writing $L$ for the "
+          f"$S\\times S$ quotient matrix, $\\tilde w$ for the start weights "
+          f"summed over each block and $\\tilde f$ for the acceptance "
+          f"indicator,")
+    P.display(r"a(n) \;=\; \tilde w^{\mathsf T} L^{\,n-1} \tilde f \qquad (n \ge 1),")
+    P.par(f"and $a$ satisfies the linear recurrence given by the characteristic "
+          f"polynomial of $L$, of degree ${S}$. **This is the only bound used "
+          f"below, and it is computed, not assumed.**".replace("**", ""))
+    if q ** (W * 8) > 10 ** 12:
+        P.par(f"For scale: at $n = 8$ there are ${q}^{{{8*W}}}$ arrays, about "
+              f"$10^{{{round(8*W*math.log10(q))}}}$, against ${S}$ blocks here. "
+              f"Direct enumeration settles nothing at that size; the walk "
+              f"count does.")
+
+

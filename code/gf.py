@@ -90,6 +90,27 @@ def _mul(a, b):
 
 
 SAFE = re.compile(r"^[0-9x+\-*/^() .]+$")
+
+_NUM = re.compile(r"(?<!\*\*)(?<![\w.])(\d+)(?![\w.])")
+
+
+def _fractionise(expr):
+    """Make every integer literal a Fraction, except an exponent, so that
+    `13/6' in the source is read as a rational and not as a float."""
+    out, i = [], 0
+    for m in _NUM.finditer(expr):
+        j = m.start()
+        k = j - 1
+        while k >= 0 and expr[k] == " ":
+            k -= 1
+        if k >= 1 and expr[k - 1:k + 1] == "**":
+            continue
+        out.append(expr[i:j])
+        out.append("F(" + m.group(1) + ")")
+        i = m.end()
+    out.append(expr[i:])
+    return "".join(out)
+
 GFMARK = re.compile(r"\bg\.f\.\s*(?:for [^:]{0,40})?:", re.I)
 
 
@@ -119,7 +140,8 @@ def parse_gf(line):
     expr = re.sub(r"\)\s*x", r")*x", expr)
     expr = re.sub(r"x\s*\(", r"x*(", expr)
     try:
-        v = eval(expr, {"__builtins__": {}}, {"x": Rat([0, 1])})
+        v = eval(_fractionise(expr), {"__builtins__": {}},
+                 {"x": Rat([0, 1]), "F": Fraction})
     except Exception:
         return None
     if not isinstance(v, Rat):

@@ -120,3 +120,4 @@ def window_reason():
 
 def start_condition():
     return ""
+REACH = (0, 1)

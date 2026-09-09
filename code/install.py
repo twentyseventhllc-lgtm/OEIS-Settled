@@ -14,7 +14,7 @@ from concurrent.futures import ProcessPoolExecutor
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(HERE, "..")
 sys.path.insert(0, HERE)
-import corpus, recur, paper, mkpaper_transfer
+import corpus, recur, paper, mkpaper_transfer, mkpaper_table
 
 RESULTS = os.path.join(ROOT, "results.json")
 PAPERS = os.path.join(ROOT, "papers")
@@ -54,15 +54,36 @@ def one(job):
     e = corpus.parse(a)
     if e is None:
         return {"anum": a, "skipped": "entry gone"}
-    live = [ln for _, _, ln in corpus.conj_lines(e)]
-    claims = [c for c in claims if c["line"] in live]
+    if rec.get("table"):
+        live = set(x.strip() for x in e.get("F", []))
+        claims = [c for c in claims
+                  if c["line"].strip() in live and c["header"].strip() in live]
+    else:
+        live = [ln for _, _, ln in corpus.conj_lines(e)]
+        claims = [c for c in claims if c["line"] in live]
     if not claims:
         return {"anum": a, "skipped": "no conjecture line still open"}
     rec = dict(rec, claims=claims)
-    P = mkpaper_transfer.make(rec, date)
+    P = (mkpaper_table.make(rec, date) if rec.get("table")
+         else mkpaper_transfer.make(rec, date))
     built, err = paper.build(P.tex(date), PAPERS, a, keep_tex_dir=SOURCES)
     if not built:
         return {"anum": a, "skipped": "paper did not build: " + err[:200]}
+    if rec.get("table"):
+        return {
+            "id": a, "anum": a, "name": rec["name"], "offset": rec["offset"],
+            "entry_revision": rec["revision"], "entry_modified": rec["modified"],
+            "entry_author": rec.get("author", ""),
+            "entry_keywords": rec.get("keywords", ""),
+            "method": "transfer-matrix", "family": rec["family"],
+            "table": True, "spec": rec["spec"], "q": rec["q"],
+            "rowoff": rec["rowoff"], "coloff": rec["coloff"],
+            "table_cells": rec["table_cells"],
+            "published_terms": rec["all_terms"],
+            "claims": claims, "line_reasons": rec.get("line_reasons"),
+            "paper": f"papers/{a}.pdf", "source": f"paper-sources/{a}.tex",
+            "date_settled": date, "status": "proved",
+        }
     out = []
     for c in claims:
         who, when, signed = mkpaper_transfer.attribution(c["line"],

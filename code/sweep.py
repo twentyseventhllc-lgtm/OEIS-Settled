@@ -7,7 +7,7 @@ reads a saved candidate list.
 """
 import sys, os, json, time, pickle, importlib, argparse, re
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import recur, automaton, gf
+import recur, automaton, gf, claims as CL
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "..", "data")
@@ -19,31 +19,18 @@ def load_index():
 
 
 def candidates(entry_conj):
-    """Every conjectural line that states a linear recurrence, either
-    directly or as the denominator of a rational generating function."""
-    out = []
-    seen = set()
+    """Every conjectural line that states a claim this engine can decide."""
+    out, seen = [], set()
     for f, i, ln in entry_conj:
-        r = recur.parse_recurrence(ln)
-        if r:
-            if tuple(r[0]) in seen:
-                continue
-            seen.add(tuple(r[0]))
-            out.append({"field": f, "idx": i, "line": ln, "kind": "recurrence",
-                        "coeffs": r[0], "nmin": r[1]})
+        cd = CL.parse_line(ln)
+        if not cd:
             continue
-        g = gf.parse_gf(ln)
-        if g:
-            c = gf.recurrence_from_den(g[1])
-            if not c:
-                continue
-            key = ("gf",) + tuple(g[0]) + (None,) + tuple(g[1])
-            if key in seen:
-                continue
-            seen.add(key)
-            out.append({"field": f, "idx": i, "line": ln, "kind": "gf",
-                        "coeffs": c, "nmin": None,
-                        "num": g[0], "den": g[1]})
+        k = CL.key(cd)
+        if k in seen:
+            continue
+        seen.add(k)
+        cd.update(field=f, idx=i, line=ln)
+        out.append(cd)
     return out
 
 
@@ -61,21 +48,35 @@ def settle(fam, anum, meta, terms, cj, cap=3_000_000, margin=6, rowcap=8192):
     T = list(terms)
     if len(T) < 8:
         return dict(rec, status="refused", reason="too few published terms")
-    valid, first_ok, whole_ok, W, q = fam.make(spec)
-    if q ** W > rowcap:
-        return dict(rec, status="refused", reason=f"row alphabet {q}^{W} over cap")
-    m = automaton.Model(W, q, valid, first_ok, cap=cap)
     t0 = time.time()
-    try:
-        m.build()
-    except automaton.TooBig as e:
-        return dict(rec, status="refused", reason=str(e))
+    if hasattr(fam, "model"):
+        W, q = spec.get("W"), spec.get("q")
+        try:
+            m = fam.model(spec)
+        except automaton.TooBig as e:
+            return dict(rec, status="refused", reason=str(e))
+        whole_ok = (fam.whole_ok_for(spec, spec.get("W"))
+                    if hasattr(fam, "whole_ok_for") else None)
+    else:
+        valid, first_ok, whole_ok, W, q = fam.make(spec)
+        if q ** W > rowcap:
+            return dict(rec, status="refused",
+                        reason=f"row alphabet {q}^{W} over cap")
+        up, down = (fam.REACHfor(spec) if hasattr(fam, "REACHfor")
+                    else getattr(fam, "REACH", (1, 1)))
+        m = automaton.Model(W, q, valid, first_ok, cap=cap, up=up, down=down)
+        try:
+            m.build()
+        except automaton.TooBig as e:
+            return dict(rec, status="refused", reason=str(e))
     build_t = time.time() - t0
     S = m.S
     rowoff = spec.get("rowoff", 0)
-    Dmax = max(len(cd["coeffs"]) for cd in cands)
+    Dmax = max([len(cd["coeffs"]) for cd in cands]
+                + [len(cd.get("poly") or []) for cd in cands])
     hi = off + len(T) + rowoff + S + Dmax + 40
-    A = [1] + m.counts(hi)          # A[r] = number of arrays with r rows
+    A = m.counts_from_zero(hi) if hasattr(m, "counts_from_zero") \
+        else [1] + m.counts(hi)     # A[r] = number of objects of size r
     if off + len(T) - 1 + rowoff >= len(A):
         return dict(rec, status="refused", reason="index range out of model")
     got = [A[off + i + rowoff] for i in range(len(T))]
@@ -85,7 +86,8 @@ def settle(fam, anum, meta, terms, cj, cap=3_000_000, margin=6, rowcap=8192):
                     first_bad=k, model=str(got[k]), published=str(T[k]))
     bf = []
     n = 1
-    while q ** (W * n) <= BRUTE_BUDGET and n <= len(T) + rowoff:
+    while whole_ok is not None and q ** (W * n) <= BRUTE_BUDGET \
+            and n <= len(T) + rowoff:
         bf.append(automaton.brute(n, W, q, whole_ok))
         n += 1
     if bf and bf != A[1:len(bf) + 1]:
@@ -94,56 +96,9 @@ def settle(fam, anum, meta, terms, cj, cap=3_000_000, margin=6, rowcap=8192):
                     model=[str(x) for x in A[1:len(bf) + 1]])
     out = []
     for cd in cands:
-        coeffs, nmin = cd["coeffs"], cd["nmin"]
-        D = len(coeffs)
-        # residual of the claim at index n, using the model's own counts
-        nlo = max(off + D, D + 1 - rowoff)      # smallest n the test covers
-        nhi = len(A) - 1 - rowoff
-        res = {}
-        for nn in range(nlo, nhi + 1):
-            res[nn] = A[nn + rowoff] - sum(c * A[nn + rowoff - i]
-                                           for i, c in enumerate(coeffs, 1))
-        cl = dict(cd, order=D, S=S)
-        last = None
-        for nn in sorted(res, reverse=True):
-            if res[nn] != 0:
-                last = nn
-                break
-        tail = nhi - (last if last is not None else nlo - 1)
-        if tail < S:
-            cl.update(status="inconclusive",
-                      reason="residuals nonzero inside the derived bound")
-            out.append(cl)
-            continue
-        thresh_n = last if last is not None else off + D - 1
-        first_n = off + D
-        cl.update(threshold=thresh_n, first_meaningful_n=first_n,
-                  holds_everywhere=thresh_n < first_n, status="proved",
-                  residuals_checked=nhi)
-        if cd["kind"] == "gf":
-            K = max(len(cd["num"]), thresh_n + len(cd["den"])) + 2
-            if K + off + rowoff >= len(A):
-                cl.update(status="inconclusive", reason="g.f. check out of range")
-                out.append(cl)
-                continue
-            ser = gf.series(cd["num"], cd["den"], K)
-            hit = None
-            for shift in range(0, 4):
-                seq = [(A[k - shift + off + rowoff] if k >= shift else 0)
-                       for k in range(K)]
-                if seq == ser[:K]:
-                    hit = shift
-                    break
-            if hit is None:
-                seq = [(A[k + rowoff] if k >= off else 0) for k in range(K)]
-                bad = next(i for i in range(K) if seq[i] != ser[i])
-                cl.update(status="inconclusive",
-                          reason=f"g.f. series differs from the count at x^{bad}")
-            else:
-                cl["gf_checked_to"] = K
-                cl["gf_shift"] = hit
-        out.append(cl)
-    return dict(rec, status="done", S=S, nfull=m.nfull, ntrim=m.ntrim,
+        out.append(CL.evaluate(cd, A, off, rowoff, S))
+    return dict(rec, status="done", S=S, nfull=getattr(m, "nfull", S),
+                ntrim=getattr(m, "ntrim", S),
                 rowoff=rowoff,
                 W=W, q=q, spec=fam.jsonspec(spec),
                 brute_checked=len(bf),

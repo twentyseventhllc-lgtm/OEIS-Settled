@@ -24,19 +24,25 @@ class Model:
     (Hardin's `with upper left element zero').
     """
 
-    def __init__(self, W, q, valid, first_ok=None, cap=4_000_000):
+    def __init__(self, W, q, valid, first_ok=None, cap=4_000_000,
+                 up=1, down=1, workcap=25_000_000):
         self.W, self.q = W, q
         self.valid, self.first_ok = valid, first_ok or (lambda r: True)
-        self.cap = cap
+        self.cap, self.workcap = cap, workcap
+        self.up, self.down = up, down
         self.rows = None
         self.built = False
 
     # ------------------------------------------------------------- building
     def build(self):
+        if self.up + self.down == 1:
+            return self._build1()
         W, q = self.W, self.q
         R = q ** W
         if R * (R + 1) > self.cap:
             raise TooBig(f"state space {R*(R+1)} > cap {self.cap}")
+        if R * R * (R + 1) > self.workcap:
+            raise TooBig(f"transition work {R*R*(R+1)} > cap {self.workcap}")
         rows = [tuple(r) for r in itertools.product(range(q), repeat=W)]
         self.rows = rows
         TOP = R                      # sentinel: no row above
@@ -64,6 +70,36 @@ class Model:
             if self.first_ok(rows[ci]):
                 start[TOP * R + ci] = 1
         self.edges, self.acc, self.start, self.R, self.nst = edges, acc, start, R, nst
+        self._trim()
+        self._lump()
+        self.built = True
+        return self
+
+    def _build1(self):
+        """The condition reaches only one way, so a single row is a state."""
+        W, q = self.W, self.q
+        R = q ** W
+        if R > self.cap:
+            raise TooBig(f"state space {R} > cap {self.cap}")
+        if R * R > self.workcap:
+            raise TooBig(f"transition work {R*R} > cap {self.workcap}")
+        rows = [tuple(r) for r in itertools.product(range(q), repeat=W)]
+        self.rows = rows
+        valid = self.valid
+        edges, acc, start = [], [0] * R, [0] * R
+        if self.down == 1:                     # condition looks downwards only
+            for ci in range(R):
+                c = rows[ci]
+                edges.append([xi for xi in range(R) if valid(None, c, rows[xi])])
+                acc[ci] = 1 if valid(None, c, None) else 0
+                start[ci] = 1 if self.first_ok(c) else 0
+        else:                                  # condition looks upwards only
+            for pi in range(R):
+                p = rows[pi]
+                edges.append([xi for xi in range(R) if valid(p, rows[xi], None)])
+                acc[pi] = 1
+                start[pi] = 1 if (self.first_ok(p) and valid(None, p, None)) else 0
+        self.edges, self.acc, self.start, self.R, self.nst = edges, acc, start, R, R
         self._trim()
         self._lump()
         self.built = True
@@ -193,6 +229,81 @@ class Model:
                 v = [sum(L[i][j] * v[j] for j in range(S) if L[i][j] and v[j])
                      for i in range(S)]
         return out
+
+
+class GraphModel(Model):
+    """A counting automaton whose states are arbitrary hashable objects.
+
+    `starts' is a list of initial states, `step(state, letter)' returns the
+    next state or None, `accept(state)' says whether a walk may stop there.
+    The trimming, lumping, counting and residual machinery is inherited, so a
+    family only has to describe its state and its step.
+    """
+
+    sentinel_start = True
+
+    def counts_from_zero(self, N):
+        """A[r] = number of objects of size r, r = 0..N.  The start state is a
+        sentinel carrying no row, so a walk of length r places r rows."""
+        c = self.counts(N + 1)
+        return [1] + c[1:N + 1]
+
+    def __init__(self, starts, step, accept, alphabet, cap=4_000_000,
+                 workcap=25_000_000):
+        self.starts, self.step, self.accept = starts, step, accept
+        self.alphabet = list(alphabet)
+        self.cap, self.workcap = cap, workcap
+        self.built = False
+
+    def build(self):
+        idx = {}
+        order = []
+
+        def num(s):
+            if s not in idx:
+                idx[s] = len(order)
+                order.append(s)
+                if len(order) > self.cap:
+                    raise TooBig(f"state space > cap {self.cap}")
+            return idx[s]
+
+        stack = []
+        start = []
+        for s in self.starts:
+            i = num(s)
+            while len(start) <= i:
+                start.append(0)
+            start[i] += 1
+            stack.append(s)
+        seen = set(self.starts)
+        edges = {}
+        work = 0
+        while stack:
+            s = stack.pop()
+            e = []
+            for r in self.alphabet:
+                work += 1
+                if work > self.workcap:
+                    raise TooBig(f"transition work > cap {self.workcap}")
+                t = self.step(s, r)
+                if t is None:
+                    continue
+                num(t)
+                e.append(t)
+                if t not in seen:
+                    seen.add(t)
+                    stack.append(t)
+            edges[s] = e
+        n = len(order)
+        self.nst = n
+        self.edges = [[num(t) for t in edges[order[i]]] for i in range(n)]
+        self.acc = [1 if self.accept(order[i]) else 0 for i in range(n)]
+        self.start = start + [0] * (n - len(start))
+        self._trim()
+        self._lump()
+        self.built = True
+        self.nfull = n
+        return self
 
 
 def brute(n, W, q, whole_ok):

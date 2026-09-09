@@ -34,11 +34,70 @@ FAMILY_MODULE = {
     "marked-value-neighbours": "fam_marked",
     "constant-stress": "fam_stress",
     "clockwise-perimeter": "fam_perimeter",
+    "neighbour-count-equals-value": "fam_countval",
+    "digit-window": "fam_digits",
+    "subblock-line-sum": "fam_linesum",
+    "monotone-derived": "fam_monotone",
+    "line-monotonicity": "fam_unimodal",
 }
 BRUTE_BUDGET = 200_000
 
 
+def check_table(rec):
+    """Re-derive a table entry's column and row recurrences from scratch."""
+    import table as tbl
+    from shapes import parse_table_shape
+    a = rec["anum"]
+    fam = importlib.import_module(FAMILY_MODULE[rec["family"]])
+    spec = fam.parse(rec["name"])
+    if spec is None or fam.jsonspec(spec) != rec["spec"]:
+        return a, False, "name does not parse to the recorded specification"
+    rowoff, coloff = parse_table_shape(spec["shape"])
+    if (rowoff, coloff) != (rec["rowoff"], rec["coloff"]):
+        return a, False, "table shape differs"
+    T = tbl.unpack([int(x) for x in rec["published_terms"]], rec["offset"])
+    if len(T) != rec["table_cells"]:
+        return a, False, "published table unpacks to a different size"
+    for c in rec["claims"]:
+        W, trans, ro = c["W"], c["transposed"], c["rowoff"]
+        sp = dict(spec); sp["W"] = W; sp["transposed"] = trans
+        valid, first_ok, whole_ok, W2, q = fam.make(sp, W=W)
+        up, down = (fam.REACHfor(sp) if hasattr(fam, "REACHfor")
+                    else getattr(fam, "REACH", (1, 1)))
+        m = automaton.Model(W2, q, valid, first_ok, cap=8_000_000, up=up, down=down)
+        m.build()
+        if m.S != c["S"]:
+            return a, False, f"degree bound differs on {c['which']}={c['index']}"
+        if c["which"] == "k":
+            data = sorted((n, v) for (n, k), v in T.items() if k == c["index"])
+        else:
+            data = sorted((k, v) for (n, k), v in T.items() if n == c["index"])
+        D = c["order"]
+        hi = max(i for i, _ in data) + ro + m.S + D + 40
+        A = [1] + m.counts(hi)
+        for i, v in data:
+            if A[i + ro] != v:
+                return a, False, f"model differs from the published table at {c['which']}={c['index']}"
+        lo = min(i for i, _ in data)
+        nlo = max(lo + D, D + 1 - ro)
+        nhi = len(A) - 1 - ro
+        last = None
+        for nn in range(nhi, nlo - 1, -1):
+            if A[nn + ro] != sum(cf * A[nn + ro - i]
+                                 for i, cf in enumerate(c["coeffs"], 1)):
+                last = nn
+                break
+        if nhi - (last if last is not None else nlo - 1) < m.S:
+            return a, False, "residuals do not vanish inside the derived bound"
+        th = last if last is not None else lo + D - 1
+        if th != c["threshold"]:
+            return a, False, f"threshold differs on {c['which']}={c['index']}"
+    return a, True, ""
+
+
 def check(rec):
+    if rec.get("table"):
+        return check_table(rec)
     """Rebuild the model from the entry's name and re-derive every claim."""
     a = rec["anum"]
     try:
@@ -50,22 +109,37 @@ def check(rec):
         return a, False, "name does not parse"
     if fam.jsonspec(spec) != rec["spec"]:
         return a, False, "specification differs from the record"
-    valid, first_ok, whole_ok, W, q = fam.make(spec)
-    if (W, q) != (rec["W"], rec["q"]):
-        return a, False, "width/alphabet differ"
+    if hasattr(fam, "model"):
+        m0 = fam.model(spec)
+        whole_ok = (fam.whole_ok_for(spec, spec.get("W"))
+                    if hasattr(fam, "whole_ok_for") else None)
+        W, q = spec.get("W"), spec.get("q")
+    else:
+        valid, first_ok, whole_ok, W, q = fam.make(spec)
+        if (W, q) != (rec["W"], rec["q"]):
+            return a, False, "width/alphabet differ"
     T = [int(x) for x in rec["published_terms"]]
     off, rowoff = rec["offset"], spec.get("rowoff", 0)
-    m = automaton.Model(W, q, valid, first_ok, cap=8_000_000)
-    m.build()
+    if hasattr(fam, "model"):
+        m = m0
+    else:
+        up, down = (fam.REACHfor(spec) if hasattr(fam, "REACHfor")
+                    else getattr(fam, "REACH", (1, 1)))
+        m = automaton.Model(W, q, valid, first_ok, cap=8_000_000,
+                            up=up, down=down)
+        m.build()
     S = m.S
     if S != rec["states_lumped"]:
         return a, False, f"degree bound differs: {S} vs {rec['states_lumped']}"
     Dmax = max(len(c["coeffs"]) for c in rec["claims"])
-    A = [1] + m.counts(off + len(T) + rowoff + S + Dmax + 40)
+    hi = off + len(T) + rowoff + S + Dmax + 40
+    A = m.counts_from_zero(hi) if hasattr(m, "counts_from_zero") \
+        else [1] + m.counts(hi)
     if [A[off + i + rowoff] for i in range(len(T))] != T:
         return a, False, "model does not reproduce the published terms"
     n = 1
-    while q ** (W * n) <= BRUTE_BUDGET and n <= len(T) + rowoff:
+    while whole_ok is not None and q ** (W * n) <= BRUTE_BUDGET \
+            and n <= len(T) + rowoff:
         if automaton.brute(n, W, q, whole_ok) != A[n]:
             return a, False, f"independent enumeration disagrees at {n} rows"
         n += 1
