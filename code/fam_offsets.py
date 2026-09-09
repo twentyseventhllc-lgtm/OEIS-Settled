@@ -141,7 +141,7 @@ def object_section(P, rec, paper):
     sp, W, q = rec["spec"], rec["W"], rec["q"]
     ol = ", ".join("(%d,%d)" % tuple(o) for o in sp["raw_offsets"])
     P.par(f"Let $A$ be an $n' \\times {W}$ array over $\\{{0,\\dots,{q-1}\\}}$ "
-          f"with $n' = n + {sp['rowoff']}$ rows."
+          f"with $n' = {paper.rowexpr(sp['rowoff'])}$ rows."
           + ("" if not sp["transposed"] else
              " The entry writes the growing direction across; the array is "
              "transposed here, and the offsets are transposed with it."))

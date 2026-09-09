@@ -199,7 +199,7 @@ def object_section(P, rec, paper):
     sp, C = rec["spec"], rec["W"]
     dl = ", ".join("(%d,%d)" % tuple(d) for d in sp["disp"])
     bl = ", ".join("%d,%d" % tuple(b) for b in sp["base"])
-    P.par(f"Let $R = n + {sp['rowoff']}$ and let the array have $R$ rows and "
+    P.par(f"Let $R = {paper.rowexpr(sp['rowoff'])}$ and let the array have $R$ rows and "
           f"${C}$ columns, filled with a permutation of $0,\\dots,R\\cdot{C}-1$."
           + ("" if not sp["transposed"] else
              " The entry writes the growing direction across; the array is "

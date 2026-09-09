@@ -127,7 +127,7 @@ def object_section(P, rec, paper):
                    ",".join(str(x) for x in pp)) for d, pp in sp["rules"])
     ps = " ".join(str(x) for x in sp["pat"])
     P.par(f"Let $A$ be an $n' \\times {W}$ array over $\\{{0,\\dots,{q-1}\\}}$ "
-          f"with $n' = n + {sp['rowoff']}$ rows"
+          f"with $n' = {paper.rowexpr(sp['rowoff'])}$ rows"
           + ("." if not sp["transposed"] else
              ", the entry's array transposed so the growing direction is "
              "downwards, the direction offsets transposed with it."))

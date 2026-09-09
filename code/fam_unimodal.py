@@ -186,7 +186,7 @@ def whole_ok_for(spec, W):
 def object_section(P, rec, paper):
     sp, W, q = rec["spec"], rec["W"], rec["q"]
     P.par(f"Let $q = {q}$ and let $A$ be an $n' \\times {W}$ array over "
-          f"$\\{{0,\\dots,{q-1}\\}}$ with $n' = n + {sp['rowoff']}$ rows."
+          f"$\\{{0,\\dots,{q-1}\\}}$ with $n' = {paper.rowexpr(sp['rowoff'])}$ rows."
           + ("" if not sp["transposed"] else
              " The entry writes the growing direction across; the array is "
              "transposed here. Transposing exchanges rows with columns and "

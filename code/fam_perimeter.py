@@ -94,7 +94,7 @@ def make(spec, W=None):
 def object_section(P, rec, paper):
     sp, W, q = rec["spec"], rec["W"], rec["q"]
     P.par(f"Let $q = {q}$ and let $A$ be an $n' \\times {W}$ array over "
-          f"$\\{{0,\\dots,{q-1}\\}}$, with $n' = n + {sp['rowoff']}$ rows.")
+          f"$\\{{0,\\dots,{q-1}\\}}$, with $n' = {paper.rowexpr(sp['rowoff'])}$ rows.")
     P.par(r"For a cell $(i,j)$ with $1 \le i \le n'-2$ and $1 \le j \le "
           + str(W - 2) + r"$, read the eight cells surrounding it clockwise "
           r"starting from the upper left:")

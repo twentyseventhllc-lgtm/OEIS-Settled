@@ -123,7 +123,7 @@ def whole_ok_for(spec, W=None):
 def object_section(P, rec, paper):
     sp, W, q = rec["spec"], rec["W"], rec["q"]
     P.par(f"Let $A$ be an $n' \\times {W}$ array over $\\{{0,\\dots,{q-1}\\}}$ "
-          f"with $n' = n + {sp['rowoff']}$ rows. Each row is read as a "
+          f"with $n' = {paper.rowexpr(sp['rowoff'])}$ rows. Each row is read as a "
           f"base-${sp['base']}$ number with its leftmost entry the most "
           f"significant digit, and each column as a base-${sp['base']}$ number "
           f"with its topmost entry the most significant digit.")

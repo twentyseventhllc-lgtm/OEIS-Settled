@@ -166,7 +166,7 @@ def object_section(P, rec, paper):
     sp, W, q = rec["spec"], rec["W"], rec["q"]
     dl = ", ".join("(%d,%d)" % tuple(d) for d in sp["dirs"])
     P.par(f"Let $A$ be an $n' \\times {W}$ array over $\\{{0,\\dots,{q-1}\\}}$ "
-          f"with $n' = n + {sp['rowoff']}$ rows"
+          f"with $n' = {paper.rowexpr(sp['rowoff'])}$ rows"
           + ("." if not sp["transposed"] else
              ", the entry's array transposed so the growing direction is "
              "downwards, the neighbour offsets transposed with it."))

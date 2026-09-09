@@ -95,7 +95,7 @@ def make(spec, W=None):
 def object_section(P, rec, paper):
     sp, W = rec["spec"], rec["W"]
     P.par(f"Let $A$ be an $n' \\times {W}$ binary array with "
-          f"$n' = n + {sp['rowoff']}$ rows."
+          f"$n' = {paper.rowexpr(sp['rowoff'])}$ rows."
           + ("" if not sp["transposed"] else
              " The entry writes the growing direction across; the array is "
              "transposed here, which exchanges its rows with its columns and "

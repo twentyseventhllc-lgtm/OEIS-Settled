@@ -116,7 +116,7 @@ def whole_ok_for(spec, W=None):
 def object_section(P, rec, paper):
     sp, W, q = rec["spec"], rec["W"], rec["q"]
     P.par(f"Let $A$ be an $n' \\times {W}$ array over $\\{{0,\\dots,{q-1}\\}}$ "
-          f"with $n' = n + {sp['rowoff']}$ rows"
+          f"with $n' = {paper.rowexpr(sp['rowoff'])}$ rows"
           + ("." if not sp["transposed"] else
              ", the entry's array transposed so that the growing direction is "
              "downwards; each subblock is transposed with it."))

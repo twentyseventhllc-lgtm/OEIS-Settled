@@ -288,7 +288,7 @@ def object_section(P, rec, paper):
     sp = rec["spec"]
     q = sp["q"]
     P.par(f"The objects are the words $w_1 w_2 \\cdots w_L$ over "
-          f"$\\{{0,1,\\dots,{q-1}\\}}$ of length $L = n + {sp['rowoff']}$ "
+          f"$\\{{0,1,\\dots,{q-1}\\}}$ of length $L = {paper.rowexpr(sp['rowoff'])}$ "
           f"satisfying the entry's conditions, which are, clause by clause:")
     P.itemize([r"{\itshape " + paper.esc(c) + "}" for c in sp["clauses"]])
     P.par("Each of these is a condition on a window of consecutive terms of "

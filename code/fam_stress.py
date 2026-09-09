@@ -98,7 +98,7 @@ def object_section(P, rec, paper):
     sp, W, q = rec["spec"], rec["W"], rec["q"]
     P.par(f"Let $q = {q}$ and let $A$ be an $n' \\times {W}$ array with entries "
           f"in $\\{{0,1,\\dots,{q-1}\\}}$, where the entry writes the number of "
-          f"rows as $n' = n + {sp['rowoff']}$.")
+          f"rows as $n' = {paper.rowexpr(sp['rowoff'])}$.")
     rel = (f"> {sp['k']}" if sp["more"] else f"= {sp['k']}")
     P.par("The condition on every $2 \\times 2$ subblock is")
     P.display(r"\bigl|\,(A[i][j] + A[i{+}1][j{+}1]) - (A[i][j{+}1] + A[i{+}1][j])"

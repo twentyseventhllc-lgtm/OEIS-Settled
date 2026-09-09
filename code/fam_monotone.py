@@ -120,7 +120,7 @@ def make(spec, W=None):
 def object_section(P, rec, paper):
     sp, W, q = rec["spec"], rec["W"], rec["q"]
     P.par(f"Let $q = {q}$ and let $x$ be an $n' \\times {W}$ array over "
-          f"$\\{{0,\\dots,{q-1}\\}}$ with $n' = n + {sp['rowoff']}$ rows, "
+          f"$\\{{0,\\dots,{q-1}\\}}$ with $n' = {paper.rowexpr(sp['rowoff'])}$ rows, "
           f"rows indexed by $i$ and columns by $j$.")
     e1 = OPS[sp["op_i"]][1]
     e2 = OPS[sp["op_j"]][1].replace("i,j{-}1", "i{-}1,j")

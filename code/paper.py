@@ -91,3 +91,8 @@ def build(tex, outdir, stem, keep_tex_dir=None):
         # something the offline cache did not have: allow one online attempt
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
     return os.path.exists(pdf), r.stderr[-800:] if not os.path.exists(pdf) else ""
+
+
+def rowexpr(k, var="n"):
+    """`n' or `n + 2', never `n + 0'."""
+    return var if not k else f"{var} + {k}"

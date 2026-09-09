@@ -333,7 +333,7 @@ def whole_ok_for(spec, W=None):
 def object_section(P, rec, paper):
     sp = rec["spec"]
     P.par(f"The objects are the words $w_1\\cdots w_L$ over "
-          f"$\\{{0,\\dots,{sp['q']-1}\\}}$ of length $L = n + {sp['rowoff']}$. "
+          f"$\\{{0,\\dots,{sp['q']-1}\\}}$ of length $L = {paper.rowexpr(sp['rowoff'])}$. "
           f"Call $w_i$ a {{\\itshape repeated value}} when $w_i = w_{{i-1}}$, "
           f"and read the repeated values of a word in the order in which they "
           f"occur.")

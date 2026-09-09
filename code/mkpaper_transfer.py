@@ -250,8 +250,8 @@ def make(rec, date=None):
               r"\qquad (m \ge 1).")
     P.par(f"Expanding the powers of $L$ and using the displayed formula for "
           f"$a$, one gets $u_m = a(n) - \\sum_{{i=1}}^{{D}} c_i\\,a(n-i)$ with "
-          f"$n = m + D + {off-1}$. So $u_m$ is exactly the residual of the "
-          f"claim at $n = m + D + {off-1}$, and the recurrence holds at an "
+          f"$n = m + D{'' if off == 1 else ' + ' + str(off-1)}$. So $u_m$ is exactly the residual of the "
+          f"claim at that index, and the recurrence holds at an "
           f"index $n$ if and only if the corresponding $u_m$ vanishes.")
     P.par(f"Now $u_m = \\tilde w^{{\\mathsf T}} L^{{m-1}} y$ with "
           f"$y = q(L)\\tilde f$ a fixed vector, so $(u_m)$ satisfies the "

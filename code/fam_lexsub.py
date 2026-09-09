@@ -103,7 +103,7 @@ def make(spec, W=None):
 def object_section(P, rec, paper):
     sp, W, q, K = rec["spec"], rec["W"], rec["q"], rec["spec"]["K"]
     P.par(f"Let $A$ be an $n' \\times {W}$ array over $\\{{0,\\dots,{q-1}\\}}$ "
-          f"with $n' = n + {sp['rowoff']}$ rows."
+          f"with $n' = {paper.rowexpr(sp['rowoff'])}$ rows."
           + ("" if not sp["transposed"] else
              " The entry writes the growing direction across; the array is "
              "transposed here, and every subblock with it."))

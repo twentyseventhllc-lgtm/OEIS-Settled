@@ -449,7 +449,7 @@ def object_section(P, rec, paper):
     sp, W, q = rec["spec"], rec["W"], rec["q"]
     p = sp["pred"]
     P.par(f"Let $A$ be an $n' \\times {W}$ array over $\\{{0,\\dots,{q-1}\\}}$ "
-          f"with $n' = n + {sp['rowoff']}$ rows. For $0 \\le i < n'-1$ and "
+          f"with $n' = {paper.rowexpr(sp['rowoff'])}$ rows. For $0 \\le i < n'-1$ and "
           f"$0 \\le j < {W-1}$ write $B_{{i,j}}$ for the $2\\times2$ subblock "
           f"with entries $a = A[i][j]$, $b = A[i][j{{+}}1]$, $c = A[i{{+}}1][j]$, "
           f"$d = A[i{{+}}1][j{{+}}1]$.")
