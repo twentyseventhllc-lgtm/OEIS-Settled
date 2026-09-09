@@ -1,0 +1,140 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\setlength{\parskip}{2pt}
+\title{A proof of the conjectured linear recurrence for OEIS A207499}
+\author{Adrian Perez Fontelles, Independent researcher}
+\date{09 September 2026}
+\begin{document}
+\maketitle
+\section{The conjecture}
+
+The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A207499}{A207499} as
+
+\begin{quote}\itshape Number of nX7 0..1 arrays avoiding 0 0 0 and 0 1 1 horizontally and 0 0 1 and 1 0 0 vertically\end{quote}
+
+and carries in its Formula section the line:
+
+\begin{quote}\ttfamily Empirical: a(n) = 18*a(n-1) +66*a(n-2) -2802*a(n-3) +3287*a(n-4) +202549*a(n-5) -594991*a(n-6) -9055565*a(n-7) +35807273*a(n-8) +281451314*a(n-9) -1320129061*a(n-10) -6483410366*a(n-11) +34378295343*a(n-12) +115302984880*a(n-13) -675141428095*a(n-14) -1629405069373*a(n-15) +10389151242309*a(n-16) +18705409385974*a(n-17) -128489348784529*a(n-18) -177653284835477*a(n-19) +1300561971191097*a(n-20) +1418377161511435*a(n-21) -10921178734784581*a(n-22) -9659482030287946*a(n-23) +76884075139291826*a(n-24) +56864499202570688*a(n-25) -457523374287874637*a(n-26) -292738188220855624*a(n-27) +2316547347584759449*a(n-28) +1329698182980001754*a(n-29) -10031643449844807108*a(n-30) -5358499084703527109*a(n-31) +37305440507234708547*a(n-32) +19191788243038652032*a(n-33) -119507141792729578909*a(n-34) -61004748090717877126*a(n-35) +330542045644618983443*a(n-36) +171514255554503017904*a(n-37) -790555627453888472557*a(n-38) -424694257955726097233*a(n-39) +1636313719658464847167*a(n-40) +922276764631174671962*a(n-41) -2931482918705846597209*a(n-42) -1749973778066924516735*a(n-43) +4543081947395214311895*a(n-44) +2892077285933850390399*a(n-45) -6082565085480842374095*a(n-46) -4151601341296454973514*a(n-47) +7020283556993245762117*a(n-48) +5163903621874878951386*a(n-49) -6962383319638011984497*a(n-50) -5551898403462398723696*a(n-51) +5906114391425654252428*a(n-52) +5146029295554634179985*a(n-53) -4257361213211101866675*a(n-54) -4099869656946550208362*a(n-55) +2582882796867857620436*a(n-56) +2797545905553856341380*a(n-57) -1299373096888677424682*a(n-58) -1627714050424538188568*a(n-59) +528436596879221754104*a(n-60) +803112362678893069316*a(n-61) -165043370977918807016*a(n-62) -333681250653817943240*a(n-63) +34313150485545919488*a(n-64) +115698836207328981632*a(n-65) -1504826595165613472*a(n-66) -33084418395467674240*a(n-67) -2226873263136821120*a(n-68) +7678289296799728192*a(n-69) +1087035298079278464*a(n-70) -1414038914443296384*a(n-71) -302800702032212992*a(n-72) +199754693346320896*a(n-73) +58359939872584704*a(n-74) -20448913579277312*a(n-75) -8011548881842176*a(n-76) +1347946367512576*a(n-77) +766056924463104*a(n-78) -37397454372864*a(n-79) -47805058990080*a(n-80) -1641961193472*a(n-81) +1695876120576*a(n-82) +158346510336*a(n-83) -24100208640*a(n-84) -3185049600*a(n-85) for n>86\end{quote}
+
+That line carries no separate signature; the entry itself is by R. H. Hardin (Feb 18 2012).
+
+The word {\itshape Empirical} --- equivalently {\itshape Conjecture} --- is the entry's own: the statement is recorded as fitted to the published terms, and no proof is given there. As of revision 9, last modified Oct 03 2025, the entry records no proof and links to none, so the statement is open. This note settles it.
+
+Written out, the claim is
+
+\begin{multline*} a(n) = 18\,a(n-1) + 66\,a(n-2) - 2802\,a(n-3) + 3287\,a(n-4) + 202549\,a(n-5) - 594991\,a(n-6) - \\ 9055565\,a(n-7) + 35807273\,a(n-8) + 281451314\,a(n-9) - 1320129061\,a(n-10) - 6483410366\,a(n-11) + 34378295343\,a(n-12) + \\ 115302984880\,a(n-13) - 675141428095\,a(n-14) - 1629405069373\,a(n-15) + 10389151242309\,a(n-16) + 18705409385974\,a(n-17) - 128489348784529\,a(n-18) - \\ 177653284835477\,a(n-19) + 1300561971191097\,a(n-20) + 1418377161511435\,a(n-21) - 10921178734784581\,a(n-22) - 9659482030287946\,a(n-23) + 76884075139291826\,a(n-24) + \\ 56864499202570688\,a(n-25) - 457523374287874637\,a(n-26) - 292738188220855624\,a(n-27) + 2316547347584759449\,a(n-28) + 1329698182980001754\,a(n-29) - 10031643449844807108\,a(n-30) - \\ 5358499084703527109\,a(n-31) + 37305440507234708547\,a(n-32) + 19191788243038652032\,a(n-33) - 119507141792729578909\,a(n-34) - 61004748090717877126\,a(n-35) + 330542045644618983443\,a(n-36) + \\ 171514255554503017904\,a(n-37) - 790555627453888472557\,a(n-38) - 424694257955726097233\,a(n-39) + 1636313719658464847167\,a(n-40) + 922276764631174671962\,a(n-41) - 2931482918705846597209\,a(n-42) - \\ 1749973778066924516735\,a(n-43) + 4543081947395214311895\,a(n-44) + 2892077285933850390399\,a(n-45) - 6082565085480842374095\,a(n-46) - 4151601341296454973514\,a(n-47) + 7020283556993245762117\,a(n-48) + \\ 5163903621874878951386\,a(n-49) - 6962383319638011984497\,a(n-50) - 5551898403462398723696\,a(n-51) + 5906114391425654252428\,a(n-52) + 5146029295554634179985\,a(n-53) - 4257361213211101866675\,a(n-54) - \\ 4099869656946550208362\,a(n-55) + 2582882796867857620436\,a(n-56) + 2797545905553856341380\,a(n-57) - 1299373096888677424682\,a(n-58) - 1627714050424538188568\,a(n-59) + 528436596879221754104\,a(n-60) + \\ 803112362678893069316\,a(n-61) - 165043370977918807016\,a(n-62) - 333681250653817943240\,a(n-63) + 34313150485545919488\,a(n-64) + 115698836207328981632\,a(n-65) - 1504826595165613472\,a(n-66) - \\ 33084418395467674240\,a(n-67) - 2226873263136821120\,a(n-68) + 7678289296799728192\,a(n-69) + 1087035298079278464\,a(n-70) - 1414038914443296384\,a(n-71) - 302800702032212992\,a(n-72) + \\ 199754693346320896\,a(n-73) + 58359939872584704\,a(n-74) - 20448913579277312\,a(n-75) - 8011548881842176\,a(n-76) + 1347946367512576\,a(n-77) + 766056924463104\,a(n-78) - \\ 37397454372864\,a(n-79) - 47805058990080\,a(n-80) - 1641961193472\,a(n-81) + 1695876120576\,a(n-82) + 158346510336\,a(n-83) - 24100208640\,a(n-84) - \\ 3185049600\,a(n-85). \end{multline*}
+
+stated for $n > 86$.
+
+\section{The object}
+
+The name is read as follows. The reading is not a guess: it is pinned against the entry's own published terms, and against an independent enumeration, before anything is proved (Section 7).
+
+Let $q = 2$ and let $A$ be an $n \times 7$ array with entries in $\{0,1,\dots,1\}$, rows indexed $0 \le i < n$ and columns $0 \le j < 7$.
+
+The condition is that no three consecutive cells of a row, read left to right, spell one of
+
+\[\mathcal{H} \;=\; \{(0,0,0), (0,1,1)\},\]
+
+and no three consecutive cells of a column, read top to bottom, spell one of
+
+\[\mathcal{V} \;=\; \{(0,0,1), (1,0,0)\}.\]
+
+That is, $(A[i][j],A[i][j{+}1],A[i][j{+}2]) \notin \mathcal{H}$ for all $0 \le j < 5$, and $(A[i][j],A[i{+}1][j],A[i{+}2][j]) \notin \mathcal{V}$ for all $0 \le i < n-2$.
+
+$a(n)$ is the number of such arrays. The entry's offset is 1, so its term of index $n$ is the count for $n$ rows.
+
+\section{The count is a walk count}
+
+A forbidden vertical pattern spans three consecutive rows, and a forbidden horizontal pattern lies inside a single row, so whether row $i$ takes part in a forbidden pattern is decided by rows $i-1$, $i$ and $i+1$ alone. A window of three consecutive rows therefore decides the whole of its middle row.
+
+Let $R = \{0,\dots,1\}^{7}$ be the set of rows, so $|R| = 128$, and adjoin a symbol $\top$ standing for ``no row above''. Take as states the pairs
+
+\[\Sigma \;=\; (R \cup \{\top\}) \times R,\]
+
+with an edge from $(p,c)$ to $(c,x)$ exactly when row $c$ satisfies the condition in the window $(p,c,x)$, and call $(p,c)$ accepting when $c$ satisfies the condition in the window $(p,c,\bot)$, where $\bot$ stands for ``no row below''.
+
+An array with rows $r_1,\dots,r_n$ is then exactly a walk
+
+\[(\top,r_1) \to (r_1,r_2) \to \cdots \to (r_{n-1},r_n)\]
+
+of length $n-1$ beginning at a state $(\top,r_1)$ and ending at an accepting state. Every array gives one such walk and every such walk one array. With $M$ the adjacency matrix, $w$ the indicator of the allowed starting states and $f$ that of the accepting ones,
+
+\[a(n) \;=\; w^{\mathsf T} M^{\,n-1} f \qquad (n \ge 1),\]
+
+so $a$ satisfies the linear recurrence whose characteristic polynomial is that of $M$, and is in particular C-finite. The argument is the transfer-matrix method; see Stanley~\S4.7.
+
+\section{The degree bound, derived}
+
+The construction gives $16512$ states. Removing states unreachable from a start state, and states from which no accepting state can be reached, leaves $650$; neither removal changes any count.
+
+Two states from which the same number of arrays can be completed, for every remaining number of rows, contribute identically to $w^{\mathsf T}M^{\,n-1}f$ and may be identified. The coarsest such identification is computed by partition refinement: begin with the partition by acceptance and separate two states as soon as they send different numbers of edges into some block. The refinement terminates; on its blocks the number of completions of each length is constant by induction on that length, so the quotient digraph counts exactly what the original does.
+
+That refinement leaves $116$ blocks. The mirror reduction is then applied: two blocks receiving the same weight from the start, for every walk length, also contribute identically, and the refinement that finds them looks at edges coming in rather than going out. Writing $L$ for the resulting $S \times S$ matrix with $S = 93$, $\tilde w$ for the start weights and $\tilde f$ for the acceptance weights,
+
+\[a(n) \;=\; \tilde w^{\mathsf T} L^{\,n-1} \tilde f \qquad (n \ge 1),\]
+
+and $a$ satisfies the linear recurrence given by the characteristic polynomial of $L$, of degree $93$. This is the only bound used below, and it is computed, not assumed.
+
+For scale: at $n = 8$ there are $2^{56}$ arrays, about $10^{17}$, against $93$ blocks here. Direct enumeration settles nothing at that size; the walk count does.
+
+\section{The decision procedure}
+
+Let $c_1,\dots,c_D$ be the coefficients of a claimed recurrence $a(n) = \sum_{i=1}^{D} c_i\,a(n-i)$, let $q(t) = t^{D} - \sum_{i=1}^{D} c_i t^{D-i}$ be its characteristic polynomial, and put
+
+\[u_m \;=\; \tilde w^{\mathsf T} L^{\,m-1} q(L)\,\tilde f \qquad (m \ge 1).\]
+
+Expanding the powers of $L$ and using the displayed formula for $a$, one gets $u_m = a(n) - \sum_{i=1}^{D} c_i\,a(n-i)$ with $n = m + D + 0$. So $u_m$ is exactly the residual of the claim at $n = m + D + 0$, and the recurrence holds at an index $n$ if and only if the corresponding $u_m$ vanishes.
+
+Now $u_m = \tilde w^{\mathsf T} L^{m-1} y$ with $y = q(L)\tilde f$ a fixed vector, so $(u_m)$ satisfies the characteristic polynomial of $L$, of degree $93$: writing that polynomial as $t^{93} - \sum_{i=1}^{93} \lambda_i t^{93-i}$ gives $u_{m+93} = \sum_{i=1}^{93} \lambda_i u_{m+93-i}$. Hence $93$ consecutive vanishing residuals force every later residual to vanish, by induction. The test is therefore finite; and because it locates the {\itshape last} nonvanishing residual, it pins the threshold exactly rather than merely bounding it.
+
+Everything is carried out in exact integer arithmetic on the vector $L^{m-1}y$. The matrix $M$ is never formed.
+
+\section{Results}
+
+\begin{theorem} For A207499, the recurrence of order $85$ displayed in Section 1 holds for every $n > 86$, and fails at $n = 86$.\end{theorem}
+
+{\itshape Proof.} The residuals $u_m$ were computed exactly for $m = 1,\dots,203$. The last nonvanishing one is at $m = 1$, that is at $n = 86$. After it, more than $S = 93$ consecutive residuals vanish, so by Section 5 every later residual vanishes as well. $\square$
+
+The entry claims the recurrence for $n > 86$. The theorem is at least as strong.
+
+\section{Verification}
+
+Four checks were run, each reproducible from the code accompanying this note, and the first two are what pin the reading of the entry's English.
+
+\begin{itemize}
+
+\item {\bfseries The published terms.} The walk count reproduces all 19 terms the entry publishes, exactly, in integer arithmetic, with the index taken from the entry's stated offset (1) rather than fitted. The first of them are 25, 625, 3355, 17911, 122061, 804887, 5715255, 40046975,~\dots
+
+\item {\bfseries An independent enumeration.} For $n = 1,\dots,2$ every one of the $2^{7n}$ arrays was written out and tested cell by cell against the condition as the entry states it --- no transfer matrix, no row window, a separate piece of code. The counts agree with the walk count and with the entry.
+
+\item {\bfseries The claim on the raw data.} Each claim was evaluated on the entry's published terms alone, with no model involved, wherever the proved range and the published data overlap. It holds there.
+
+\item {\bfseries The annihilation test.} Carried to the derived bound $S = 93$ over the whole vector, in exact integer arithmetic, never sampled and never truncated.
+
+\end{itemize}
+
+\section{References}
+
+\begin{enumerate}
+
+\item OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, entry \href{https://oeis.org/A207499}{A207499}, revision 9, last modified Oct 03 2025.
+
+\item R. P. Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge University Press, 2012; \S4.7, the transfer-matrix method.
+
+\item M. Kauers and P. Paule, \emph{The Concrete Tetrahedron}, Springer, 2011; C-finite sequences and their closure properties.
+
+\item J. Berstel and C. Reutenauer, \emph{Noncommutative Rational Series with Applications}, Cambridge University Press, 2011; linear representations of counting automata and their reduction.
+
+\end{enumerate}
+\end{document}

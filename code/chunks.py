@@ -5,8 +5,10 @@ import sys, os, re, pickle, collections, importlib
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 FAMS = ["fam_neighbour", "fam_avoid", "fam_marked", "fam_stress",
-        "fam_perimeter", "fam_countval", "fam_digits",
-        "fam_linesum", "fam_monotone", "fam_unimodal"]
+        "fam_perimeter", "fam_countval", "fam_digits", "fam_linesum",
+        "fam_monotone", "fam_unimodal", "fam_idem", "fam_avoidrc", "fam_word1d", "fam_divrc", "fam_lexsub",
+        "fam_commute", "fam_offsets", "fam_repeated", "fam_totalling",
+        "fam_nopattern"]
 
 
 def main(top=40, author=None):

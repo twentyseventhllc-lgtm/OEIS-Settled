@@ -48,7 +48,10 @@ def make(rec, date=None):
           "note does not settle; they are named in Section 6.")
 
     P.section("The object, and what a column and a row are")
-    fam.object_section(P, dict(rec, W="k", q=rec["q"], spec=rec["spec"]), paper)
+    Wd = max(c["W"] for c in claims)
+    P.par(f"The array condition is the same for every width; it is written out "
+          f"here for width ${Wd}$, which is one of the widths this note uses.")
+    fam.object_section(P, dict(rec, W=Wd, q=rec["q"], spec=rec["spec"]), paper)
     P.par(f"$T(n,k)$ is the number of such arrays with $n + {rec['rowoff']}$ "
           f"rows and $k + {rec['coloff']}$ columns. Column $k = K$ is therefore "
           f"the sequence $n \\mapsto T(n,K)$, an array count of fixed width "
@@ -77,7 +80,9 @@ def make(rec, date=None):
           r"two states as soon as they send different numbers of edges into "
           r"some block. On the blocks of the result the number of completions "
           r"of each length is constant, so the quotient counts exactly what "
-          r"the original does. Writing $L$ for the quotient matrix and $S$ for "
+          r"the original does; the mirror refinement, on the edges coming in "
+          r"rather than going out, is then applied in the same way. Writing "
+          r"$L$ for the resulting matrix and $S$ for "
           r"its size, the sequence satisfies the linear recurrence given by "
           r"the characteristic polynomial of $L$, of degree $S$. That is the "
           r"degree bound used below, and it is computed separately for every "

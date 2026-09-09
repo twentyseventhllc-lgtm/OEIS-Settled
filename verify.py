@@ -39,6 +39,16 @@ FAMILY_MODULE = {
     "subblock-line-sum": "fam_linesum",
     "monotone-derived": "fam_monotone",
     "line-monotonicity": "fam_unimodal",
+    "idempotent-subblock": "fam_idem",
+    "pattern-avoidance-lines": "fam_avoidrc",
+    "word-window": "fam_word1d",
+    "row-column-divisibility": "fam_divrc",
+    "lex-subblock": "fam_lexsub",
+    "commuting-subblocks": "fam_commute",
+    "offset-distinct": "fam_offsets",
+    "repeated-value": "fam_repeated",
+    "adjacent-pair-total": "fam_totalling",
+    "directional-pattern": "fam_nopattern",
 }
 BRUTE_BUDGET = 200_000
 

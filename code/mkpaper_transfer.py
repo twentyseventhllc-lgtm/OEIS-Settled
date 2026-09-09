@@ -3,7 +3,7 @@
 that this method settles, proved in one place."""
 import os, re, sys, math, datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import paper, importlib
+import paper, importlib, poly as POLY
 
 FAMILY_MODULE = {
     "neighbour-count": "fam_neighbour",
@@ -16,6 +16,16 @@ FAMILY_MODULE = {
     "subblock-line-sum": "fam_linesum",
     "monotone-derived": "fam_monotone",
     "line-monotonicity": "fam_unimodal",
+    "idempotent-subblock": "fam_idem",
+    "pattern-avoidance-lines": "fam_avoidrc",
+    "word-window": "fam_word1d",
+    "row-column-divisibility": "fam_divrc",
+    "lex-subblock": "fam_lexsub",
+    "commuting-subblocks": "fam_commute",
+    "offset-distinct": "fam_offsets",
+    "repeated-value": "fam_repeated",
+    "adjacent-pair-total": "fam_totalling",
+    "directional-pattern": "fam_nopattern",
 }
 
 SIG = re.compile(r"-\s*_([^_]+)_,\s*([A-Z][a-z]{2} \d{2} \d{4})\s*$")
@@ -112,12 +122,16 @@ def make(rec, date=None):
     claims = [c for c in rec["claims"] if c["status"] == "proved"]
     nrec = sum(1 for c in claims if c["kind"] == "recurrence")
     ngf = sum(1 for c in claims if c["kind"] == "gf")
-    title = ("A proof of the conjectured linear recurrence for OEIS " + a
-             if ngf == 0 else
-             ("A proof of the conjectured generating function for OEIS " + a
-              if nrec == 0 else
-              "A proof of the conjectured recurrence and generating function "
-              "for OEIS " + a))
+    npol = sum(1 for c in claims if c["kind"] == "polynomial")
+    what = []
+    if nrec:
+        what.append("linear recurrence")
+    if ngf:
+        what.append("generating function")
+    if npol:
+        what.append("closed form")
+    title = ("A proof of the conjectured " + " and ".join(what)
+             + " for OEIS " + a)
     P = paper.Paper(title, a)
 
     # -------------------------------------------------------------- §1
@@ -159,6 +173,11 @@ def make(rec, date=None):
                       f"$n = {c['first_meaningful_n']}$, the least index at "
                       f"which all of $a(n-1),\\dots,a(n-{c['order']})$ are terms "
                       f"of the sequence.")
+        elif c["kind"] == "polynomial":
+            P.par("Written out, the claim is")
+            P.display("a(n) = " + POLY.tex(c["poly"]) + ".")
+            if c["nmin"] is not None:
+                P.par(f"stated for $n > {c['nmin']-1}$.")
         else:
             P.par("Written out, the claim is")
             sh = c.get("gf_shift", off)
@@ -231,6 +250,11 @@ def make(rec, date=None):
                          f"which it can be stated."
                          if c["holds_everywhere"] else
                          f"holds for every $n > {th}$, and fails at $n = {th}$."))
+        elif c["kind"] == "polynomial":
+            st = ("$a(n)$ is the polynomial $" + POLY.tex(c["poly"]) + "$ "
+                  + (f"for every $n \\ge {fn}$."
+                     if c["holds_everywhere"] else
+                     f"for every $n > {th}$, and not at $n = {th}$."))
         else:
             sh = c.get("gf_shift", off)
             lhs = (r"\sum_{n\ge " + str(off) + r"} a(n)x^n" if sh == off else
@@ -249,6 +273,22 @@ def make(rec, date=None):
                   + f" After it, more than $S = {S}$ consecutive residuals "
                   f"vanish, so by Section 5 every later residual vanishes as "
                   f"well. $\\square$")
+        elif c["kind"] == "polynomial":
+            d = c["order"]
+            P.par(f"{{\\itshape Proof.}} A polynomial of degree ${d}$ is "
+                  f"annihilated by the difference operator $(E-1)^{{{d+1}}}$, "
+                  f"whose characteristic polynomial is $(t-1)^{{{d+1}}}$. So "
+                  f"$a(n) - P(n)$, with $P$ the claimed polynomial, satisfies "
+                  f"the linear recurrence whose characteristic polynomial is "
+                  f"the product of that with the characteristic polynomial of "
+                  f"$L$, of degree $S + {d+1} = {c['bound']}$. Its values were "
+                  f"computed exactly; "
+                  + ("all of them vanish"
+                     if c["holds_everywhere"] else
+                     f"the last nonvanishing one is at $n = {th}$")
+                  + f", and more than ${c['bound']}$ consecutive vanishing "
+                  f"values follow, so every later one vanishes as well. "
+                  f"$\\square$")
         else:
             P.par(f"{{\\itshape Proof.}} Let $N(x)$ and $D(x)$ be the numerator "
                   f"and denominator above, $D(0)=1$. The residual test applied "
@@ -365,10 +405,13 @@ def _rowtransfer_sections(P, rec, paper, fam, sp, W, q, S, off):
           r"terminates; on its blocks the number of completions of each length "
           r"is constant by induction on that length, so the quotient digraph "
           r"counts exactly what the original does.")
-    P.par(f"Here the refinement leaves $S = {S}$ blocks. Writing $L$ for the "
-          f"$S\\times S$ quotient matrix, $\\tilde w$ for the start weights "
-          f"summed over each block and $\\tilde f$ for the acceptance "
-          f"indicator,")
+    P.par(f"That refinement leaves ${rec.get('Sforward', S)}$ blocks. The "
+          f"mirror reduction is then applied: two blocks receiving the same "
+          f"weight from the start, for every walk length, also contribute "
+          f"identically, and the refinement that finds them looks at edges "
+          f"coming in rather than going out. Writing $L$ for the resulting "
+          f"$S \\times S$ matrix with $S = {S}$, $\\tilde w$ for the start "
+          f"weights and $\\tilde f$ for the acceptance weights,")
     P.display(r"a(n) \;=\; \tilde w^{\mathsf T} L^{\,n-1} \tilde f \qquad (n \ge 1),")
     P.par(f"and $a$ satisfies the linear recurrence given by the characteristic "
           f"polynomial of $L$, of degree ${S}$. **This is the only bound used "

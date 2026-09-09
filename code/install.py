@@ -99,6 +99,8 @@ def one(job):
             d.update(num=c["num"], den=c["den"],
                      gf_checked_to=c.get("gf_checked_to"),
                      gf_shift=c.get("gf_shift"))
+        if c["kind"] == "polynomial":
+            d.update(poly=c["poly"], bound=c.get("bound"))
         out.append(d)
     return {
         "id": a, "anum": a, "name": rec["name"], "offset": rec["offset"],

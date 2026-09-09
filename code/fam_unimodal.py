@@ -238,7 +238,9 @@ def model_sections(P, rec, paper):
           f"numbers of edges into some block. On the blocks the number of "
           f"completions of each length is constant, so the quotient counts "
           f"exactly what the original does.")
-    P.par(f"The refinement leaves $S = {S}$ blocks, and the count satisfies "
+    P.par(f"The refinement, applied first forwards and then in the mirror "
+          f"direction on the edges coming in, leaves $S = {S}$ blocks, and "
+          f"the count satisfies "
           f"the linear recurrence given by the characteristic polynomial of "
           f"the ${S} \\times {S}$ quotient matrix. That degree bound is "
           f"computed here, not assumed, and it is the only one the decision "

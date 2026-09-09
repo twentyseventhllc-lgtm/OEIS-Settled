@@ -70,6 +70,11 @@ def settle(fam, anum, meta, terms, cj, cap=3_000_000, margin=6, rowcap=8192):
         except automaton.TooBig as e:
             return dict(rec, status="refused", reason=str(e))
     build_t = time.time() - t0
+    nnz = sum(len(r) for r in getattr(m, "L", [])) or m.S
+    if m.S * max(nnz, 1) > 30_000_000 or m.S > 1200:
+        return dict(rec, status="refused",
+                    reason=f"reduced representation too large (S={m.S}, "
+                           f"{nnz} nonzeros)")
     S = m.S
     rowoff = spec.get("rowoff", 0)
     Dmax = max([len(cd["coeffs"]) for cd in cands]
@@ -99,7 +104,7 @@ def settle(fam, anum, meta, terms, cj, cap=3_000_000, margin=6, rowcap=8192):
         out.append(CL.evaluate(cd, A, off, rowoff, S))
     return dict(rec, status="done", S=S, nfull=getattr(m, "nfull", S),
                 ntrim=getattr(m, "ntrim", S),
-                rowoff=rowoff,
+                rowoff=rowoff, Sforward=getattr(m, "Sforward", None),
                 W=W, q=q, spec=fam.jsonspec(spec),
                 brute_checked=len(bf),
                 build_seconds=round(build_t, 2), claims=out,

@@ -29,10 +29,11 @@ NAME = re.compile(
     r"^(?:T\(n,\s*k\)\s*(?:=|is)\s*(?:the\s+)?[Nn]umber of|Number of)\s+"
     r"(n\s*X\s*k|n\s*X\s*\d+|\d+\s*X\s*n)\s+(\d+)\.\.(\d+)\s+arrays\s+with\s+"
     r"(every|each|no)\s+(\d+)\s+(" + DIRW + r")?\s*adjacent\s+to\s+"
-    r"([\d,\s]+?(?:\s+or\s+\d+)?)\s+(" + DIRW + r")?\s*neighboring\s+"
+    r"([\d,\s]+?(?:\s+or\s+\d+)?)\s+(" + DIRW + r")?\s*(?:neighboring\s+)?"
     r"(\d+)(?:'s|s)?\.?$", re.I)
 
-_POOL = re.compile(r"adjacent to .{0,40}neighboring")
+_POOL = re.compile(r"adjacent to [\d, or]+ (?:king-move )?(?:neighboring )?"
+                   r"\d+(?:'s|s)?\.?$|adjacent to .{0,40}neighboring")
 
 
 def pool(meta, conj):

@@ -8,7 +8,7 @@ states, and a proposed recurrence is decided by finitely many exact residuals.
 
 Nothing here is approximate and nothing is sampled.
 """
-import itertools
+import itertools, time
 
 
 class TooBig(Exception):
@@ -25,10 +25,13 @@ class Model:
     """
 
     def __init__(self, W, q, valid, first_ok=None, cap=4_000_000,
-                 up=1, down=1, workcap=25_000_000):
+                 up=1, down=1, workcap=25_000_000, tlimit=25.0,
+                 trimcap=80_000):
         self.W, self.q = W, q
         self.valid, self.first_ok = valid, first_ok or (lambda r: True)
         self.cap, self.workcap = cap, workcap
+        self.trimcap = trimcap
+        self.deadline = time.time() + tlimit if tlimit else None
         self.up, self.down = up, down
         self.rows = None
         self.built = False
@@ -55,6 +58,7 @@ class Model:
 
         valid = self.valid
         for pi in range(R + 1):
+            self._deadline_check()
             p = None if pi == R else rows[pi]
             for ci in range(R):
                 c = rows[ci]
@@ -105,6 +109,10 @@ class Model:
         self.built = True
         return self
 
+    def _deadline_check(self):
+        if self.deadline and time.time() > self.deadline:
+            raise TooBig("time limit reached while building the model")
+
     def _trim(self):
         """Keep only states reachable from a start state and able to reach an
         accepting one.  Purely an efficiency step; it changes no count."""
@@ -136,6 +144,8 @@ class Model:
                     co[t] = True
                     stack.append(t)
         keep = [s for s in range(nst) if seen[s] and co[s]]
+        if len(keep) > self.trimcap:
+            raise TooBig(f"trimmed state space {len(keep)} > cap {self.trimcap}")
         idx = {s: i for i, s in enumerate(keep)}
         self.tedges = [[idx[t] for t in self.edges[s] if t in idx] for s in keep]
         self.tacc = [self.acc[s] for s in keep]
@@ -154,6 +164,7 @@ class Model:
         n = self.ntrim
         blk = list(self.tacc)                     # initial partition
         while True:
+            self._deadline_check()
             sig = []
             for s in range(n):
                 d = {}
@@ -194,41 +205,97 @@ class Model:
         accv = [0] * nb
         for s in range(n):
             accv[blk[s]] = self.tacc[s]
-        self.L, self.w, self.accv, self.S = L, w, accv, nb
+        self.Sforward = nb
+        self._lump_backward(L, w, accv)
+
+    def _lump_backward(self, L, w, accv):
+        """The mirror of the forward reduction.  Two blocks whose incoming
+        weight from the start is the same for every walk length contribute
+        identically to the count and may be identified; the refinement that
+        finds them looks at edges coming IN rather than going out.  Together
+        the two reductions bring the representation close to its minimal
+        dimension, and it is that dimension -- not the raw state count -- that
+        the annihilation test has to reach."""
+        nb = len(L)
+        col = list(w)
+        while True:
+            self._deadline_check()
+            groups = {}
+            for s in range(nb):
+                groups.setdefault(col[s], []).append(s)
+            sig = []
+            for s in range(nb):
+                d = []
+                for c in sorted(groups):
+                    tot = 0
+                    for u in groups[c]:
+                        tot += L[u][s]
+                    if tot:
+                        d.append((c, tot))
+                sig.append((col[s], tuple(d)))
+            uniq, newcol = {}, []
+            for s in range(nb):
+                k = sig[s]
+                if k not in uniq:
+                    uniq[k] = len(uniq)
+                newcol.append(uniq[k])
+            if len(set(newcol)) == len(set(col)):
+                col = newcol
+                break
+            col = newcol
+        rel = {}
+        for c in sorted(set(col)):
+            rel[c] = len(rel)
+        col = [rel[c] for c in col]
+        nc = len(rel)
+        C = [[0] * nc for _ in range(nc)]
+        seen = [False] * nc
+        for s in range(nb):
+            c2 = col[s]
+            if seen[c2]:
+                continue
+            seen[c2] = True
+            for u in range(nb):
+                if L[u][s]:
+                    C[col[u]][c2] += L[u][s]
+        P0 = [0] * nc
+        for s in range(nb):
+            P0[col[s]] = w[s]
+        F = [0] * nc
+        for s in range(nb):
+            F[col[s]] += accv[s]
+        self.L = [[(j, C[i][j]) for j in range(nc) if C[i][j]] for i in range(nc)]
+        self.w, self.accv, self.S = P0, F, nc
 
     # -------------------------------------------------------------- counting
     def counts(self, N):
-        """a(1..N): a(n) = w^T L^(n-1) acc."""
+        """a(1..N) with a(n) = P0 C^(n-1) F, the matrix kept sparse."""
         L, w, acc, S = self.L, self.w, self.accv, self.S
         out = []
         v = list(acc)
         for n in range(1, N + 1):
             out.append(sum(wi * vi for wi, vi in zip(w, v) if wi and vi))
             if n < N:
-                v = [sum(L[i][j] * v[j] for j in range(S) if L[i][j] and v[j])
-                     for i in range(S)]
+                nv = [0] * S
+                for i in range(S):
+                    t = 0
+                    for j, c in L[i]:
+                        if v[j]:
+                            t += c * v[j]
+                    nv[i] = t
+                v = nv
         return out
 
-    def residuals(self, coeffs, N):
-        """u_m for m = 1..N, where u_m = a(m+D) - sum c_i a(m+D-i)."""
-        L, w, acc, S = self.L, self.w, self.accv, self.S
-        D = len(coeffs)
-        # y = q(L) acc  with q(t) = t^D - sum c_i t^(D-i)
-        pw = [list(acc)]
-        for _ in range(D):
-            v = pw[-1]
-            pw.append([sum(L[i][j] * v[j] for j in range(S) if L[i][j] and v[j])
-                       for i in range(S)])
-        y = [pw[D][i] - sum(coeffs[k] * pw[D - 1 - k][i] for k in range(D))
-             for i in range(S)]
-        out = []
-        v = y
-        for m in range(1, N + 1):
-            out.append(sum(wi * vi for wi, vi in zip(w, v) if wi and vi))
-            if m < N:
-                v = [sum(L[i][j] * v[j] for j in range(S) if L[i][j] and v[j])
-                     for i in range(S)]
-        return out
+    def _apply(self, v):
+        S, L = self.S, self.L
+        nv = [0] * S
+        for i in range(S):
+            t = 0
+            for j, c in L[i]:
+                if v[j]:
+                    t += c * v[j]
+            nv[i] = t
+        return nv
 
 
 class GraphModel(Model):
@@ -249,10 +316,12 @@ class GraphModel(Model):
         return [1] + c[1:N + 1]
 
     def __init__(self, starts, step, accept, alphabet, cap=4_000_000,
-                 workcap=25_000_000):
+                 workcap=25_000_000, tlimit=25.0, trimcap=80_000):
         self.starts, self.step, self.accept = starts, step, accept
         self.alphabet = list(alphabet)
         self.cap, self.workcap = cap, workcap
+        self.trimcap = trimcap
+        self.deadline = time.time() + tlimit if tlimit else None
         self.built = False
 
     def build(self):
@@ -281,6 +350,8 @@ class GraphModel(Model):
         while stack:
             s = stack.pop()
             e = []
+            if work % 8192 < len(self.alphabet):
+                self._deadline_check()
             for r in self.alphabet:
                 work += 1
                 if work > self.workcap:
