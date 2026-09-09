@@ -58,6 +58,8 @@ FAMILY_MODULE = {
     "subblock-statistic": "fam_subblock",
     "cell-neighbour-count": "fam_cellcount",
     "consecutive-triple": "fam_triple",
+    "existential-neighbour": "fam_exists",
+    "defective-colouring": "fam_mistakes",
 }
 BRUTE_BUDGET = 200_000
 
@@ -98,8 +100,9 @@ def check_table(rec):
             data = sorted((n, v) for (n, k), v in T.items() if k == c["index"])
         else:
             data = sorted((k, v) for (n, k), v in T.items() if n == c["index"])
-        D = c["order"]
-        hi = max(i for i, _ in data) + ro + m.S + D + 40
+        D = c["order"] if c["kind"] != "polynomial" else len(c["poly"])
+        extra = 2 * m.S + 24 if c["kind"] in ("order", "degree") else 0
+        hi = max(i for i, _ in data) + ro + m.S + D + extra + 40
         A = m.counts_from_zero(hi) if hasattr(m, "counts_from_zero") \
             else [1] + m.counts(hi)
         if divisor != 1:
@@ -108,17 +111,62 @@ def check_table(rec):
             if A[i + ro] != Fraction(v):
                 return a, False, f"model differs from the published table at {c['which']}={c['index']}"
         lo = min(i for i, _ in data)
-        nlo = max(lo + D, D + 1 - ro)
         nhi = len(A) - 1 - ro
+        top = nhi
+        if c["kind"] == "polynomial":
+            d = len(c["poly"]) - 1
+            bound = m.S + d + 1
+            nlo = max(lo, -ro)
+
+            def resid(nn, c=c):
+                return Fraction(A[nn + ro]) - poly.value(c["poly"], nn)
+        elif c["kind"] in ("order", "degree"):
+            S2 = max(m.S, 1)
+            start = max(lo, S2 + 1 - ro)
+            need = 2 * S2 + 6
+            if start + need > nhi:
+                return a, False, "not enough terms to reach the derived bound"
+            seq = [A[n + ro] for n in range(start, start + need)]
+            if c["kind"] == "degree":
+                d0 = bm.minimal_degree(seq, min(S2, 60))
+                if d0 is None or d0 != c["minimal"]:
+                    return a, False, "minimal degree differs"
+                bound = S2 + d0 + 2
+                nlo = max(lo, -ro)
+                top = nhi - (d0 + 2)
+
+                def resid(nn, d0=d0):
+                    s = Fraction(0)
+                    for k in range(d0 + 2):
+                        s += ((-1) ** (d0 + 1 - k)) * _bin(d0 + 1, k) * \
+                            Fraction(A[nn + k + ro])
+                    return s
+            else:
+                co = bm.minimal_recurrence(seq)
+                if co is None or len(co) != c["minimal"]:
+                    return a, False, "minimal order differs"
+                bound = S2
+                nlo = max(lo + len(co), len(co) + 1 - ro)
+
+                def resid(nn, co=co):
+                    return (Fraction(A[nn + ro])
+                            - sum(cf * Fraction(A[nn + ro - i])
+                                  for i, cf in enumerate(co, 1)))
+        else:
+            bound = m.S
+            nlo = max(lo + D, D + 1 - ro)
+
+            def resid(nn, c=c):
+                return (A[nn + ro] - sum(cf * A[nn + ro - i]
+                                         for i, cf in enumerate(c["coeffs"], 1)))
         last = None
-        for nn in range(nhi, nlo - 1, -1):
-            if A[nn + ro] != sum(cf * A[nn + ro - i]
-                                 for i, cf in enumerate(c["coeffs"], 1)):
+        for nn in range(top, nlo - 1, -1):
+            if resid(nn) != 0:
                 last = nn
                 break
-        if nhi - (last if last is not None else nlo - 1) < m.S:
+        if top - (last if last is not None else nlo - 1) < bound:
             return a, False, "residuals do not vanish inside the derived bound"
-        th = last if last is not None else lo + D - 1
+        th = last if last is not None else nlo - 1
         if th != c["threshold"]:
             return a, False, f"threshold differs on {c['which']}={c['index']}"
     return a, True, ""

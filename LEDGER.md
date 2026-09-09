@@ -60,3 +60,22 @@ rows, so an alphabet of 4 at width 5 (1024 rows) would need $10^9$ transition te
 entries are refused with the count recorded. So are models whose reduced representation is
 too large to iterate. The refusal counters are printed by `code/status.py` and are what says
 where to go next.
+
+## The first full verification
+
+`verify.py` was run over the whole roster of 3,161 installed results. It rebuilds each model
+from the entry's name, recounts, re-runs the independent enumeration where it is affordable,
+re-parses the conjecture from the entry's own line, re-runs the annihilation test in exact
+integer arithmetic and re-derives the threshold; nothing in `results.json` is trusted except
+the name, the offset and the published terms.
+
+**3,149 of 3,161 passed on the first run.** The twelve failures were all in the verifier, not
+in the results: `check_table` had no branch for a column stated as a polynomial rather than
+as a recurrence, so it tested the polynomial claim as though its coefficient list were empty.
+With that branch added, all twelve pass. That is the fourth time on this project that a check
+which disagreed with the results turned out to be the faulty side, and it is why a
+disagreement is investigated before it is believed.
+
+A live re-check against oeis.org runs alongside, one entry a second: the first 400 entries
+came back with every conjectural line still present, still conjectural, and no proof
+mentioned.
