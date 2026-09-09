@@ -61,6 +61,7 @@ FAMILY_MODULE = {
     "existential-neighbour": "fam_exists",
     "defective-colouring": "fam_mistakes",
     "lexicographic-order": "fam_lexorder",
+    "image-count": "fam_image",
 }
 BRUTE_BUDGET = 200_000
 
