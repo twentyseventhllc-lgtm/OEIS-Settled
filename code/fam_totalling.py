@@ -107,7 +107,7 @@ def model(spec, W=None):
         return (c == cap) if exact else (c <= cap)
 
     m = automaton.GraphModel(start, step, accept, rows,
-                             cap=2_000_000, workcap=20_000_000)
+                             cap=900_000, workcap=12_000_000)
     m.build()
     return m
 

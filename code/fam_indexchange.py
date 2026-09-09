@@ -19,7 +19,7 @@ NAME = re.compile(
     r"^(?:T\(n,\s*k\)\s*(?:=|is)?\s*(?:the\s+)?[Nn]umber of|Number of)\s+"
     r"([nk\d+()X ]+?)\s+arrays\s+of\s+permutations\s+of\s+0\.\.[^ ]+\s+with\s+"
     r"each\s+element\s+having\s+(directed\s+)?index\s+change\s+"
-    r"(?:\(\+-,\+-\)|\+-\(\.,\.\))?\s*((?:-?\d+,-?\d+[\s,]*|or\s*)+)\.?$", re.I)
+    r"(\(\+-,\+-\)|\+-\(\.,\.\))?\s*((?:-?\d+,-?\d+[\s,]*|or\s*)+)\.?$", re.I)
 
 _POOL = re.compile(r"index change")
 
@@ -32,19 +32,28 @@ def parse(nm):
     m = NAME.match(re.sub(r"\s+", " ", nm.strip()))
     if not m:
         return None
-    shape, directed, offs = m.groups()
+    shape, directed, sign, offs = m.groups()
     pairs = re.findall(r"(-?\d+),(-?\d+)", offs)
     if not pairs:
         return None
     base = [(int(a), int(b)) for a, b in pairs]
     directed = bool(directed)
+    sign = (sign or "").replace(" ", "")
     if directed:
         disp = sorted(set(base))
-    else:
-        # the entry's `+-' negates the whole displacement, not each coordinate
-        # separately: the two readings disagree on A264054 (2, 8 against 4, 20)
-        # and the entry's own terms pick this one.
+        mode = "directed"
+    elif sign == "(+-,+-)":
+        # each coordinate carries its own sign
+        disp = sorted({(sa * a, sb * b) for a, b in base
+                       for sa in (1, -1) for sb in (1, -1)})
+        mode = "each"
+    elif sign == "+-(.,.)":
+        # the displacement as a whole is negated: the two readings disagree on
+        # A264054 (2, 8 against 4, 20) and the entry's own terms pick this one
         disp = sorted({d for a, b in base for d in ((a, b), (-a, -b))})
+        mode = "whole"
+    else:
+        return None
     kind, C, trans, rowoff = parse_shape(shape)
     if kind is None:
         return None
@@ -53,8 +62,8 @@ def parse(nm):
     if max(abs(a) for a, b in disp) > 2 or max(abs(b) for a, b in disp) > 3:
         return None
     return {"kind": kind, "W": C, "q": None, "disp": [list(d) for d in disp],
-            "directed": directed, "transposed": trans, "rowoff": rowoff,
-            "shape": shape, "base": [list(b) for b in base]}
+            "directed": directed, "sign_mode": mode, "transposed": trans,
+            "rowoff": rowoff, "shape": shape, "base": [list(b) for b in base]}
 
 
 def jsonspec(s):
@@ -173,10 +182,11 @@ def object_section(P, rec, paper):
           f"in the row-major layout, and the {{\\itshape index change}} of an "
           f"element is the displacement from its home to the cell it occupies. "
           f"The entry lists {bl}"
-          + ("" if sp["directed"] else
-             ", each together with its negative --- the entry's $\\pm$ negates "
-             "the displacement as a whole, which is what its own terms say") +
-          ", so the allowed "
+          + {"directed": "", "each": ", each coordinate carrying its own sign",
+             "whole": ", each together with its negative --- the entry's "
+                      "$\\pm(.,.)$ negates the displacement as a whole, and "
+                      "the entry's own terms distinguish the two readings"}[
+              sp["sign_mode"]] + ", so the allowed "
           "displacements are")
     P.display(r"\mathcal{D} = \{" + dl + r"\}.")
     P.par(r"An admissible array is therefore exactly a perfect matching "

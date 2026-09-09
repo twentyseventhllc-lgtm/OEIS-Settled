@@ -167,6 +167,8 @@ class Model:
             self._deadline_check()
             sig = []
             for s in range(n):
+                if s % 4096 == 0:
+                    self._deadline_check()
                 d = {}
                 for t in self.tedges[s]:
                     b = blk[t]
@@ -315,8 +317,8 @@ class GraphModel(Model):
         c = self.counts(N + 1)
         return [1] + c[1:N + 1]
 
-    def __init__(self, starts, step, accept, alphabet, cap=4_000_000,
-                 workcap=25_000_000, tlimit=25.0, trimcap=80_000):
+    def __init__(self, starts, step, accept, alphabet, cap=1_000_000,
+                 workcap=12_000_000, tlimit=20.0, trimcap=40_000):
         self.starts, self.step, self.accept = starts, step, accept
         self.alphabet = list(alphabet)
         self.cap, self.workcap = cap, workcap

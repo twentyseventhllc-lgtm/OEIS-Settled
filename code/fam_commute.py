@@ -86,7 +86,7 @@ def model(spec, W=None):
 
     start = [tuple([None] * K)]
     m = automaton.GraphModel(start, step, lambda s: True, rows,
-                             cap=2_000_000, workcap=20_000_000)
+                             cap=900_000, workcap=12_000_000)
     m.build()
     return m
 

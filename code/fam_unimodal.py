@@ -151,7 +151,7 @@ def model(spec, W=None):
 
     goodset = set(good)
     m = automaton.GraphModel(starts, step0, lambda s: s[0] is not None,
-                             rows, cap=3_000_000, workcap=40_000_000)
+                             rows, cap=900_000, workcap=12_000_000)
     m.build()
     return m
 

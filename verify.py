@@ -49,6 +49,9 @@ FAMILY_MODULE = {
     "repeated-value": "fam_repeated",
     "adjacent-pair-total": "fam_totalling",
     "directional-pattern": "fam_nopattern",
+    "index-change": "fam_indexchange",
+    "strict-majority": "fam_majority",
+    "subblock-six-differences": "fam_edgediff",
 }
 BRUTE_BUDGET = 200_000
 

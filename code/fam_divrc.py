@@ -91,7 +91,7 @@ def model(spec, W=None):
         return all((c == 0) != cneg for c in s)
 
     m = automaton.GraphModel(start, step, accept, rows,
-                             cap=2_000_000, workcap=20_000_000)
+                             cap=900_000, workcap=12_000_000)
     m.build()
     return m
 

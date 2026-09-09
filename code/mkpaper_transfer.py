@@ -26,6 +26,9 @@ FAMILY_MODULE = {
     "repeated-value": "fam_repeated",
     "adjacent-pair-total": "fam_totalling",
     "directional-pattern": "fam_nopattern",
+    "index-change": "fam_indexchange",
+    "strict-majority": "fam_majority",
+    "subblock-six-differences": "fam_edgediff",
 }
 
 SIG = re.compile(r"-\s*_([^_]+)_,\s*([A-Z][a-z]{2} \d{2} \d{4})\s*$")
