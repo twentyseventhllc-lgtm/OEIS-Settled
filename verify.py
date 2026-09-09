@@ -27,6 +27,8 @@ from concurrent.futures import ProcessPoolExecutor
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "code"))
 import automaton, recur, gf                                  # noqa: E402
+from shapes import strip_scale                               # noqa: E402
+from fractions import Fraction                               # noqa: E402
 
 FAMILY_MODULE = {
     "neighbour-count": "fam_neighbour",
@@ -52,6 +54,8 @@ FAMILY_MODULE = {
     "index-change": "fam_indexchange",
     "strict-majority": "fam_majority",
     "subblock-six-differences": "fam_edgediff",
+    "subblock-statistic": "fam_subblock",
+    "cell-neighbour-count": "fam_cellcount",
 }
 BRUTE_BUDGET = 200_000
 
@@ -62,7 +66,10 @@ def check_table(rec):
     from shapes import parse_table_shape
     a = rec["anum"]
     fam = importlib.import_module(FAMILY_MODULE[rec["family"]])
-    spec = fam.parse(rec["name"])
+    divisor, nm2 = strip_scale(rec["name"])
+    if divisor != rec.get("divisor", 1):
+        return a, False, "scaling prefix differs"
+    spec = fam.parse(nm2)
     if spec is None or fam.jsonspec(spec) != rec["spec"]:
         return a, False, "name does not parse to the recorded specification"
     rowoff, coloff = parse_table_shape(spec["shape"])
@@ -74,11 +81,15 @@ def check_table(rec):
     for c in rec["claims"]:
         W, trans, ro = c["W"], c["transposed"], c["rowoff"]
         sp = dict(spec); sp["W"] = W; sp["transposed"] = trans
-        valid, first_ok, whole_ok, W2, q = fam.make(sp, W=W)
-        up, down = (fam.REACHfor(sp) if hasattr(fam, "REACHfor")
-                    else getattr(fam, "REACH", (1, 1)))
-        m = automaton.Model(W2, q, valid, first_ok, cap=8_000_000, up=up, down=down)
-        m.build()
+        if hasattr(fam, "model"):
+            m = fam.model(sp, W=W)
+        else:
+            valid, first_ok, whole_ok, W2, q = fam.make(sp, W=W)
+            up, down = (fam.REACHfor(sp) if hasattr(fam, "REACHfor")
+                        else getattr(fam, "REACH", (1, 1)))
+            m = automaton.Model(W2, q, valid, first_ok, cap=8_000_000,
+                                up=up, down=down)
+            m.build()
         if m.S != c["S"]:
             return a, False, f"degree bound differs on {c['which']}={c['index']}"
         if c["which"] == "k":
@@ -87,9 +98,12 @@ def check_table(rec):
             data = sorted((k, v) for (n, k), v in T.items() if n == c["index"])
         D = c["order"]
         hi = max(i for i, _ in data) + ro + m.S + D + 40
-        A = [1] + m.counts(hi)
+        A = m.counts_from_zero(hi) if hasattr(m, "counts_from_zero") \
+            else [1] + m.counts(hi)
+        if divisor != 1:
+            A = [Fraction(x, divisor) for x in A]
         for i, v in data:
-            if A[i + ro] != v:
+            if A[i + ro] != Fraction(v):
                 return a, False, f"model differs from the published table at {c['which']}={c['index']}"
         lo = min(i for i, _ in data)
         nlo = max(lo + D, D + 1 - ro)
@@ -117,7 +131,10 @@ def check(rec):
         fam = importlib.import_module(FAMILY_MODULE[rec["family"]])
     except KeyError:
         return a, False, "unknown family " + str(rec.get("family"))
-    spec = fam.parse(rec["name"])
+    divisor, nm2 = strip_scale(rec["name"])
+    if divisor != rec.get("divisor", 1):
+        return a, False, "scaling prefix differs"
+    spec = fam.parse(nm2)
     if spec is None:
         return a, False, "name does not parse"
     if fam.jsonspec(spec) != rec["spec"]:
@@ -148,12 +165,14 @@ def check(rec):
     hi = off + len(T) + rowoff + S + Dmax + 40
     A = m.counts_from_zero(hi) if hasattr(m, "counts_from_zero") \
         else [1] + m.counts(hi)
-    if [A[off + i + rowoff] for i in range(len(T))] != T:
+    if divisor != 1:
+        A = [Fraction(x, divisor) for x in A]
+    if [A[off + i + rowoff] for i in range(len(T))] != [Fraction(x) for x in T]:
         return a, False, "model does not reproduce the published terms"
     n = 1
     while whole_ok is not None and q ** (W * n) <= BRUTE_BUDGET \
             and n <= len(T) + rowoff:
-        if automaton.brute(n, W, q, whole_ok) != A[n]:
+        if Fraction(automaton.brute(n, W, q, whole_ok), divisor) != A[n]:
             return a, False, f"independent enumeration disagrees at {n} rows"
         n += 1
     for c in rec["claims"]:

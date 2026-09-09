@@ -29,6 +29,8 @@ FAMILY_MODULE = {
     "index-change": "fam_indexchange",
     "strict-majority": "fam_majority",
     "subblock-six-differences": "fam_edgediff",
+    "subblock-statistic": "fam_subblock",
+    "cell-neighbour-count": "fam_cellcount",
 }
 
 SIG = re.compile(r"-\s*_([^_]+)_,\s*([A-Z][a-z]{2} \d{2} \d{4})\s*$")
@@ -192,6 +194,13 @@ def make(rec, date=None):
 
     # -------------------------------------------------------------- §2
     P.section("The object")
+    if rec.get("divisor", 1) != 1:
+        P.par(f"The entry counts {'half' if rec['divisor'] == 2 else '1/' + str(rec['divisor'])} "
+              f"of the arrays described below; write $C(n)$ for the number of "
+              f"those arrays, so that $a(n) = C(n)/{rec['divisor']}$. Dividing "
+              f"by a constant is linear, so a claimed linear recurrence, a "
+              f"claimed polynomial and a claimed generating function for $a$ "
+              f"are settled by exactly the same computation on $C$.")
     P.par("The name is read as follows. The reading is not a guess: it is "
           "pinned against the entry's own published terms, and against an "
           "independent enumeration, before anything is proved (Section 7).")

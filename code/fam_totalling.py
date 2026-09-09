@@ -23,7 +23,7 @@ DIRW = (r"(?:horizontally|vertically|diagonally|antidiagonally)"
 
 NAME = re.compile(
     r"^(?:T\(n,\s*k\)\s*(?:=|is)?\s*(?:the\s+)?[Nn]umber of|Number of)\s+"
-    r"([nk\d+()X ]+?)\s+(\d+)\.\.(\d+)\s+arrays\s+with\s+some\s+element\s+plus\s+"
+    r"([nk\d+()X ]+?)\s+(?:(\d+)\.\.(\d+)|binary)\s+arrays\s+with\s+some\s+element\s+plus\s+"
     r"some\s+(" + DIRW + r")\s+adjacent\s+neighbor\s+totalling\s+"
     r"(\w+)\s+(exactly once|no more than once|not more than once|"
     r"exactly twice|no more than twice|not more than twice)\.?$", re.I)
@@ -40,10 +40,9 @@ def parse(nm):
     if not m:
         return None
     shape, lo, hi, dirw, val, how = m.groups()
-    lo, hi = int(lo), int(hi)
-    if lo != 0:
+    if lo is not None and int(lo) != 0:
         return None
-    q = hi - lo + 1
+    q = (int(hi) - int(lo) + 1) if lo is not None else 2
     v = NUM.get(val.lower()) if not val.isdigit() else int(val)
     if v is None:
         return None

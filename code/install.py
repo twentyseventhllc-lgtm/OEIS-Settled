@@ -108,6 +108,7 @@ def one(job):
         "entry_author": rec.get("author", ""),
         "entry_keywords": rec.get("keywords", ""),
         "method": "transfer-matrix", "family": rec["family"],
+        "divisor": rec.get("divisor", 1),
         "spec": rec["spec"], "W": rec["W"], "q": rec["q"],
         "states_full": rec["nfull"], "states_trim": rec["ntrim"],
         "states_lumped": rec["S"],

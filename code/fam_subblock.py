@@ -67,7 +67,9 @@ STATS = [
 ]
 STAT_RE = [(re.compile(r"^(?:" + p + r")$", re.I), f) for p, f in STATS]
 
-DIRW = {"horizontally": (0, 1), "vertically": (1, 0),
+DIRW = {"horizontal": (0, 1), "vertical": (1, 0),
+        "diagonal": (1, 1), "antidiagonal": (1, -1),
+        "horizontally": (0, 1), "vertically": (1, 0),
         "diagonally": (1, 1), "antidiagonally": (1, -1),
         "antidiagonally ne-to-sw": (1, -1), "ne-to-sw antidiagonally": (1, -1),
         "ne-to-sw": (1, -1), "nw-to-se diagonally": (1, 1)}
@@ -99,11 +101,26 @@ def pool(meta, conj):
     return sorted(a for a in conj if _POOL.search(meta[a][0]))
 
 
+CELL = {"x11": 0, "x12": 1, "x21": 2, "x22": 3}
+
+
 def _stat(s):
     s = s.strip().lower()
     for rx, f in STAT_RE:
         if rx.match(s):
             return f, s
+    m = re.fullmatch(r"(x1[12]|x2[12])\s*-\s*(x1[12]|x2[12])", s)
+    if m:
+        i, j = CELL[m.group(1)], CELL[m.group(2)]
+        return (lambda v, i=i, j=j: v[i] - v[j]), s
+    m = re.fullmatch(r"(.+?)\s+(minus|plus)\s+(.+)", s)
+    if m:
+        f1, n1 = _stat(m.group(1))
+        f2, n2 = _stat(m.group(3))
+        if f1 and f2:
+            if m.group(2) == "minus":
+                return (lambda v, f1=f1, f2=f2: f1(v) - f2(v)), s
+            return (lambda v, f1=f1, f2=f2: f1(v) + f2(v)), s
     return None, None
 
 
@@ -118,7 +135,8 @@ def _dirs(s):
     out = []
     for w in re.findall(r"horizontally|vertically|"
                         r"ne-to-sw antidiagonally|antidiagonally ne-to-sw|"
-                        r"nw-to-se diagonally|diagonally|antidiagonally",
+                        r"nw-to-se diagonally|diagonally|antidiagonally|"
+                        r"horizontal|vertical|diagonal|antidiagonal",
                         s, re.I):
         out.append(DIRW[w.lower()])
     return sorted(set(out)) or None
@@ -136,7 +154,7 @@ def _pred(body, q):
             return {"type": "monotone", "stat": name, "how": m.group(2).lower(),
                     "dirs": [list(x) for x in d]}
         return None
-    m = re.match(r"^(.*?)\s+(equal|unequal)\s+to\s+its\s+neighbors?\s+(.*)$",
+    m = re.match(r"^(.*?)\s+(equal|unequal)\s+to\s+its\s+neighbou?rs?\s+(.*)$",
                  b, re.I)
     if m:
         f, name = _stat(m.group(1))
@@ -145,15 +163,38 @@ def _pred(body, q):
             return {"type": "neighbour", "stat": name,
                     "how": m.group(2).lower(), "dirs": [list(x) for x in d]}
         return None
+    m = re.match(r"^(.*?)\s+(equal|unequal)\s+to\s+(?:any|every|each|its)\s+"
+                 r"(.*?)\s+neighbou?r\s+\d\s*X\s*\d\s+subblock\s+(.*)$",
+                 b, re.I)
+    if m:
+        f, name = _stat(m.group(1))
+        g, gname = _stat(m.group(4))
+        d = _dirs(m.group(3))
+        if f and g and d and name == gname:
+            return {"type": "neighbour", "stat": name,
+                    "how": m.group(2).lower(), "dirs": [list(x) for x in d]}
+        return None
+    if re.fullmatch(r"equal diagonal elements or equal antidiagonal elements",
+                    b, re.I):
+        return {"type": "diagoreq"}
     m = re.match(r"^summing\s+to\s+(.*)$", b, re.I)
     if m:
         rest = m.group(1).strip()
         if rest == "a prime":
             return {"type": "prime", "stat": "sum"}
+        rel = "equal to"
+        rm = re.match(r"^(more than|less than|no more than|no less than|"
+                      r"at least|at most)\s+(.*)$", rest, re.I)
+        if rm:
+            rel = {"more than": "greater than", "less than": "less than",
+                   "no more than": "no larger than",
+                   "no less than": "no smaller than",
+                   "at least": "no smaller than",
+                   "at most": "no larger than"}[rm.group(1).lower()]
+            rest = rm.group(2).strip()
         v = _vals(rest)
-        if v is not None:
-            return {"type": "value", "stat": "sum", "rel": "equal to",
-                    "values": v}
+        if v is not None and not re.search(r"[a-z]", rest):
+            return {"type": "value", "stat": "sum", "rel": rel, "values": v}
         return None
     for r in sorted(REL, key=len, reverse=True):
         m = re.match(r"^(.*?)\s+" + re.escape(r) + r"\s+(.*)$", b, re.I)
@@ -185,10 +226,9 @@ def parse(nm):
     if lo is not None and int(lo) != 0:
         return None
     mods = {"noadj": False, "canon": False}
-    parts = re.split(r",\s*(?:and\s+)?", body)
-    core, extra = parts[0], parts[1:]
-    for e in extra:
-        e = e.strip().rstrip(".")
+    parts = [x.strip().rstrip(".") for x in re.split(r",\s*(?:and\s+)?", body)]
+    while len(parts) > 1:
+        e = parts[-1]
         hit = False
         for rx, key in MODS:
             mm = re.fullmatch(rx, e, re.I)
@@ -200,7 +240,9 @@ def parse(nm):
                 hit = True
                 break
         if not hit:
-            return None
+            break
+        parts.pop()
+    core = ", ".join(parts)
     p = _pred(core, q)
     if p is None:
         return None
@@ -221,6 +263,8 @@ def jsonspec(s):
 
 
 def _statf(name):
+    if name == "__diagoreq__":
+        return None
     for rx, f in STAT_RE:
         if rx.match(name):
             return f
@@ -243,7 +287,7 @@ def model(spec, W=None):
     q = spec["q"]
     p = spec["pred"]
     mods = spec["mods"]
-    f = _statf(p["stat"])
+    f = _statf(p["stat"]) if p["type"] != "diagoreq" else None
     neg = p.get("negated", False)
     rows = [tuple(r) for r in itertools.product(range(q), repeat=W)]
 
@@ -259,6 +303,12 @@ def model(spec, W=None):
             for j in range(W - 1):
                 if r[j] == r[j + 1]:
                     return False
+        if p["type"] == "diagoreq":
+            for B in blocks(r, s):
+                hit = (B[0] == B[3]) or (B[1] == B[2])
+                if hit == neg:
+                    return False
+            return True
         vals = [f(B) for B in blocks(r, s)]
         if p["type"] == "value":
             rel = REL[p["rel"]]
@@ -335,7 +385,7 @@ def whole_ok_for(spec, W=None):
     W = W if W is not None else spec["W"]
     p = spec["pred"]
     mods = spec["mods"]
-    f = _statf(p["stat"])
+    f = _statf(p["stat"]) if p["type"] != "diagoreq" else None
     neg = p.get("negated", False)
 
     def whole_ok(A):
@@ -356,6 +406,13 @@ def whole_ok_for(spec, W=None):
                         return False
                     if j + 1 < W and A[i][j] == A[i][j + 1]:
                         return False
+        if p["type"] == "diagoreq":
+            for i in range(n - 1):
+                for j in range(W - 1):
+                    B = (A[i][j], A[i][j + 1], A[i + 1][j], A[i + 1][j + 1])
+                    if ((B[0] == B[3]) or (B[1] == B[2])) == neg:
+                        return False
+            return True
         val = {}
         for i in range(n - 1):
             for j in range(W - 1):
@@ -396,8 +453,13 @@ def object_section(P, rec, paper):
           f"$0 \\le j < {W-1}$ write $B_{{i,j}}$ for the $2\\times2$ subblock "
           f"with entries $a = A[i][j]$, $b = A[i][j{{+}}1]$, $c = A[i{{+}}1][j]$, "
           f"$d = A[i{{+}}1][j{{+}}1]$.")
-    P.par("The statistic the entry names, {\\itshape " + paper.esc(p["stat"])
-          + "}, is written $s(B)$ below.")
+    if p["type"] == "diagoreq":
+        P.par(("No" if p["negated"] else "Every") + " subblock has $a = d$ or "
+              "$b = c$ --- equal diagonal elements or equal antidiagonal "
+              "elements.")
+    else:
+        P.par("The statistic the entry names, {\\itshape "
+              + paper.esc(p["stat"]) + "}, is written $s(B)$ below.")
     if p["type"] == "value":
         vs = ", ".join(str(x) for x in p["values"])
         P.par(("No subblock may have" if p["negated"] else "Every subblock has")

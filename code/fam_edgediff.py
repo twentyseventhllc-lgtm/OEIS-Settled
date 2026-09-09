@@ -16,7 +16,7 @@ REACH = (0, 1)
 NAME = re.compile(
     r"^(?:T\(n,\s*k\)\s*(?:=|is)?\s*(?:the\s+)?[Nn]umber of|Number of)\s+"
     r"([nk\d+()X ]+?)\s+(\d+)\.\.(\d+)\s+arrays\s+with\s+(?:every|each)\s+"
-    r"2\s*X\s*2\s+subblock\s+having\s+(the sum of\s+)?the\s+absolute\s+values\s+"
+    r"2\s*X\s*2\s+subblock\s+having\s+(the sum of\s+)?the\s+(absolute values|squares)\s+"
     r"of\s+all\s+six\s+edge\s+and\s+diagonal\s+differences\s+"
     r"(equal to|no larger than|no smaller than|less than|greater than)\s+"
     r"(\d+)\.?$", re.I)
@@ -32,7 +32,7 @@ def parse(nm):
     m = NAME.match(re.sub(r"\s+", " ", nm.strip()))
     if not m:
         return None
-    shape, lo, hi, summed, rel, v = m.groups()
+    shape, lo, hi, summed, kindw, rel, v = m.groups()
     lo, hi = int(lo), int(hi)
     if lo != 0:
         return None
@@ -40,6 +40,7 @@ def parse(nm):
     if kind is None:
         return None
     return {"kind": kind, "W": W, "q": hi - lo + 1, "summed": bool(summed),
+            "square": kindw.lower() == "squares",
             "rel": rel.lower(), "value": int(v), "transposed": trans,
             "rowoff": rowoff, "shape": shape}
 
@@ -61,10 +62,12 @@ def make(spec, W=None):
     q = spec["q"]
     t = _test(spec["rel"], spec["value"])
     summed = spec["summed"]
+    sq = spec.get("square", False)
 
     def blockok(r, s, j):
         v = (r[j], r[j + 1], s[j], s[j + 1])
-        ds = [abs(v[a] - v[b]) for a in range(4) for b in range(a + 1, 4)]
+        ds = [(v[a] - v[b]) ** 2 if sq else abs(v[a] - v[b])
+              for a in range(4) for b in range(a + 1, 4)]
         return t(sum(ds)) if summed else all(t(d) for d in ds)
 
     def valid(above, row, below):
@@ -96,7 +99,8 @@ def object_section(P, rec, paper):
              "subblock and the six differences are the same six."))
     P.par(r"A $2\times2$ subblock has four entries, hence six pairs: its four "
           r"edges and its two diagonals. Write $d_1,\dots,d_6$ for the "
-          r"absolute differences of those six pairs.")
+          + ("squares of the differences" if sp.get("square")
+             else "absolute differences") + r" of those six pairs.")
     rel = sp["rel"]
     if sp["summed"]:
         P.par(f"The condition is that $d_1+\\cdots+d_6$ is {rel} "

@@ -25,12 +25,12 @@ This repository runs it.
 ## Running the verifier
 
 ```bash
-git clone https://github.com/oeis/oeisdata.git      # the OEIS corpus, ~3 GB
-OEIS_SEQ=$PWD/oeisdata/seq python3 verify.py
+python3 verify.py
 ```
 
-`verify.py` trusts nothing in `results.json` except the entry's name, its offset and
-its published terms. For each record it rebuilds the model from the name, recounts,
+Nothing else is needed: no corpus, no network, no dependencies beyond the Python standard
+library. `verify.py` trusts nothing in `results.json` except the entry's name, its offset
+and its published terms --- the three things a reader can check against the OEIS by eye. For each record it rebuilds the model from the name, recounts,
 re-runs an independent enumeration, re-parses the conjecture from the entry's own
 line, and re-runs the annihilation test in exact integer arithmetic. It prints how
 many pass.

@@ -8,6 +8,8 @@ reads a saved candidate list.
 import sys, os, json, time, pickle, importlib, argparse, re
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import recur, automaton, gf, claims as CL
+from shapes import strip_scale
+from fractions import Fraction
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "..", "data")
@@ -36,8 +38,10 @@ def candidates(entry_conj):
 
 def settle(fam, anum, meta, terms, cj, cap=3_000_000, margin=6, rowcap=8192):
     nm, off, kw, au, mod, nt, rev = meta
-    rec = {"anum": anum, "name": nm, "offset": off, "family": fam.FAMILY}
-    spec = fam.parse(nm)
+    divisor, nm2 = strip_scale(nm)
+    rec = {"anum": anum, "name": nm, "offset": off, "family": fam.FAMILY,
+           "divisor": divisor}
+    spec = fam.parse(nm2)
     if spec is None:
         return dict(rec, status="refused", reason="name not parsed")
     if spec.get("kind") != "seq":
@@ -82,10 +86,12 @@ def settle(fam, anum, meta, terms, cj, cap=3_000_000, margin=6, rowcap=8192):
     hi = off + len(T) + rowoff + S + Dmax + 40
     A = m.counts_from_zero(hi) if hasattr(m, "counts_from_zero") \
         else [1] + m.counts(hi)     # A[r] = number of objects of size r
+    if divisor != 1:
+        A = [Fraction(x, divisor) for x in A]
     if off + len(T) - 1 + rowoff >= len(A):
         return dict(rec, status="refused", reason="index range out of model")
     got = [A[off + i + rowoff] for i in range(len(T))]
-    if got != T:
+    if got != [Fraction(x) for x in T]:
         k = next(i for i in range(len(T)) if got[i] != T[i])
         return dict(rec, status="refused", reason="model does not reproduce data",
                     first_bad=k, model=str(got[k]), published=str(T[k]))
@@ -95,7 +101,7 @@ def settle(fam, anum, meta, terms, cj, cap=3_000_000, margin=6, rowcap=8192):
             and n <= len(T) + rowoff:
         bf.append(automaton.brute(n, W, q, whole_ok))
         n += 1
-    if bf and bf != A[1:len(bf) + 1]:
+    if bf and [Fraction(x, divisor) for x in bf] != A[1:len(bf) + 1]:
         return dict(rec, status="refused", reason="brute force disagrees with model",
                     brute=[str(x) for x in bf],
                     model=[str(x) for x in A[1:len(bf) + 1]])

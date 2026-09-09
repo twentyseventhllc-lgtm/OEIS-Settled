@@ -3,6 +3,8 @@
 import sys, os, json, time, pickle, argparse, importlib, re
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import corpus, recur, gf, automaton, table, claims as CL
+from shapes import strip_scale
+from fractions import Fraction
 from shapes import parse_table_shape
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -30,7 +32,9 @@ def settle(fam, anum, meta, terms, e, cap=3_000_000, rowcap=8192, margin=6):
     nm, off, kw, au, mod, nt, rev = meta
     rec = {"anum": anum, "name": nm, "offset": off, "family": fam.FAMILY,
            "table": True}
-    spec = fam.parse(nm)
+    divisor, nm2 = strip_scale(nm)
+    rec["divisor"] = divisor
+    spec = fam.parse(nm2)
     if spec is None or spec.get("kind") != "table":
         return dict(rec, status="refused", reason="not a table of this family")
     rowoff, coloff = parse_table_shape(spec["shape"])
@@ -100,6 +104,8 @@ def settle(fam, anum, meta, terms, e, cap=3_000_000, rowcap=8192, margin=6):
         need = hiN + ro + m.S + D + 40
         A = m.counts_from_zero(need) if hasattr(m, "counts_from_zero") \
             else [1] + m.counts(need)
+        if divisor != 1:
+            A = [Fraction(x, divisor) for x in A]
         bad = [i for i, v in data if A[i + ro] != v]
         if bad:
             reasons["model does not reproduce the published table"] = \

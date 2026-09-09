@@ -1,0 +1,109 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\setlength{\parskip}{2pt}
+\title{Proofs of the conjectured column and row recurrences for OEIS A300115}
+\author{Adrian Perez Fontelles, Independent researcher}
+\date{09 September 2026}
+\begin{document}
+\maketitle
+\section{The conjectures}
+
+The Online Encyclopedia of Integer Sequences records \href{https://oeis.org/A300115}{A300115} as
+
+\begin{quote}\itshape T(n,k)=Number of nXk 0..1 arrays with every element equal to 1, 2, 4, 5, 6, 7 or 8 king-move adjacent elements, with upper left element zero\end{quote}
+
+a table read by upward antidiagonals, and carries in its Formula section the following empirical lines, none of them proved there:
+
+\begin{quote}\ttfamily Empirical for column k:\\
+k=1: a(n) = a(n-1) +a(n-2)\\k=2: a(n) = 2*a(n-1) -a(n-2) +4*a(n-3) -4*a(n-4) for n>5\end{quote}
+
+The lines carry no separate signature; the entry itself is by R. H. Hardin (Feb 25 2018). As of revision 4, last modified Feb 25 2018, the entry records no proof of any of them and links to none. This note proves the 2 column recurrences listed above.
+
+The entry also carries further lines of the same blocks that this note does not settle; they are named in Section 6.
+
+\section{The object, and what a column and a row are}
+
+The array condition is the same for every width; it is written out here for width $2$, which is one of the widths this note uses.
+
+Let $q = 2$ and let $A$ be an $n \times 2$ array with entries in $\{0,1,\dots,1\}$, rows indexed $0 \le i < n$ and columns $0 \le j < 2$.
+
+The neighbour set the entry names by {\itshape king-move} is
+
+\[\mathcal{N} \;=\; \{(-1,-1), (-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0), (1,1)\}.\]
+
+For a cell $(i,j)$ of the array put
+
+\[c(i,j) \;=\; \#\bigl\{(\delta,\varepsilon)\in\mathcal{N} \;:\; 0\le i+\delta<n,\ 0\le j+\varepsilon<2,\ A[i+\delta][j+\varepsilon] = A[i][j]\bigr\},\]
+
+the number of neighbours of the cell whose value is equal to the cell's own. Offsets that leave the array are not counted, so cells on the border have fewer neighbours than interior ones --- which is what makes the two readings of the entry's wording distinguishable on the entry's own data.
+
+The condition is $c(i,j) \in \{1, 2, 4, 5, 6, 7, 8\}$ for every cell of the array, together with $A[0][0]=0$.
+
+$T(n,k)$ is the number of such arrays with $n + 0$ rows and $k + 0$ columns. Column $k = K$ is therefore the sequence $n \mapsto T(n,K)$, an array count of fixed width $K + 0$; row $n = N$ is the sequence $k \mapsto T(N,k)$, which is the same count with the roles of the two directions exchanged --- an array count of fixed width $N + 0$ read across.
+
+The entry publishes its table by upward antidiagonals, so every published term is a value $T(n,k)$ with both indices known. All 60 of them are used as the data gate below: the models are required to reproduce the whole published triangle, not merely the column or row a given line is about.
+
+\section{Each column and each row is a walk count}
+
+Fix the width. The condition on a cell reaches at most one row up and one row down, so a window of three consecutive rows decides the whole of its middle row, and an array of $n$ rows is exactly a walk of length $n-1$ in the digraph whose states are pairs of consecutive rows, starting at a state with no row above and ending at an accepting one. With $M$ its adjacency matrix, $w$ the indicator of the starting states and $f$ of the accepting ones, the count is $w^{\mathsf T}M^{\,n-1}f$, hence C-finite.
+
+States from which the same number of arrays can be completed, for every remaining number of rows, are identified by partition refinement: begin with the partition by acceptance and separate two states as soon as they send different numbers of edges into some block. On the blocks of the result the number of completions of each length is constant, so the quotient counts exactly what the original does; the mirror refinement, on the edges coming in rather than going out, is then applied in the same way. Writing $L$ for the resulting matrix and $S$ for its size, the sequence satisfies the linear recurrence given by the characteristic polynomial of $L$, of degree $S$. That is the degree bound used below, and it is computed separately for every line, never assumed.
+
+For a claimed recurrence with characteristic polynomial $q$, the residual $u_m = \tilde w^{\mathsf T}L^{\,m-1}q(L)\tilde f$ is exactly the residual of the claim at one index and itself satisfies the characteristic polynomial of $L$. So $S$ consecutive vanishing residuals force every later one, the test is finite, and the last nonvanishing residual pins the threshold exactly.
+
+\section{Results}
+
+\begin{theorem} For column $k = 1$ of A300115, the recurrence $a(n) = a(n-1) + a(n-2)$ holds for every $n \ge 3$, at every index at which it can be stated.\end{theorem}
+
+{\itshape Proof.} The width is $1$; the digraph has $6$ states, $5$ after trimming, and $S = 2$ blocks after refinement. The model reproduces every published value of column $k = 1$ --- and of the rest of the triangle. The residuals were computed exactly and all of them vanish; after that point more than $S = 2$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+\begin{theorem} For column $k = 2$ of A300115, the recurrence $a(n) = 2\,a(n-1) - a(n-2) + 4\,a(n-3) - 4\,a(n-4)$ holds for every $n > 5$, and fails at $n = 5$.\end{theorem}
+
+{\itshape Proof.} The width is $2$; the digraph has $20$ states, $18$ after trimming, and $S = 6$ blocks after refinement. The model reproduces every published value of column $k = 2$ --- and of the rest of the triangle. The residuals were computed exactly and the last nonvanishing one is at $n = 5$; after that point more than $S = 6$ consecutive residuals vanish, so by Section 3 every later one vanishes too. $\square$
+
+The entry states this line for $n > 5$; the proved threshold is $n > 5$.
+
+\section{What is not settled here}
+
+The same blocks carry further lines that this note leaves open, with the reason for each:
+
+\begin{itemize}
+
+\item 2 lines: the entry gives only the order of the recurrence and refers to a linked file for its coefficients, so there is no stated recurrence to test
+
+\end{itemize}
+
+\section{Verification}
+
+\begin{itemize}
+
+\item {\bfseries The published table.} Every one of the 60 values $T(n,k)$ the entry publishes was recomputed from the models and agrees exactly, in integer arithmetic, with the indices read off the entry's offset (1) and its stated shape.
+
+\item {\bfseries The claims on the raw data.} Each recurrence was evaluated on the entry's published values alone, with no model involved, wherever the proved range and the published data overlap.
+
+\item {\bfseries The annihilation test.} Carried to the derived bound for each line separately, over the whole vector, in exact integer arithmetic.
+
+\end{itemize}
+
+\section{References}
+
+\begin{enumerate}
+
+\item OEIS Foundation Inc., \emph{The On-Line Encyclopedia of Integer Sequences}, entry \href{https://oeis.org/A300115}{A300115}, revision 4, last modified Feb 25 2018.
+
+\item R. P. Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge University Press, 2012; \S4.7.
+
+\item J. Berstel and C. Reutenauer, \emph{Noncommutative Rational Series with Applications}, Cambridge University Press, 2011.
+
+\end{enumerate}
+\end{document}
