@@ -80,8 +80,14 @@ def build(tex, outdir, stem, keep_tex_dir=None):
     os.makedirs(os.path.dirname(src), exist_ok=True)
     with open(src, "w") as fh:
         fh.write(tex)
-    r = subprocess.run(["tectonic", "-X", "compile", "--only-cached", src,
-                        "--outdir", outdir, "-Z", "continue-on-errors"],
-                       capture_output=True, text=True, timeout=180)
     pdf = os.path.join(outdir, stem + ".pdf")
+    if os.path.exists(pdf):
+        os.remove(pdf)
+    cmd = ["tectonic", "-X", "compile", src, "--outdir", outdir,
+           "-Z", "continue-on-errors"]
+    r = subprocess.run(cmd[:4] + ["--only-cached"] + cmd[4:],
+                       capture_output=True, text=True, timeout=300)
+    if not os.path.exists(pdf):
+        # something the offline cache did not have: allow one online attempt
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
     return os.path.exists(pdf), r.stderr[-800:] if not os.path.exists(pdf) else ""

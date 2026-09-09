@@ -160,3 +160,43 @@ def _fmtlist(xs):
     if len(xs) == 1:
         return xs[0]
     return ", ".join(xs[:-1]) + " or " + xs[-1]
+
+
+def object_section(P, rec, paper):
+    sp, W, q = rec["spec"], rec["W"], rec["q"]
+    dl = ", ".join("(%d,%d)" % tuple(x) for x in sp["dirs"])
+    P.par(f"Let $q = {q}$ and let $A$ be an $n \\times {W}$ array with entries "
+          f"in $\\{{0,1,\\dots,{q-1}\\}}$, rows indexed $0 \\le i < n$ and "
+          f"columns $0 \\le j < {W}$."
+          + ("" if not sp["transposed"] else
+             " The entry writes the array with its number of rows fixed and "
+             "its number of columns growing; it is transposed here so that the "
+             "growing direction is downwards, and the neighbour offsets below "
+             "are transposed with it."))
+    P.par(f"The neighbour set the entry names by "
+          f"{{\\itshape {paper.esc(sp['dirname'])}}} is")
+    P.display(r"\mathcal{N} \;=\; \{" + dl + r"\}.")
+    rel = "=" if sp["eq"] else r"\neq"
+    P.par("For a cell $(i,j)$ of the array put")
+    P.display(r"c(i,j) \;=\; \#\bigl\{(\delta,\varepsilon)\in\mathcal{N} \;:\; "
+              r"0\le i+\delta<n,\ 0\le j+\varepsilon<" + str(W) +
+              r",\ A[i+\delta][j+\varepsilon] " + rel + r" A[i][j]\bigr\},")
+    P.par("the number of neighbours of the cell whose value is "
+          + ("equal to" if sp["eq"] else "unequal to") +
+          " the cell's own. Offsets that leave the array are not counted, so "
+          "cells on the border have fewer neighbours than interior ones --- "
+          "which is what makes the two readings of the entry's wording "
+          "distinguishable on the entry's own data.")
+    cs = ", ".join(str(x) for x in sp["counts"])
+    P.par(f"The condition is $c(i,j) \\in \\{{{cs}\\}}$ for every cell of the "
+          f"array, together with $A[0][0]=0$.")
+
+
+def window_reason():
+    return ("Every offset in $\\mathcal{N}$ moves at most one row, so whether "
+            "a cell $(i,j)$ satisfies its condition is decided by rows $i-1$, "
+            "$i$ and $i+1$ alone.")
+
+
+def start_condition():
+    return r"with $r_1[0]=0$ "

@@ -7,7 +7,7 @@ reads a saved candidate list.
 """
 import sys, os, json, time, pickle, importlib, argparse, re
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import recur, automaton
+import recur, automaton, gf
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "..", "data")
@@ -19,13 +19,31 @@ def load_index():
 
 
 def candidates(entry_conj):
+    """Every conjectural line that states a linear recurrence, either
+    directly or as the denominator of a rational generating function."""
     out = []
     seen = set()
     for f, i, ln in entry_conj:
         r = recur.parse_recurrence(ln)
-        if r and tuple(r[0]) not in seen:
+        if r:
+            if tuple(r[0]) in seen:
+                continue
             seen.add(tuple(r[0]))
-            out.append((f, i, ln, r))
+            out.append({"field": f, "idx": i, "line": ln, "kind": "recurrence",
+                        "coeffs": r[0], "nmin": r[1]})
+            continue
+        g = gf.parse_gf(ln)
+        if g:
+            c = gf.recurrence_from_den(g[1])
+            if not c:
+                continue
+            key = ("gf",) + tuple(g[0]) + (None,) + tuple(g[1])
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append({"field": f, "idx": i, "line": ln, "kind": "gf",
+                        "coeffs": c, "nmin": None,
+                        "num": g[0], "den": g[1]})
     return out
 
 
@@ -54,51 +72,85 @@ def settle(fam, anum, meta, terms, cj, cap=3_000_000, margin=6, rowcap=8192):
         return dict(rec, status="refused", reason=str(e))
     build_t = time.time() - t0
     S = m.S
-    need = len(T) + off + 4
-    a = m.counts(need)
-    got = [a[off + i - 1] for i in range(len(T))]
+    rowoff = spec.get("rowoff", 0)
+    Dmax = max(len(cd["coeffs"]) for cd in cands)
+    hi = off + len(T) + rowoff + S + Dmax + 40
+    A = [1] + m.counts(hi)          # A[r] = number of arrays with r rows
+    if off + len(T) - 1 + rowoff >= len(A):
+        return dict(rec, status="refused", reason="index range out of model")
+    got = [A[off + i + rowoff] for i in range(len(T))]
     if got != T:
         k = next(i for i in range(len(T)) if got[i] != T[i])
         return dict(rec, status="refused", reason="model does not reproduce data",
                     first_bad=k, model=str(got[k]), published=str(T[k]))
-    # independent count, written against the finished array
     bf = []
     n = 1
-    while q ** (W * n) <= BRUTE_BUDGET and n <= len(T):
+    while q ** (W * n) <= BRUTE_BUDGET and n <= len(T) + rowoff:
         bf.append(automaton.brute(n, W, q, whole_ok))
         n += 1
-    if bf and bf != a[:len(bf)]:
+    if bf and bf != A[1:len(bf) + 1]:
         return dict(rec, status="refused", reason="brute force disagrees with model",
-                    brute=[str(x) for x in bf], model=[str(x) for x in a[:len(bf)]])
+                    brute=[str(x) for x in bf],
+                    model=[str(x) for x in A[1:len(bf) + 1]])
     out = []
-    for f, i, ln, (coeffs, nmin, body) in cands:
+    for cd in cands:
+        coeffs, nmin = cd["coeffs"], cd["nmin"]
         D = len(coeffs)
-        N = S + D + len(T) + margin
-        u = m.residuals(coeffs, N)
-        last = 0
-        for j in range(len(u) - 1, -1, -1):
-            if u[j] != 0:
-                last = j + 1
+        # residual of the claim at index n, using the model's own counts
+        nlo = max(off + D, D + 1 - rowoff)      # smallest n the test covers
+        nhi = len(A) - 1 - rowoff
+        res = {}
+        for nn in range(nlo, nhi + 1):
+            res[nn] = A[nn + rowoff] - sum(c * A[nn + rowoff - i]
+                                           for i, c in enumerate(coeffs, 1))
+        cl = dict(cd, order=D, S=S)
+        last = None
+        for nn in sorted(res, reverse=True):
+            if res[nn] != 0:
+                last = nn
                 break
-        if last > len(u) - S:
-            out.append({"line": ln, "field": f, "idx": i,
-                        "coeffs": coeffs, "nmin": nmin, "order": D,
-                        "status": "inconclusive",
-                        "reason": "residuals nonzero inside the bound"})
+        tail = nhi - (last if last is not None else nlo - 1)
+        if tail < S:
+            cl.update(status="inconclusive",
+                      reason="residuals nonzero inside the derived bound")
+            out.append(cl)
             continue
-        thresh_n = last + D + off - 1
-        first_n = D + off
-        out.append({"line": ln, "field": f, "idx": i, "coeffs": coeffs,
-                    "nmin": nmin, "order": D, "threshold": thresh_n,
-                    "first_meaningful_n": first_n,
-                    "holds_everywhere": thresh_n < first_n,
-                    "status": "proved", "S": S})
+        thresh_n = last if last is not None else off + D - 1
+        first_n = off + D
+        cl.update(threshold=thresh_n, first_meaningful_n=first_n,
+                  holds_everywhere=thresh_n < first_n, status="proved",
+                  residuals_checked=nhi)
+        if cd["kind"] == "gf":
+            K = max(len(cd["num"]), thresh_n + len(cd["den"])) + 2
+            if K + off + rowoff >= len(A):
+                cl.update(status="inconclusive", reason="g.f. check out of range")
+                out.append(cl)
+                continue
+            ser = gf.series(cd["num"], cd["den"], K)
+            hit = None
+            for shift in range(0, 4):
+                seq = [(A[k - shift + off + rowoff] if k >= shift else 0)
+                       for k in range(K)]
+                if seq == ser[:K]:
+                    hit = shift
+                    break
+            if hit is None:
+                seq = [(A[k + rowoff] if k >= off else 0) for k in range(K)]
+                bad = next(i for i in range(K) if seq[i] != ser[i])
+                cl.update(status="inconclusive",
+                          reason=f"g.f. series differs from the count at x^{bad}")
+            else:
+                cl["gf_checked_to"] = K
+                cl["gf_shift"] = hit
+        out.append(cl)
     return dict(rec, status="done", S=S, nfull=m.nfull, ntrim=m.ntrim,
+                rowoff=rowoff,
                 W=W, q=q, spec=fam.jsonspec(spec),
                 brute_checked=len(bf),
                 build_seconds=round(build_t, 2), claims=out,
                 nterms=len(T), modified=mod, author=au, keywords=kw,
-                revision=rev, terms=[str(x) for x in T[:12]])
+                revision=rev, terms=[str(x) for x in T[:12]],
+                all_terms=[str(x) for x in T])
 
 
 def run(famname, out, limit=0, start=0, only=None, cap=3_000_000, rowcap=8192,
