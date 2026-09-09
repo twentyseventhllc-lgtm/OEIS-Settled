@@ -46,7 +46,7 @@ CORE = re.compile(
     r"(" + NUMRE + r"(?:\s*,\s*" + NUMRE + r")*(?:\s+or\s+" + NUMRE + r")?))"
     r"\s+(?:of\s+its\s+)?(.+?)\s+neighbou?rs?$", re.I)
 
-_POOL = re.compile(r"element equal to .{0,40}neighbou?rs?")
+_POOL = re.compile(r"element equal to .{0,140}neighbou?rs?")
 
 
 def pool(meta, conj):

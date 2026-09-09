@@ -31,9 +31,11 @@ NAME = re.compile(
     r"^(?:[A-Za-z ]+ maps:\s*)?(?:T\(n,\s*k\)\s*(?:=|is)?\s*(?:the\s+)?)?"
     r"[Nn]umber of\s+([nk\d+()X ]+?)\s+binary\s+arrays\s+indicating\s+the\s+"
     r"locations\s+of\s+corresponding\s+elements\s+"
-    r"(not exceeded by|exceeded by|not equal to|equal to|"
+    r"(?:(not exceeded by|exceeded by|not equal to|equal to|"
     r"not less than|less than|not greater than|greater than)\s+"
-    r"(any|some|all|no)\s+(" + DIRW + r")\s+neighbou?rs?\s+in\s+a\s+random\s+"
+    r"(any|some|all|no)|equal to (exactly|at least|at most) "
+    r"(\w+) of their|equal to the (sum) mod (\d+) of their)\s+"
+    r"(?:their\s+)?(" + DIRW + r")\s+neighbou?rs?\s+in\s+a\s+random\s+"
     r"(\d+)\.\.(\d+)\s+[nk\d+()X ]+?\s*array\.?$", re.I)
 
 _POOL = re.compile(r"indicating the locations of corresponding elements")
@@ -47,7 +49,7 @@ def parse(nm):
     m = NAME.match(re.sub(r"\s+", " ", nm.strip()))
     if not m:
         return None
-    shape, rel, quant, dirw, lo, hi = m.groups()
+    shape, rel, quant, howrel, hownum, summ, mod, dirw, lo, hi = m.groups()
     lo, hi = int(lo), int(hi)
     if lo != 0:
         return None
@@ -65,10 +67,24 @@ def parse(nm):
         return None
     if trans:
         dirs = sorted({(b, a) for a, b in dirs})
-    return {"kind": kind, "W": W, "q": q, "rel": rel.lower(),
-            "quant": quant.lower(), "dirs": [list(d) for d in dirs],
-            "dirname": dirw, "transposed": trans, "rowoff": rowoff,
-            "shape": shape}
+    NUMW = {"zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
+            "six": 6, "seven": 7, "eight": 8, "half": None}
+    if rel:
+        mode = {"mode": "rel", "rel": rel.lower(), "quant": quant.lower()}
+    elif summ:
+        mode = {"mode": "summod", "mod": int(mod)}
+    else:
+        n = NUMW.get(hownum.lower())
+        if n is None and hownum.isdigit():
+            n = int(hownum)
+        if n is None:
+            return None
+        mode = {"mode": "count", "how": howrel.lower(), "n": n}
+    d = {"kind": kind, "W": W, "q": q, "dirs": [list(x) for x in dirs],
+         "dirname": dirw, "transposed": trans, "rowoff": rowoff,
+         "shape": shape}
+    d.update(mode)
+    return d
 
 
 def jsonspec(s):
@@ -86,8 +102,7 @@ REL = {"not exceeded by": lambda x, v: not (v > x),
 
 
 def _indicator(spec, W, above, row, below):
-    rel = REL[spec["rel"]]
-    quant = spec["quant"]
+    mode = spec.get("mode", "rel")
     dirs = [tuple(d) for d in spec["dirs"]]
     out = []
     for j in range(W):
@@ -101,12 +116,26 @@ def _indicator(spec, W, above, row, below):
             if r is None or (di == 0 and jj == j):
                 continue
             vals.append(r[jj])
-        if quant in ("any", "all"):
-            b = all(rel(x, v) for v in vals)
-        elif quant == "some":
-            b = any(rel(x, v) for v in vals)
-        else:                                  # "no"
-            b = not any(rel(x, v) for v in vals)
+        if mode == "rel":
+            rel = REL[spec["rel"]]
+            quant = spec["quant"]
+            if quant in ("any", "all"):
+                b = all(rel(x, v) for v in vals)
+            elif quant == "some":
+                b = any(rel(x, v) for v in vals)
+            else:
+                b = not any(rel(x, v) for v in vals)
+        elif mode == "summod":
+            b = (x == sum(vals) % spec["mod"])
+        else:
+            c = sum(1 for v in vals if v == x)
+            how, n = spec["how"], spec["n"]
+            if how == "exactly":
+                b = (c == n)
+            elif how == "at least":
+                b = (c >= n)
+            else:
+                b = (c <= n)
         out.append(1 if b else 0)
     return tuple(out)
 
@@ -209,8 +238,17 @@ def object_section(P, rec, paper):
     P.par("The entry's neighbours, {\\itshape " + paper.esc(sp["dirname"])
           + "}, are the cells at the offsets $\\{" + dl + "\\}$ that lie "
           "inside the array. Define the binary array $\\Phi(A)$ by")
-    P.display(r"\Phi(A)[i][j] = 1 \iff A[i][j] \text{ is " + sp["rel"] + " "
-              + sp["quant"] + r" of its neighbours.}")
+    if sp.get("mode", "rel") == "rel":
+        cond = (r"A[i][j] \text{ is " + sp["rel"] + " " + sp["quant"]
+                + r" of its neighbours}")
+    elif sp["mode"] == "summod":
+        cond = (r"A[i][j] = \Bigl(\sum \text{neighbours}\Bigr) \bmod "
+                + str(sp["mod"]))
+    else:
+        sym = {"exactly": "=", "at least": r"\ge", "at most": r"\le"}[sp["how"]]
+        cond = (r"\#\{\text{neighbours equal to } A[i][j]\} " + sym + " "
+                + str(sp["n"]))
+    P.display(r"\Phi(A)[i][j] = 1 \iff " + cond + ".")
     P.par(r"$a(n)$ is the number of {\itshape distinct} arrays $\Phi(A)$, not "
           r"the number of arrays $A$: it is the size of the image of $\Phi$.")
 
