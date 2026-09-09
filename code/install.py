@@ -101,6 +101,11 @@ def one(job):
                      gf_shift=c.get("gf_shift"))
         if c["kind"] == "polynomial":
             d.update(poly=c["poly"], bound=c.get("bound"))
+        if c["kind"] in ("order", "degree"):
+            d.update(claimed=c["claimed"], minimal=c.get("minimal"),
+                     matches_claim=c.get("matches_claim"),
+                     coeffs_rational=c.get("coeffs_rational"),
+                     bound=c.get("bound"), S=c.get("S"))
         out.append(d)
     return {
         "id": a, "anum": a, "name": rec["name"], "offset": rec["offset"],

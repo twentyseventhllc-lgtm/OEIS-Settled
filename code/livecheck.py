@@ -7,27 +7,29 @@ The corpus this project works from is the OEIS's own daily mirror, so a
 is the finer check, going to oeis.org for a named sample or for the whole
 roster, at a rate that is polite to the server.
 """
-import json, os, sys, time, argparse, subprocess, re
+import json, os, sys, time, argparse, re, urllib.request, urllib.error
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(HERE, "..")
 
 
+UA = "oeis-conjecture-check/1.0 (independent verification; polite rate)"
+
+
 def fetch(anum, tries=3):
+    url = f"https://oeis.org/search?q=id:{anum}&fmt=json"
     for k in range(tries):
-        out = subprocess.run(
-            ["curl", "-sS", "-A", "oeis-conjecture-check/1.0",
-             f"https://oeis.org/search?q=id:{anum}&fmt=json"],
-            capture_output=True, text=True, timeout=60).stdout
         try:
-            d = json.loads(out)
+            req = urllib.request.Request(url, headers={"User-Agent": UA})
+            with urllib.request.urlopen(req, timeout=45) as fh:
+                d = json.loads(fh.read().decode("utf-8", "replace"))
         except Exception:
-            time.sleep(3 * (k + 1))
+            time.sleep(4 * (k + 1))
             continue
         r = d[0] if isinstance(d, list) else (d.get("results") or [None])[0]
         if r:
             return r
-        time.sleep(3 * (k + 1))
+        time.sleep(4 * (k + 1))
     return None
 
 
@@ -49,12 +51,21 @@ def main():
     ap.add_argument("--sleep", type=float, default=1.0)
     ap.add_argument("--out", default=os.path.join(ROOT, "data", "live.jsonl"))
     a = ap.parse_args()
-    recs = json.load(open(os.path.join(ROOT, "results.json")))[a.start:]
+    recs = json.load(open(os.path.join(ROOT, "results.json")))
+    done = set()
+    if os.path.exists(a.out):
+        for ln in open(a.out):
+            try:
+                done.add(json.loads(ln)["anum"])
+            except Exception:
+                pass
+    recs = [r for r in recs if r["anum"] not in done][a.start:]
     if a.limit:
         recs = recs[:a.limit]
     ok = bad = miss = 0
     with open(a.out, "a") as fh:
         for i, rec in enumerate(recs):
+            t0 = time.time()
             r = fetch(rec["anum"])
             if r is None:
                 miss += 1
@@ -78,7 +89,9 @@ def main():
             if (i + 1) % 100 == 0:
                 print(f"  {i+1}/{len(recs)} ok {ok} changed {bad} unreachable {miss}",
                       flush=True)
-            time.sleep(a.sleep)
+            wait = a.sleep - (time.time() - t0)
+            if wait > 0:
+                time.sleep(wait)
     print(f"{ok} unchanged, {bad} with a line no longer present, {miss} unreachable")
 
 

@@ -100,8 +100,9 @@ def settle(fam, anum, meta, terms, e, cap=3_000_000, rowcap=8192, margin=6):
         m, whole_ok, W2, q = got
         idxs = [i for i, _ in data]
         lo, hiN = min(idxs), max(idxs)
-        D = max(len(coeffs), len(cd.get("poly") or []))
-        need = hiN + ro + m.S + D + 40
+        D = max(len(coeffs or []), len(cd.get("poly") or []))
+        extra = 2 * m.S + 24 if cd["kind"] in ("order", "degree") else 0
+        need = hiN + ro + m.S + D + extra + 40
         A = m.counts_from_zero(need) if hasattr(m, "counts_from_zero") \
             else [1] + m.counts(need)
         if divisor != 1:

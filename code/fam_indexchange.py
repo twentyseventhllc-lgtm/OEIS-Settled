@@ -21,7 +21,14 @@ NAME = re.compile(
     r"each\s+element\s+having\s+(directed\s+)?index\s+change\s+"
     r"(\(\+-,\+-\)|\+-\(\.,\.\))?\s*((?:-?\d+,-?\d+[\s,]*|or\s*)+)\.?$", re.I)
 
-_POOL = re.compile(r"index change")
+CITY = re.compile(
+    r"^(?:T\(n,\s*k\)\s*(?:=|is)?\s*(?:the\s+)?[Nn]umber of|Number of)\s+"
+    r"([nk\d+()X ]+?)\s+array\s+permutations\s+with\s+each\s+element\s+moved\s+"
+    r"(?:no more than\s+a\s+city\s+block\s+distance\s+of|by\s+a\s+city\s+block\s+"
+    r"distance\s+of\s+no\s+more\s+than)\s+"
+    r"(\d+|one|two|three|four|five)\.?$", re.I)
+
+_POOL = re.compile(r"index change|city block distance")
 
 
 def pool(meta, conj):
@@ -29,7 +36,26 @@ def pool(meta, conj):
 
 
 def parse(nm):
-    m = NAME.match(re.sub(r"\s+", " ", nm.strip()))
+    nm1 = re.sub(r"\s+", " ", nm.strip())
+    mc = CITY.match(nm1)
+    if mc:
+        shape, dw = mc.groups()
+        d = ({"one": 1, "two": 2, "three": 3, "four": 4,
+              "five": 5}.get(dw.lower()) or (int(dw) if dw.isdigit() else None))
+        if d is None or d > 4:
+            return None
+        disp = sorted({(a, b) for a in range(-d, d + 1)
+                       for b in range(-d, d + 1) if abs(a) + abs(b) <= d})
+        kind, C, trans, rowoff = parse_shape(shape)
+        if kind is None:
+            return None
+        if trans:
+            disp = sorted({(b, a) for a, b in disp})
+        return {"kind": kind, "W": C, "q": None,
+                "disp": [list(x) for x in disp], "directed": False,
+                "sign_mode": "city", "city": d, "transposed": trans,
+                "rowoff": rowoff, "shape": shape, "base": []}
+    m = NAME.match(nm1)
     if not m:
         return None
     shape, directed, sign, offs = m.groups()
@@ -178,6 +204,17 @@ def object_section(P, rec, paper):
           + ("" if not sp["transposed"] else
              " The entry writes the growing direction across; the array is "
              "transposed here and the displacements with it."))
+    if sp["sign_mode"] == "city":
+        P.par(f"The value $v$ has home $(\\lfloor v/{C}\\rfloor,\\ v \\bmod {C})$ "
+              f"in the row-major layout, and the entry requires every element "
+              f"to have moved from its home by a city-block (taxicab) distance "
+              f"of at most ${sp['city']}$, so the allowed displacements are")
+        P.display(r"\mathcal{D} = \{(\delta,\varepsilon) : "
+                  r"|\delta| + |\varepsilon| \le " + str(sp["city"]) + r"\}.")
+        P.par(r"An admissible array is therefore exactly a perfect matching "
+              r"between homes and cells in which every home moves by a "
+              r"displacement in $\mathcal{D}$.")
+        return
     P.par(f"The value $v$ has home $(\\lfloor v/{C}\\rfloor,\\ v \\bmod {C})$ "
           f"in the row-major layout, and the {{\\itshape index change}} of an "
           f"element is the displacement from its home to the cell it occupies. "

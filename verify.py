@@ -22,11 +22,12 @@ Usage:  python3 verify.py [--jobs N] [--limit N] [--only A123456 ...]
                                             OEIS clone in ../oeis/oeisdata
 """
 import os, sys, json, argparse, importlib, time
+os.environ.setdefault("OEIS_TLIMIT", "240")
 from concurrent.futures import ProcessPoolExecutor
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "code"))
-import automaton, recur, gf                                  # noqa: E402
+import automaton, recur, gf, poly, bm                        # noqa: E402
 from shapes import strip_scale                               # noqa: E402
 from fractions import Fraction                               # noqa: E402
 
@@ -56,6 +57,7 @@ FAMILY_MODULE = {
     "subblock-six-differences": "fam_edgediff",
     "subblock-statistic": "fam_subblock",
     "cell-neighbour-count": "fam_cellcount",
+    "consecutive-triple": "fam_triple",
 }
 BRUTE_BUDGET = 200_000
 
@@ -87,8 +89,8 @@ def check_table(rec):
             valid, first_ok, whole_ok, W2, q = fam.make(sp, W=W)
             up, down = (fam.REACHfor(sp) if hasattr(fam, "REACHfor")
                         else getattr(fam, "REACH", (1, 1)))
-            m = automaton.Model(W2, q, valid, first_ok, cap=8_000_000,
-                                up=up, down=down)
+            m = automaton.Model(W2, q, valid, first_ok, cap=3_000_000,
+                                up=up, down=down, trimcap=120_000)
             m.build()
         if m.S != c["S"]:
             return a, False, f"degree bound differs on {c['which']}={c['index']}"
@@ -155,8 +157,8 @@ def check(rec):
     else:
         up, down = (fam.REACHfor(spec) if hasattr(fam, "REACHfor")
                     else getattr(fam, "REACH", (1, 1)))
-        m = automaton.Model(W, q, valid, first_ok, cap=8_000_000,
-                            up=up, down=down)
+        m = automaton.Model(W, q, valid, first_ok, cap=3_000_000,
+                            up=up, down=down, trimcap=120_000)
         m.build()
     S = m.S
     if S != rec["states_lumped"]:
@@ -176,30 +178,98 @@ def check(rec):
             return a, False, f"independent enumeration disagrees at {n} rows"
         n += 1
     for c in rec["claims"]:
+        nhi = len(A) - 1 - rowoff
         if c["kind"] == "recurrence":
             parsed = recur.parse_recurrence(c["line"])
             if parsed is None or parsed[0] != c["coeffs"]:
                 return a, False, "conjecture line does not give the recorded coefficients"
             if parsed[1] != c["nmin_claimed"]:
                 return a, False, "claimed range differs"
+        elif c["kind"] in ("order", "degree"):
+            pass
+        elif c["kind"] == "polynomial":
+            pp = poly.parse_polynomial(c["line"])
+            if pp is None or [list(x) for x in pp] != [list(x) for x in c["poly"]]:
+                return a, False, "line does not give the recorded polynomial"
         else:
             g = gf.parse_gf(c["line"])
             if g is None or list(g[0]) != c["num"] or list(g[1]) != c["den"]:
                 return a, False, "g.f. line does not give the recorded polynomials"
             if gf.recurrence_from_den(g[1]) != c["coeffs"]:
                 return a, False, "g.f. denominator does not give the recorded recurrence"
-        D = len(c["coeffs"])
-        nlo = max(off + D, D + 1 - rowoff)
-        nhi = len(A) - 1 - rowoff
+        if c["kind"] in ("order", "degree"):
+            S2 = max(S, 1)
+            start = max(off, S2 + 1 - rowoff)
+            need = 2 * S2 + 6
+            if start + need > nhi:
+                return a, False, "not enough terms to reach the derived bound"
+            seq = [A[n + rowoff] for n in range(start, start + need)]
+            if c["kind"] == "degree":
+                d0 = bm.minimal_degree(seq, min(S2, 60))
+                if d0 is None or d0 != c["minimal"]:
+                    return a, False, "minimal degree differs"
+                bound = S2 + d0 + 2
+                nlo = max(off, -rowoff)
+                top = nhi - (d0 + 2)
+
+                def resid(nn, d0=d0):
+                    s = Fraction(0)
+                    for k in range(d0 + 2):
+                        s += ((-1) ** (d0 + 1 - k)) * _bin(d0 + 1, k) * \
+                            Fraction(A[nn + k + rowoff])
+                    return s
+            else:
+                co = bm.minimal_recurrence(seq)
+                if co is None or len(co) != c["minimal"]:
+                    return a, False, "minimal order differs"
+                d0 = len(co)
+                bound = S2
+                nlo = max(off + d0, d0 + 1 - rowoff)
+                top = nhi
+
+                def resid(nn, co=co):
+                    return (Fraction(A[nn + rowoff])
+                            - sum(cf * Fraction(A[nn + rowoff - i])
+                                  for i, cf in enumerate(co, 1)))
+            if top - nlo + 1 < bound + 1:
+                return a, False, "not enough terms to reach the derived bound"
+            last = None
+            for nn in range(top, nlo - 1, -1):
+                if resid(nn) != 0:
+                    last = nn
+                    break
+            if top - (last if last is not None else nlo - 1) < bound:
+                return a, False, "residuals do not vanish inside the derived bound"
+            th = last if last is not None else nlo - 1
+            if th != c["threshold"]:
+                return a, False, f"threshold differs: {th} vs {c['threshold']}"
+            continue
+        if c["kind"] == "polynomial":
+            d = len(c["poly"]) - 1
+            bound = S + d + 1
+            nlo = max(off, -rowoff)
+
+            def resid(nn, c=c):
+                return Fraction(A[nn + rowoff]) - poly.value(c["poly"], nn)
+        else:
+            D = len(c["coeffs"])
+            bound = S
+            nlo = max(off + D, D + 1 - rowoff)
+
+            def resid(nn, c=c):
+                return (A[nn + rowoff]
+                        - sum(cf * A[nn + rowoff - i]
+                              for i, cf in enumerate(c["coeffs"], 1)))
+        if nhi - nlo + 1 < bound + 1:
+            return a, False, "not enough terms to reach the derived bound"
         last = None
         for nn in range(nhi, nlo - 1, -1):
-            if A[nn + rowoff] != sum(cf * A[nn + rowoff - i]
-                                     for i, cf in enumerate(c["coeffs"], 1)):
+            if resid(nn) != 0:
                 last = nn
                 break
-        if nhi - (last if last is not None else nlo - 1) < S:
+        if nhi - (last if last is not None else nlo - 1) < bound:
             return a, False, "residuals do not vanish inside the derived bound"
-        th = last if last is not None else off + D - 1
+        th = last if last is not None else nlo - 1
         if th != c["threshold"]:
             return a, False, f"threshold differs: {th} vs {c['threshold']}"
         if c["kind"] == "gf":
@@ -210,12 +280,24 @@ def check(rec):
             if seq != ser:
                 return a, False, "generating function does not match the count"
         # the claim on the entry's published data alone
-        lo = max(th + 1, off + D)
+        lo = max(th + 1, nlo)
         for nn in range(lo, off + len(T)):
             i = nn - off
-            if T[i] != sum(cf * T[i - k - 1] for k, cf in enumerate(c["coeffs"])):
-                return a, False, f"claim fails on the published data at n={nn}"
+            if c["kind"] == "polynomial":
+                if Fraction(T[i]) != poly.value(c["poly"], nn):
+                    return a, False, f"claim fails on the published data at n={nn}"
+            elif i - len(c["coeffs"]) >= 0:
+                if T[i] != sum(cf * T[i - k - 1]
+                               for k, cf in enumerate(c["coeffs"])):
+                    return a, False, f"claim fails on the published data at n={nn}"
     return a, True, ""
+
+
+def _bin(n, k):
+    r = 1
+    for i in range(k):
+        r = r * (n - i) // (i + 1)
+    return r
 
 
 def _one(rec):
@@ -227,7 +309,7 @@ def _one(rec):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--jobs", type=int, default=os.cpu_count())
+    ap.add_argument("--jobs", type=int, default=max(1, (os.cpu_count() or 4) // 2))
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--only", nargs="*")
     ap.add_argument("--results", default=os.path.join(HERE, "results.json"))

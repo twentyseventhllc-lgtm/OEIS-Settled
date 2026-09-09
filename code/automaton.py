@@ -8,7 +8,9 @@ states, and a proposed recurrence is decided by finitely many exact residuals.
 
 Nothing here is approximate and nothing is sampled.
 """
-import itertools, time
+import itertools, time, os
+
+TLIMIT_OVERRIDE = float(os.environ.get("OEIS_TLIMIT", "0")) or None
 
 
 class TooBig(Exception):
@@ -31,6 +33,7 @@ class Model:
         self.valid, self.first_ok = valid, first_ok or (lambda r: True)
         self.cap, self.workcap = cap, workcap
         self.trimcap = trimcap
+        tlimit = TLIMIT_OVERRIDE or tlimit
         self.deadline = time.time() + tlimit if tlimit else None
         self.up, self.down = up, down
         self.rows = None
@@ -323,6 +326,7 @@ class GraphModel(Model):
         self.alphabet = list(alphabet)
         self.cap, self.workcap = cap, workcap
         self.trimcap = trimcap
+        tlimit = TLIMIT_OVERRIDE or tlimit
         self.deadline = time.time() + tlimit if tlimit else None
         self.built = False
 

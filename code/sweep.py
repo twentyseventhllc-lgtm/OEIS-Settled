@@ -83,7 +83,9 @@ def settle(fam, anum, meta, terms, cj, cap=3_000_000, margin=6, rowcap=8192):
     rowoff = spec.get("rowoff", 0)
     Dmax = max([len(cd["coeffs"]) for cd in cands]
                 + [len(cd.get("poly") or []) for cd in cands])
-    hi = off + len(T) + rowoff + S + Dmax + 40
+    extra = (2 * S + 24
+             if any(cd["kind"] in ("order", "degree") for cd in cands) else 0)
+    hi = off + len(T) + rowoff + S + Dmax + extra + 40
     A = m.counts_from_zero(hi) if hasattr(m, "counts_from_zero") \
         else [1] + m.counts(hi)     # A[r] = number of objects of size r
     if divisor != 1:

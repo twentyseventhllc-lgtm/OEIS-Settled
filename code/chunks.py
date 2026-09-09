@@ -9,7 +9,7 @@ FAMS = ["fam_neighbour", "fam_avoid", "fam_marked", "fam_stress",
         "fam_monotone", "fam_unimodal", "fam_idem", "fam_avoidrc", "fam_word1d", "fam_divrc", "fam_lexsub",
         "fam_commute", "fam_offsets", "fam_repeated", "fam_totalling",
         "fam_nopattern", "fam_indexchange", "fam_majority",
-        "fam_edgediff", "fam_subblock", "fam_cellcount"]
+        "fam_edgediff", "fam_subblock", "fam_cellcount", "fam_triple"]
 
 
 def main(top=40, author=None):

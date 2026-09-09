@@ -31,6 +31,7 @@ FAMILY_MODULE = {
     "subblock-six-differences": "fam_edgediff",
     "subblock-statistic": "fam_subblock",
     "cell-neighbour-count": "fam_cellcount",
+    "consecutive-triple": "fam_triple",
 }
 
 SIG = re.compile(r"-\s*_([^_]+)_,\s*([A-Z][a-z]{2} \d{2} \d{4})\s*$")
@@ -128,6 +129,7 @@ def make(rec, date=None):
     nrec = sum(1 for c in claims if c["kind"] == "recurrence")
     ngf = sum(1 for c in claims if c["kind"] == "gf")
     npol = sum(1 for c in claims if c["kind"] == "polynomial")
+    nord = sum(1 for c in claims if c["kind"] in ("order", "degree"))
     what = []
     if nrec:
         what.append("linear recurrence")
@@ -135,6 +137,8 @@ def make(rec, date=None):
         what.append("generating function")
     if npol:
         what.append("closed form")
+    if nord:
+        what.append("order of the recurrence")
     title = ("A proof of the conjectured " + " and ".join(what)
              + " for OEIS " + a)
     P = paper.Paper(title, a)
@@ -178,6 +182,22 @@ def make(rec, date=None):
                       f"$n = {c['first_meaningful_n']}$, the least index at "
                       f"which all of $a(n-1),\\dots,a(n-{c['order']})$ are terms "
                       f"of the sequence.")
+        elif c["kind"] == "order":
+            P.par(f"The entry states only that the sequence satisfies a linear "
+                  f"recurrence of order ${c['claimed']}$"
+                  + (f", for $n > {c['nmin']-1}$," if c["nmin"] else "")
+                  + " and refers to a linked file for its coefficients, which "
+                  "this note does not use. What is proved below is the "
+                  "corresponding exact statement: the least order of a linear "
+                  "recurrence the sequence eventually satisfies, and the exact "
+                  "index beyond which it holds.")
+        elif c["kind"] == "degree":
+            P.par(f"The entry states only that the sequence is eventually a "
+                  f"polynomial of degree ${c['claimed']}$ and refers to a "
+                  f"linked file for its coefficients, which this note does not "
+                  f"use. What is proved below is the exact statement: the least "
+                  f"degree of a polynomial the sequence eventually agrees with, "
+                  f"and the exact index beyond which it does.")
         elif c["kind"] == "polynomial":
             P.par("Written out, the claim is")
             P.display("a(n) = " + POLY.tex(c["poly"]) + ".")
@@ -262,6 +282,20 @@ def make(rec, date=None):
                          f"which it can be stated."
                          if c["holds_everywhere"] else
                          f"holds for every $n > {th}$, and fails at $n = {th}$."))
+        elif c["kind"] == "order":
+            st = (f"the least order of a linear recurrence that $a$ eventually "
+                  f"satisfies is exactly ${c['order']}$, and that recurrence "
+                  f"holds for every $n > {th}$"
+                  + (", the entry's own figure."
+                     if c.get("matches_claim") else
+                     f" --- the entry states order ${c['claimed']}$.")) 
+        elif c["kind"] == "degree":
+            st = (f"the least degree of a polynomial that $a$ eventually agrees "
+                  f"with is exactly ${c['order']}$, and the agreement holds for "
+                  f"every $n > {th}$"
+                  + (", the entry's own figure."
+                     if c.get("matches_claim") else
+                     f" --- the entry states degree ${c['claimed']}$."))
         elif c["kind"] == "polynomial":
             st = ("$a(n)$ is the polynomial $" + POLY.tex(c["poly"]) + "$ "
                   + (f"for every $n \\ge {fn}$."
@@ -285,6 +319,36 @@ def make(rec, date=None):
                   + f" After it, more than $S = {S}$ consecutive residuals "
                   f"vanish, so by Section 5 every later residual vanishes as "
                   f"well. $\\square$")
+        elif c["kind"] == "order":
+            P.par(f"{{\\itshape Proof.}} The count is C-finite of order at most "
+                  f"$S = {c['S']}$, so the minimal annihilator of the tail "
+                  f"$(a(n))_{{n \\ge M}}$ is the same for every $M$ beyond $S$: "
+                  f"the nilpotent part of $L$ is killed after $S$ steps. Taking "
+                  f"such an $M$ and ${2*c['S']+6}$ consecutive terms from there, "
+                  f"the Berlekamp--Massey algorithm over $\\mathbb{{Q}}$ returns "
+                  f"the minimal linear recurrence generating them; since the "
+                  f"sequence satisfies one of order at most $S$, $2S$ terms "
+                  f"determine it. Its order is ${c['order']}$. That recurrence "
+                  f"was then put through the residual test of Section 5: "
+                  + ("every residual vanishes" if c["holds_everywhere"] else
+                     f"the last nonvanishing residual is at $n = {th}$")
+                  + f", followed by more than $S = {c['S']}$ consecutive "
+                  f"vanishing ones, so it holds for every larger $n$. No "
+                  f"recurrence of smaller order can hold eventually, since the "
+                  f"tail's minimal annihilator is what the algorithm returned. "
+                  f"$\\square$")
+        elif c["kind"] == "degree":
+            P.par(f"{{\\itshape Proof.}} A sequence agrees eventually with a "
+                  f"polynomial of degree $d$ exactly when its $(d+1)$-st "
+                  f"difference vanishes eventually. That difference is a fixed "
+                  f"linear combination of $a(n),\\dots,a(n+d+1)$, so it is "
+                  f"C-finite of order at most $S = {c['S']}$ as well, and $S$ "
+                  f"consecutive vanishing values force the rest. Taking "
+                  f"differences of the tail gives the least such $d$, namely "
+                  f"${c['order']}$; the residual test then gives "
+                  + ("vanishing throughout" if c["holds_everywhere"] else
+                     f"the last nonvanishing value at $n = {th}$")
+                  + ". $\\square$")
         elif c["kind"] == "polynomial":
             d = c["order"]
             P.par(f"{{\\itshape Proof.}} A polynomial of degree ${d}$ is "
