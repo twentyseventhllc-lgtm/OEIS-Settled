@@ -13,8 +13,8 @@ This repository runs it.
 
 | | |
 | --- | --- |
-| `papers/` | one PDF per settled entry |
-| `paper-sources/` | the LaTeX source of each |
+| `papers/` | one PDF per settled entry, filed by A-number prefix (`papers/A207/A207020.pdf`); `papers/index.csv` lists them all |
+| `paper-sources/` | the LaTeX source of each, in the same layout |
 | `code/` | everything that produced them |
 | `results.json` | one machine-readable record per result |
 | `verify.py` | re-checks every record in `results.json` from scratch |

@@ -26,7 +26,7 @@ claims = sum(seqset.values()) + sum(tabset.values())
 inst = 0
 if os.path.exists("results.json"):
     inst = len(json.load(open("results.json")))
-pdf = len(glob.glob("papers/*.pdf"))
+pdf = len(glob.glob("papers/*/*.pdf"))
 print(f"settled entries {seq + tab} (sequence {seq}, table {tab}); "
       f"conjecture lines {claims}; installed {inst}; papers {pdf}")
 print("top refusals:")

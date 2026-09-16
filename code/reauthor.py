@@ -27,8 +27,10 @@ def fix(src):
         with open(src, "w") as fh:
             fh.write(new)
     stem = os.path.basename(src)[:-4]
-    pdf = os.path.join(PAPERS, stem + ".pdf")
-    cmd = ["tectonic", "-X", "compile", src, "--outdir", PAPERS,
+    outdir = os.path.join(PAPERS, paper.bucket(stem))
+    os.makedirs(outdir, exist_ok=True)
+    pdf = os.path.join(outdir, stem + ".pdf")
+    cmd = ["tectonic", "-X", "compile", src, "--outdir", outdir,
            "-Z", "continue-on-errors"]
     r = subprocess.run(cmd[:4] + ["--only-cached"] + cmd[4:],
                        capture_output=True, text=True, timeout=300)
@@ -41,7 +43,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--workers", type=int, default=6)
     a = ap.parse_args()
-    srcs = sorted(glob.glob(os.path.join(SOURCES, "*.tex")))
+    srcs = sorted(glob.glob(os.path.join(SOURCES, "*", "*.tex")))
     print(f"{len(srcs)} sources; author line -> {paper.AUTHOR}")
     ok = bad = 0
     fails = []

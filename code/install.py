@@ -72,13 +72,14 @@ def _one(job):
     if not claims:
         return {"anum": a, "skipped": "no conjecture line still open"}
     rec = dict(rec, claims=claims)
-    if reuse and os.path.exists(os.path.join(PAPERS, a + ".pdf")) \
-            and os.path.exists(os.path.join(SOURCES, a + ".tex")):
+    if reuse and os.path.exists(os.path.join(ROOT, paper.paper_path(a))) \
+            and os.path.exists(os.path.join(ROOT, paper.source_path(a))):
         built = True
     else:
         P = (mkpaper_table.make(rec, date) if rec.get("table")
              else mkpaper_transfer.make(rec, date))
-        built, err = paper.build(P.tex(date), PAPERS, a, keep_tex_dir=SOURCES)
+        built, err = paper.build(P.tex(date), os.path.join(PAPERS, paper.bucket(a)),
+                             a, keep_tex_dir=os.path.join(SOURCES, paper.bucket(a)))
         if not built:
             return {"anum": a, "skipped": "paper did not build: " + err[:200]}
     if rec.get("table"):
@@ -93,7 +94,7 @@ def _one(job):
             "table_cells": rec["table_cells"],
             "published_terms": rec["all_terms"],
             "claims": claims, "line_reasons": rec.get("line_reasons"),
-            "paper": f"papers/{a}.pdf", "source": f"paper-sources/{a}.tex",
+            "paper": paper.paper_path(a), "source": paper.source_path(a),
             "date_settled": date, "status": "proved",
         }
     out = []
@@ -132,7 +133,7 @@ def _one(job):
         "brute_checked": rec.get("brute_checked", 0),
         "published_terms": rec["all_terms"],
         "claims": out,
-        "paper": f"papers/{a}.pdf", "source": f"paper-sources/{a}.tex",
+        "paper": paper.paper_path(a), "source": paper.source_path(a),
         "date_settled": date, "status": "proved",
     }
 

@@ -74,6 +74,21 @@ class Paper:
                 + "\n\\end{document}\n")
 
 
+def bucket(anum):
+    """Papers are filed by the first four characters of the A-number, the
+    layout the OEIS itself uses (A207020 -> A207/), so that no folder ever
+    holds more than a few hundred files."""
+    return anum[:4]
+
+
+def paper_path(anum):
+    return f"papers/{bucket(anum)}/{anum}.pdf"
+
+
+def source_path(anum):
+    return f"paper-sources/{bucket(anum)}/{anum}.tex"
+
+
 def build(tex, outdir, stem, keep_tex_dir=None):
     os.makedirs(outdir, exist_ok=True)
     src = os.path.join(keep_tex_dir or outdir, stem + ".tex")
